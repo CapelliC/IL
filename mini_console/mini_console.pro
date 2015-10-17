@@ -60,7 +60,8 @@ SOURCES += main.cpp \
     ../binstr.cpp \
     ../binlib.cpp \
     ../argali.cpp \
-    ../actios.cpp
+    ../actios.cpp \
+    STRFTIME.CPP
 
 OTHER_FILES += \
     ../README.md
@@ -117,3 +118,44 @@ HEADERS += \
     ../aritval.h \
     ../argali.h \
     ../actios.h
+
+DISTFILES += \
+    DERIV.IL \
+    genAlberi.il \
+    Vrmluty.il \
+    MENU.IL \
+    Masmind.il \
+    HANOIV2.IL \
+    vectuty.il \
+    listproc.il \
+    LISTPROC.IL \
+    KALAH.IL \
+    SM.IL \
+    DATE.IL \
+    ANSIDRV.IL \
+    SCACCH.IL \
+    LINEE.IL \
+    BORDO.IL \
+    ELIZA.IL \
+    TGF.IL \
+    UTILI.IL \
+    TABSIM.IL \
+    S2PC.IL \
+    REGINE.IL \
+    QSORT.IL \
+    NLA.IL \
+    NIM.IL \
+    MSORT.IL \
+    MOUSEDRV.IL \
+    KEYBDRV.IL \
+    HANOIV1.IL \
+    HANOIV0.IL \
+    AC.IL \
+    TEST_DCG.IL \
+    PLAY.IL \
+    LOOKUP.IL \
+    RWL.IL \
+    HANOI.IL \
+    MESCOLA.IL \
+    READWL.IL \
+    DCG.IL
