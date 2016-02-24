@@ -28,7 +28,7 @@ show(L/C/R) :-
 	showpole(C, _, 30),
 	showpole(R, _, 50),
 	nl.
-	//getch(_).
+	%getch(_).
 
 showpole([], 20, _).
 showpole([N|T], R1, C) :-

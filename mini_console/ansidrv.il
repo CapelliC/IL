@@ -144,7 +144,7 @@ imposta_grafica(Comandi) :-
 lcmd([C]) :- cmd(C), write('m'), !.
 lcmd([C|Cs]) :- cmd(C), write(';'), !, lcmd(Cs).
 
-// Controllo attributi
+% Controllo attributi
 cmd(attr = disattiva)	:- write(0).
 cmd(attr = grassetto)	:- write(1).
 cmd(attr = sottolineato):- write(4).
@@ -152,7 +152,7 @@ cmd(attr = intermitt)	:- write(5).
 cmd(attr = inverso)		:- write(7).
 cmd(attr = nascosto)	:- write(8).
  
-// Colori in primo piano
+% Colori in primo piano
 cmd(col_pp = nero)		:- write(30).
 cmd(col_pp = rosso)		:- write(31).
 cmd(col_pp = verde)		:- write(32).
@@ -162,7 +162,7 @@ cmd(col_pp = magenta)	:- write(35).
 cmd(col_pp = azzurro)	:- write(36).
 cmd(col_pp = bianco)	:- write(37).
 
-// Colori di sfondo
+% Colori di sfondo
 cmd(col_sf = nero)		:- write(40).
 cmd(col_sf = rosso)		:- write(41).
 cmd(col_sf = verde)		:- write(42).

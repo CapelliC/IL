@@ -22,7 +22,7 @@ location(reldebug, "objreld").
 
 movefiles(SymPutDir, SymGetDir) :-
 
-//	checkdirs(SymPutDir),
+%	checkdirs(SymPutDir),
 
 	location(SymPutDir, PutDir),
 	append("move *.obj,*.pch,*.pdb,*.map,*.res,*.sbr,*.bsc,*.dll,*.exe,*.lib,*.def ",

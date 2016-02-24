@@ -1,4 +1,4 @@
-// mescolamento di liste
+% mescolamento di liste
 mescolamento(L, [], L).
 mescolamento(L, [E|Rresto], S) :-
 	conc(L1, Lresto, L),

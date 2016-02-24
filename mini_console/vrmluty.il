@@ -76,7 +76,7 @@ chkcalls(Obj, [Call|Calls]) :- chkcall(Obj, Call), !, chkcalls(Obj, Calls).
 
 % issue a call (but filter and compute arithmetic expressions)
 %
-chkcall(_Obj, V := E) :- V := E.
+chkcall(_Obj, V is  E) :- V is  E.
 chkcall(Obj, Call) :-
 	( Call = (Func = Rc) ; Func = Call, Rc = true ),
 	( oa_call(Obj, Func = Rc) ; messageBox(failed(oa_call(Obj, Call)), 1, Ok), Ok = 1 ).
@@ -91,7 +91,7 @@ fmtobject(Deep, transformSeparator(Parts)) :- fmtgroup(Deep, 'TransformSeparator
 fmtobject(Deep, wwwAnchor(Name, Description, Parts)) :-
 	indent(Deep),
 	writes(['WWWAnchor { name "', Name, '" description "', Description, '"']),
-	Deep1 := Deep + 1,
+	Deep1 is  Deep + 1,
 	findall(Obj, (member(Obj, Parts), writepart(Deep1, Obj)), _),
 	indent(Deep),
 	write('}').
@@ -100,7 +100,7 @@ fmtgroup(Deep, NodeHdr, Parts) :-
 % showstatus(base),nl,
 	indent(Deep),
 	writes(NodeHdr),
-	Deep1 := Deep + 1,
+	Deep1 is  Deep + 1,
 	findall(Obj, (member(Obj, Parts), writepart(Deep1, Obj)), _),
 	indent(Deep),
 	write('}').
@@ -121,21 +121,21 @@ fmtobject(Deep, scale(X,Y,Z)) :-
 fmtobject(Deep, coords(Coords)) :-
 	indent(Deep),
 	write('Coordinate3 { point ['),
-	Deep1 := Deep + 1,
+	Deep1 is  Deep + 1,
 	fmtpoints(Deep1, Coords),
 	indent(Deep),
 	write(']}').
 fmtobject(Deep, lines(Ind)) :-
 	indent(Deep),
 	write('IndexedLineSet { coordIndex ['),
-	Deep1 := Deep + 1,
+	Deep1 is  Deep + 1,
 	fmtidxlist(Deep1, Ind),
 	indent(Deep),
 	write(']}').
 fmtobject(Deep, faces(Ind)) :-
 	indent(Deep),
 	write('IndexedFaceSet { coordIndex ['),
-	Deep1 := Deep + 1,
+	Deep1 is  Deep + 1,
 	fmtidxlist(Deep1, Ind),
 	indent(Deep),
 	write(']}').
@@ -247,13 +247,13 @@ writes([E|Es]) :- writev(E), !, writes(Es).
 writes([]).
 writes(E) :- writev(E).
 
-writev(V) :- ( atomic(V), !, write(V) ; R := V, write(R) ).
+writev(V) :- ( atomic(V), !, write(V) ; R is  V, write(R) ).
 
 % include a file by physical copy
 %
 include_file(Name) :-
 	see(Name),
-	repeat, get(C), (C := -1; put(C), fail),
+	repeat, get(C), (C is  -1; put(C), fail),
 	seen.
 
 :-	i_end(vrml_utility).

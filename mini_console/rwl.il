@@ -1,4 +1,4 @@
-// TBD debugging
+% TBD debugging
 
 read_word_list(Ws) :-
 	get0(C),

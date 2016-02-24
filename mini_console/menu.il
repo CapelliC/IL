@@ -33,13 +33,13 @@ messaggio(M, C) :-	write(M), nl, menu_carattere(C).
 prompt(Mess, Valore) :- write(Mess), flush, read(Valore).
 
 leggi_eol(10) :- !.
-leggi_eol(X) :- X := -1, !.
+leggi_eol(X) :- X is  -1, !.
 leggi_eol(_) :- get(C), !, leggi_eol(C).
 
-/////////////////////////////////////////////////////
-// output titolo menu:
-//	se non viene fornita la procedura, usa il codice
-//
+%%%%%%%%%%%%%%%%%%%%%%%%%%/
+% output titolo menu:
+%	se non viene fornita la procedura, usa il codice
+%
 titolo(Codice) :-
 	menu_titolo(Codice), !.
 titolo(Codice) :-
@@ -51,7 +51,7 @@ mostra_scelte([Scelta=_|Scelte]) :-
 	!, mostra_scelte(Scelte).
 
 scegli_azione(_Menu, X, _Scelte) :-
-	X := -1, !, usa_azione(_, menu_abort).
+	X is  -1, !, usa_azione(_, menu_abort).
 scegli_azione(_Menu, _Op, []) :-
 	write('scelta non valida!'), put(7), nl,
 	fail.
@@ -63,7 +63,7 @@ scegli_azione(Menu, Op, [_Scelta|Scelte]) :-
 
 primo_carattere(Op, Comando) :-
 	name(Comando, [PrimoCar|_]),
-	( Op = PrimoCar ; Op := PrimoCar + 32 ; PrimoCar := Op + 32 ).
+	( Op = PrimoCar ; Op is  PrimoCar + 32 ; PrimoCar is  Op + 32 ).
 
 usa_azione(_, menu_fine).
 usa_azione(_, menu_abort) :-

@@ -4,39 +4,39 @@
 **	- Sterling and Shapiro : The Art Of Prolog
 */
 
-//------------------------------------------------------------
-// inizia la ricerca creando la lista delle regine da provare
-//
+%------------------------------------------------------------
+% inizia la ricerca creando la lista delle regine da provare
+%
 regine(N, Regine) :-
 	intervallo(1, N, ListaN),
 	regine(ListaN, [], Regine).
 
-//---------------------------------------------
-// ciclo di selezione e valutazione
-//	attacca(), il valutatore di posizione,
-//	scarta le permutazioni generate da
-//	seleziona(), il generatore di mosse
-//
+%---------------------------------------------
+% ciclo di selezione e valutazione
+%	attacca(), il valutatore di posizione,
+%	scarta le permutazioni generate da
+%	seleziona(), il generatore di mosse
+%
 regine(RegineNonPoste, RegineNonAtt, Regine) :-
 	seleziona(Regina, RegineNonPoste, RegineNonPoste1),
 	not attacca(Regina, RegineNonAtt),
 	regine(RegineNonPoste1, [Regina | RegineNonAtt], Regine).
 regine([], Regine, Regine).
 
-//-------------------------------------------------
-// seleziona() prende un elemento dalla lista
-//	qui viene usato in modo (-,+,-), per estrarre gli elementi
-//	generando permutazioni durante la riesecuzione
-//
+%-------------------------------------------------
+% seleziona() prende un elemento dalla lista
+%	qui viene usato in modo (-,+,-), per estrarre gli elementi
+%	generando permutazioni durante la riesecuzione
+%
 seleziona(X, [X | Xs], Xs).
 seleziona(X, [Y | Ys], [Y | Zs]) :-
 	seleziona(X, Ys, Zs).
 
-//----------------------------------------------------------------------
-// una regina ne attacca un' altra se si trovano sulla stessa diagonale.
-//	Notare che il test su righe/colonne e' reso inutile
-//	dalla rappresentazione dei dati
-//
+%----------------------------------------------------------------------
+% una regina ne attacca un' altra se si trovano sulla stessa diagonale.
+%	Notare che il test su righe/colonne e' reso inutile
+%	dalla rappresentazione dei dati
+%
 attacca(X, Xs) :-
 	attacca(X, 1, Xs).
 
@@ -46,9 +46,9 @@ attacca(X, N, [_Y | Ys]) :-
 	N1 is N + 1,
 	attacca(X, N1, Ys).
 
-//---------------------------------------------
-// crea la lista di interi da M ad N, compresi
-//
+%---------------------------------------------
+% crea la lista di interi da M ad N, compresi
+%
 intervallo(M, N, [M | Ns]) :-
 	M < N,
 	M1 is M + 1,
@@ -56,20 +56,20 @@ intervallo(M, N, [M | Ns]) :-
 	intervallo(M1, N, Ns).
 intervallo(N, N, [N]).
 
-//--------------------------
-// test con visualizzazione
-//
+%--------------------------
+% test con visualizzazione
+%
 reg(N) :-
 	iniz_visual(N, DatiVis),
-	regine(N, L),				// cerca una soluzione
+	regine(N, L),				% cerca una soluzione
 	visualizza_sol(L, DatiVis),
-	fail.						// forza le soluzioni successive
+	fail.						% forza le soluzioni successive
 reg(_) :-
 	fine_visual.
  
 :- consult(scacch).
 
-// inizializza i parametri di visualizzazione
+% inizializza i parametri di visualizzazione
 iniz_visual(N, dv(N, Pos, Dim, Col)) :-
 	( retract(soluzione(_)), fail ;
 	Px is 40 - N * 2,
@@ -87,10 +87,10 @@ fine_visual :-
 	writeln(['trovate ', N, ' soluzioni. Bye!']), nl.
 
 fine_visual([H|T], N, N2) :-
-	write(H), nl, N1 := N + 1, !, fine_visual(T, N1, N2).
+	write(H), nl, N1 is  N + 1, !, fine_visual(T, N1, N2).
 fine_visual([], N, N).
 
-// visualizza la soluzione trovata
+% visualizza la soluzione trovata
 visualizza_sol(L, dv(N, Pos, Dim, Col)) :-
 	cancella_schermo,
 	mostra_scacchiera(Pos, N*N, Dim, Col),

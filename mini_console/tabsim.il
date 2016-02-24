@@ -1,7 +1,7 @@
-//--------------------------------------------
-// tabella simboli per stringhe
-//	basata su albero con porzioni di stringhe
-//
+%--------------------------------------------
+% tabella simboli per stringhe
+%	basata su albero con porzioni di stringhe
+%
 ts_crea(Stringa, Valore, t(Stringa, Valore)).
 
 ts_cerca(t(Stringa, Valore), Stringa, Valore).
@@ -34,6 +34,6 @@ inslista(TS, [H,V|T], TS2) :-
 
 t :- 	ts_crea("pippo", 88, TS),
 		ts_inserisci(TS, "minni", 88, TS1),
-	//	inslista(TS, ["piuma", 99, "minni", 100], TS1),
+	%	inslista(TS, ["piuma", 99, "minni", 100], TS1),
 		write(TS1), nl.
 :- tracefile(sch), trace.

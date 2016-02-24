@@ -1,10 +1,10 @@
-//-------------------------------------------------
-// eliza:
-//	simulazione di colloquio con stimolo/risposta
-//	da Weizenbaum
-//
-//	Sterling and Shapiro: the art of prolog
-//-------------------------------------------------
+%-------------------------------------------------
+% eliza:
+%	simulazione di colloquio con stimolo/risposta
+%	da Weizenbaum
+%
+%	Sterling and Shapiro: the art of prolog
+%-------------------------------------------------
 
 :-	consult(listproc), i_inherit(list_processing),
 	consult(rwl).

@@ -1,8 +1,8 @@
 :- consult(linee).
 
-//-----------------------
-// traccia un rettangolo
-//
+%-----------------------
+% traccia un rettangolo
+%
 rettangolo(Pos, Dim, Car, Col) :-
 	imposta_colori(Col),
 	rettangolo(Pos, Dim, Car),
@@ -14,17 +14,17 @@ rettangolo(Pos, Dim, Col) :-
 	rettangolo(Pos, Dim, Car),
 	!.
 
-// traccia con colore attuale, carattere
+% traccia con colore attuale, carattere
 rettangolo(Pos, Dim) :-
 	[Car] = " ",
 	rettangolo(Pos, Dim, Car),
 	!.
 
-// traccia con colore attuale
+% traccia con colore attuale
 rettangolo(Pos, Dim, Car) :-
 	rettangolo(Pos, 0, Dim, Car).
 
-// questa fa il vero lavoro...
+% questa fa il vero lavoro...
 rettangolo(_Pos, L, _N * L, _Car) :- !.
 rettangolo(X - Y, L, N * M, Car) :-
 	linea_orizz(X - Y, N, Car),
@@ -32,9 +32,9 @@ rettangolo(X - Y, L, N * M, Car) :-
 	Y1 is Y + 1,
 	!, rettangolo(X - Y1, L1, N * M, Car).
 
-//-----------------------------------
-// visualizzazione di una scacchiera
-//
+%-----------------------------------
+% visualizzazione di una scacchiera
+%
 mostra_scacchiera(Pos, DimScac, DimCas, Col) :-
 	mostra_scacchiera(Pos, 0, DimScac, DimCas, Col).
 

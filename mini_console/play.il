@@ -1,10 +1,10 @@
-//-----------------------------------------------
-// play: program 18.8
-//	two players game playing framework
-//
-// from Sterling and Shapiro - The art of Prolog
-//	page 297
-//
+%-----------------------------------------------
+% play: program 18.8
+%	two players game playing framework
+%
+% from Sterling and Shapiro - The art of Prolog
+%	page 297
+%
 
 play(Game) :-
 	initialize(Game, Position, Player),

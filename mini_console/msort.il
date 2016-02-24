@@ -2,7 +2,7 @@
 	i_export(mergesort),
 	i_import(less_than/3).
 
-mergesort(_Key, [], []). // :- !.
+mergesort(_Key, [], []). % :- !.
 mergesort(_Key, [A], [A]) :- !.
 mergesort(Key, L, Ordinata) :-
 	split(L, L1, L2),

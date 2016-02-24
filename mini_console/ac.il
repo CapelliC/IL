@@ -17,7 +17,7 @@ distanza(X, X, 0) :- !.
 distanza(X, Y, Z) :-
 	semitono(K, Y),
 	distanza(X, K, M),
-	Z := M + 1.
+	Z is  M + 1.
 
 terza_min(X, Y) :- distanza(X, Y, 3).
 terza_mag(X, Y) :- distanza(X, Y, 4).

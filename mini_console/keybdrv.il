@@ -8,11 +8,11 @@
 		undo_key
 	]).
 
-// first check for undone
+% first check for undone
 read_key(Key) :-
 	retract(ukey(Key)), !.
 
-// get from keyboard
+% get from keyboard
 read_key(Key) :-
 	getch(C),
 	( C = 0, !,
@@ -21,7 +21,7 @@ read_key(Key) :-
 		shortcode(C, Key)
 	), !.
 
-// store key as undone
+% store key as undone
 undo_key(Key) :-
 	asserta(ukey(Key)).
 
@@ -34,7 +34,7 @@ shortcode(8, backspace).
 shortcode(N, ctrl(N)) :-
 	N >= 1, N =< 26, !.
 shortcode(N, eof) :-
-	N := 0 - 1.
+	N is  0 - 1.
 shortcode(N, ascii(N)) :-
 	N >= 32, N < 128.
 shortcode(N, short(N)).
@@ -103,11 +103,11 @@ extended(127, alt(8)).
 extended(128, alt(9)).
 
 extended(N, f(Fn)) :-
-	N >= 59, N =< 68, !, Fn := N - 58.
+	N >= 59, N =< 68, !, Fn is  N - 58.
 extended(N, ctrl(f(Fn))) :-
-	N >= 94, N =< 103, Fn := N - 93.
+	N >= 94, N =< 103, Fn is  N - 93.
 extended(N, alt(f(Fn))) :-
-	N >= 104, N =< 113, Fn := N - 103.
+	N >= 104, N =< 113, Fn is  N - 103.
 
 extended(C, ext(C)).
 

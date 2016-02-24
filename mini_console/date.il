@@ -3,22 +3,22 @@
 	rewritten for CCProlog
 */
 
-//--------------------
-// convert to integer
-//
+%--------------------
+% convert to integer
+%
 atoi([C], V, 1) :- !,
-	V := C - 48.
+	V is  C - 48.
 atoi([C | Cs], V, F1) :- !,
 	atoi(Cs, Vs, F),
-	F1 := F * 10,
-	V := Vs + (C - 48) * F1.
+	F1 is  F * 10,
+	V is  Vs + (C - 48) * F1.
 atoi(A, V) :-
 	name(A, L),
 	atoi(L, V, _).
 
-//-----------------------------------
-// get current date Year, Month, Day
-//
+%-----------------------------------
+% get current date Year, Month, Day
+%
 getdate(Y, M, D) :-
 	os_name(dos), !,
 	timecurr(TC),
@@ -28,23 +28,23 @@ getdate(Y, M, D) :-
 getdate(Y, M, D) :-
 	os_getdate(D, M, Y, _DOW).
 
-//--------------------------------------------------------
-// compute difference between current date and event data
-//
+%--------------------------------------------------------
+% compute difference between current date and event data
+%
 date_distance(_/_/_, _/0/0, _) :-
 	!, fail.
 date_distance(_/M/Ga, _/M/Ge, GD) :-
 	Ga =< Ge,
-	!, GD := Ge - Ga.
+	!, GD is  Ge - Ga.
 date_distance(_/Ma/Ga, _/Me/Ge, GD) :-
 	month(Ma, Gma, Sma, _),
-	DisM := Gma - Ga + Ge,
+	DisM is  Gma - Ga + Ge,
 	sum_days_months(Sma, Me, SDM),
-	GD := DisM + SDM.
+	GD is  DisM + SDM.
 
-//-------------------------------
-// write atom spaced as required
-//
+%-------------------------------
+% write atom spaced as required
+%
 write_spc(Atom, Len) :-
 	write(Atom),
 	name(Atom, List),
@@ -52,32 +52,32 @@ write_spc(Atom, Len) :-
 	(
 		Len > LenList,
 		!,
-		LTab := Len - LenList,
+		LTab is  Len - LenList,
 		tab(LTab)
 	;
 		true
 	).
 
-//---------------------
-// compute list lenght
-//
+%---------------------
+% compute list lenght
+%
 listlen([], 0).
 listlen([_|L], N) :-
 	listlen(L, NL),
-	N := NL + 1.
+	N is  NL + 1.
 
-//-----------------------------------------------------------
-// go from month A to month E adding month' days, excluded E
-//
+%-----------------------------------------------------------
+% go from month A to month E adding month' days, excluded E
+%
 sum_days_months(M, M, 0) :- !.
 sum_days_months(A, E, V) :-
 	month(A, ND, Succ, _),
 	sum_days_months(Succ, E, V1),
-	V := V1 + ND.
+	V is  V1 + ND.
 
-//-------------------------------------
-// month(index, days, following, name)
-//
+%-------------------------------------
+% month(index, days, following, name)
+%
 month(1, 31, 2, 'Gennaio').
 month(2, 28, 3, 'Febbraio').
 month(3, 31, 4, 'Marzo').
@@ -91,9 +91,9 @@ month(10,31, 11,'Ottobre').
 month(11,30, 12,'Novembre').
 month(12,31, 1, 'Dicembre').
 
-//------------------
-// events data base
-//
+%------------------
+% events data base
+%
 data_nascita(0000/00/00,id('Abler','Marek')).
 data_nascita(1929/01/05,id('Baruzzi','Flora')).
 data_nascita(1934/11/05,id('Baruzzi','Rina')).
@@ -133,17 +133,17 @@ data_decesso(1994/09/01,id('Baruzzi','Valeria')).
 data_decesso(1995/00/00,id('Ferrari','Spartaco')).
 data_decesso(1996/07/01,id('Abler','Marek')).
 
-//--------------------
-// calcolo dell' eta'
-//
+%--------------------
+% calcolo dell' eta'
+%
 age_of(Nome, Cogn, Eta) :-
 	date(Y, _, _),
 	data_nascita(YN/_/_, id(Cogn, Nome)),
-	Eta := Y - YN.
+	Eta is  Y - YN.
 
-//------------------------------
-// format birthdate for display
-//
+%------------------------------
+% format birthdate for display
+%
 show_birthday(ME, DE, Nome, Cogn) :-
 	age_of(Nome, Cogn, Eta),
 	month(ME, _, _, MName),
@@ -151,10 +151,10 @@ show_birthday(ME, DE, Nome, Cogn) :-
 	writeln([' compie ', Eta, ' anni\til ', DE, ' di ', MName]),
 	nl.
 
-//-----------------------------------------
-// events table scansion (failure driven loop)
-//	check if event date is sufficently near to actual
-//
+%-----------------------------------------
+% events table scansion (failure driven loop)
+%	check if event date is sufficently near to actual
+%
 birthdays(LookAHead) :-
 	date(Y, M, D),
 	data_nascita(YE/ME/DE, id(Cogn, Nome)),
@@ -165,9 +165,9 @@ birthdays(LookAHead) :-
 	fail.
 birthdays(_).
 
-//-----------------
-// initialize date
-//
+%-----------------
+% initialize date
+%
 initdate :-
 	getdate(Y, M, D),
 	assert(date(Y, M, D)),
