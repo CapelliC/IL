@@ -119,41 +119,41 @@ HEADERS += \
     ../actios.h
 
 DISTFILES += \
-    DERIV.IL \
+    ac.il \
+    ansidrv.il \
+    bordo.il \
+    date.il \
+    deriv.il \
+    eliza.il \
     genAlberi.il \
-    Vrmluty.il \
-    MENU.IL \
-    Masmind.il \
-    HANOIV2.IL \
+    hanoi.il \
+    hanoiv0.il \
+    hanoiv1.il \
+    hanoiv2.il \
+    kalah.il \
+    keybdrv.il \
+    linee.il \
+    listproc.il \
+    lookup.il \
+    menu.il \
+    mescola.il \
+    mousedrv.il \
+    msort.il \
+    nim.il \
+    nla.il \
+    play.il \
+    qsort.il \
+    readwl.il \
+    regine.il \
+    rwl.il \
+    s2pc.il \
+    scacch.il \
+    sm.il \
+    tabsim.il \
+    test_dcg.il \
+    tgf.il \
+    utili.il \
     vectuty.il \
-    LISTPROC.IL \
-    KALAH.IL \
-    SM.IL \
-    DATE.IL \
-    ANSIDRV.IL \
-    SCACCH.IL \
-    LINEE.IL \
-    BORDO.IL \
-    ELIZA.IL \
-    TGF.IL \
-    UTILI.IL \
-    TABSIM.IL \
-    S2PC.IL \
-    REGINE.IL \
-    QSORT.IL \
-    NLA.IL \
-    NIM.IL \
-    MSORT.IL \
-    MOUSEDRV.IL \
-    KEYBDRV.IL \
-    HANOIV1.IL \
-    HANOIV0.IL \
-    AC.IL \
-    TEST_DCG.IL \
-    PLAY.IL \
-    LOOKUP.IL \
-    RWL.IL \
-    HANOI.IL \
-    MESCOLA.IL \
-    READWL.IL \
-    DCG.IL
+    dcg.il \
+    vrmluty.il \
+    masmind.il
