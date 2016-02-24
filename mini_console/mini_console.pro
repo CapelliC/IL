@@ -60,8 +60,7 @@ SOURCES += main.cpp \
     ../binstr.cpp \
     ../binlib.cpp \
     ../argali.cpp \
-    ../actios.cpp \
-    STRFTIME.CPP
+    ../actios.cpp
 
 OTHER_FILES += \
     ../README.md
