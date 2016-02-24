@@ -126,7 +126,6 @@ DISTFILES += \
     Masmind.il \
     HANOIV2.IL \
     vectuty.il \
-    listproc.il \
     LISTPROC.IL \
     KALAH.IL \
     SM.IL \
