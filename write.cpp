@@ -27,12 +27,6 @@
 #include "qdata.h"
 #include "eng.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 int IntlogExec::writeMode = UseOpDecl|NameVars|NumberVars;
 
 ///////////////////////////////////////////
@@ -110,7 +104,7 @@ ostream& IntlogExec::writeVar(Var v, ostream &s, stkpos p) const
 				// look for var in stack with clauses
 				if (writeMode & NameVars)
 				{
-					const ProofStack::Env *e = ps->findVarEnv(p);
+					const Env *e = ps->findVarEnv(p);
 					if (e)
 					{
 						kstring id;
@@ -122,7 +116,7 @@ ostream& IntlogExec::writeVar(Var v, ostream &s, stkpos p) const
 						}
 						else
 							id = e->call->get_clause()->get_varid(v);
-						
+
 						if (unsigned(id) != MSR_NULL)
 							s << CCP(id);
 					}
@@ -211,7 +205,7 @@ ostream& IntlogExec::writeList(Term t, ostream &s, stkpos p) const
 					p = p1;
 				}
 			}
-			
+
 			if (!t.type(f_LIST))
 			{
 				write(t, s << '|', p);

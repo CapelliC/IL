@@ -34,13 +34,8 @@
 	#define IAFX_API
 #endif
 
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _ENG_H_
 #include "eng.h"
-#endif
 
 #define IIFTYPE(type) extern "C" type IAFX_API
 
@@ -51,5 +46,8 @@ IIFTYPE(void) IAFX_Terminate();
 // query interface utilities
 IIFTYPE(int) IAFX_QueryString(const char*, EngHandle, Term**, kstr_list*);
 IIFTYPE(int) IAFX_QueryTerm(Term, EngHandle, Term*, kstr_list*);
+
+// port to 64 bit: define pointer size adeguately
+#define BUILD_64 1
 
 #endif

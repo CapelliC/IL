@@ -40,24 +40,14 @@ void* Term::operator new(size_t)
 }
 */
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ///////////////////////
 // memory vector pools
 ///////////////////////
-MemStorageDecl(Double,		SL_DOUBLE);
-MemStorageDecl(StructPtr,	SL_PTR);
-MemStorageDecl(List,		SL_PTR_P);
-MemStorageDecl(SysDataPtr,	SL_PTR);
 
-static MemStorage_List 			m_lists;
-static MemStorage_StructPtr		m_structs;
-static MemStorage_Double		m_doubles;
-static MemStorage_SysDataPtr	m_sysd;
+static MemStorage<List> 		m_lists;
+static MemStorage<StructPtr>	m_structs;
+static MemStorage<Double>		m_doubles;
+static MemStorage<SysDataPtr>	m_sysd;
 
 // default to write fmt
 int Term::useOpDecl = 1;
@@ -150,11 +140,11 @@ void Term::Destroy()
 		Struct *s = *m_structs[iv = ivalue()];
 		for (int i = 0; i < s->arity; i++)
 			TermArgsVect(s)[i].Destroy();
-		delete vptr(s);
+		delete s;
 		m_structs.Delete(iv);
 		}
 		break;
-	
+
 	case f_LIST:/*
 		if (m_data != ListNULL) {
 			List *l = m_lists[iv = ivalue()];
@@ -348,4 +338,211 @@ TermArgs Term::getargs() const
 	}
 
 	return a;
+}
+
+//// HPP
+
+#define inline
+
+// dummy (no init)
+inline Term::Term()
+{
+}
+
+// dummy (like copy)
+inline Term::Term(TermData d)
+{
+	m_data = d;
+}
+
+// kstring selector
+inline Term::Term(Atom a)
+{
+	m_data = f_ATOM | (a & ~MaskFlags);
+}
+
+// short integer
+inline Term::Term(Int i)
+{
+	m_data = f_INT | (i & ~MaskFlags);
+}
+
+// variable offset
+inline Term::Term(Var v)
+{
+	m_data = f_VAR | (v & ~MaskFlags);
+}
+
+// set to empty or invalid
+inline void Term::NoTerm()
+{
+	m_data = f_NOTERM;
+}
+
+inline Term::operator Var() const
+{
+	ASSERT(type(f_VAR));
+	return Var(ivalue());
+}
+inline Term::operator Int() const
+{
+	ASSERT(type(f_INT));
+	return Int(ivalue());
+}
+/*
+inline Term::operator kstring() const
+{
+	ASSERT(type(f_ATOM));
+	return kstring(ivalue());
+}
+*/
+inline Term::operator CCP() const
+{
+	ASSERT(type(f_ATOM));
+	return kstring(ivalue());
+}
+inline kstring Term::kstr() const
+{
+	ASSERT(type(f_ATOM));
+	return kstring(ivalue());
+}
+
+inline Term::operator TermData() const
+{
+	return m_data;
+}
+
+inline unsigned long Term::type() const
+{
+	return m_data & MaskFlags;
+}
+inline unsigned Term::ivalue() const
+{
+	return unsigned(m_data & ~MaskFlags);
+}
+inline int Term::type(unsigned long f) const
+{
+	return (m_data & f)? 1 : 0;
+}
+
+// true if NULL list (only!)
+inline int Term::LNULL() const
+{
+	ASSERT(type(f_LIST));
+	return m_data == ListNULL;
+}
+
+inline int Term::is_expr(Operator::opCodeTag opTag, int arity) const
+{
+	return int(get_funct()) == opTag && get_arity() == arity;
+}
+
+// true if '?-' operator expression
+inline int Term::is_query() const
+{
+	return is_expr(Operator::QUERY, 1);
+}
+
+// true if ':-' operator expression
+inline int Term::is_rule() const
+{
+	return is_expr(Operator::RULE);
+}
+
+// true if ';' operator expression
+inline int Term::is_or() const
+{
+	return is_expr(Operator::OR);
+}
+
+// true if ',' operator expression
+inline int Term::is_and() const
+{
+	return is_expr(Operator::AND);
+}
+
+// true if ':-' unary operator expression
+inline int Term::is_command() const
+{
+	return is_expr(Operator::RULEUNARY, 1);
+}
+
+// true if atom '!'
+inline int Term::is_cut() const
+{
+    //return type(f_ATOM) && unsigned(get_funct()) == KSTRING_CUT;
+    return type(f_ATOM) && int(get_funct()) == KSTRING_CUT;
+}
+
+//////////////////////
+// SysData interface
+//
+inline SysData::~SysData()
+{
+}
+
+inline int SysData::delete_able() const
+{
+	return 0;
+}
+inline int SysData::copy_able() const
+{
+	return 0;
+}
+inline Term SysData::copy() const
+{
+	return Int(0);
+}
+inline int SysData::istype(const char *key) const
+{
+	return key == m_key.id;
+}
+inline CCP SysData::gettype() const
+{
+	return m_key.id;
+}
+inline void SysData::show(ostream &s) const
+{
+	s << m_key.id;
+}
+inline int SysData::show_able() const
+{
+	return 1;
+}
+inline int SysData::unify(Term t) const
+{
+	return SysDataPtr(t)->gettype() == m_key.id;
+}
+inline ostream& SysData::save(ostream& s)
+{
+	return s;
+}
+inline istream& SysData::load(istream& s)
+{
+	return s;
+}
+
+/////////////////////
+// list data hiding
+//
+inline Term List::head() const
+{
+	return h;
+}
+inline Term List::tail() const
+{
+	return t;
+}
+
+//////////////////////////
+// arguments data hiding
+//
+inline Term TermArgs::getarg(int n) const
+{
+#ifdef _DEBUG
+	static long counter;
+	counter++;
+	ASSERT(n >= 0 && n < arity);
+#endif
+	return args[n];
 }

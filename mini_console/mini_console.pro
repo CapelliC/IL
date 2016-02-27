@@ -8,9 +8,11 @@ QT += core
 QT -= gui
 
 TARGET = mini_console
+TEMPLATE = app
+
 CONFIG += console
 CONFIG -= app_bundle
-TEMPLATE = app
+CONFIG += c++11
 
 INCLUDEPATH += ..
 
@@ -32,9 +34,7 @@ SOURCES += main.cpp \
     ../parse.cpp \
     ../operator.cpp \
     ../message.cpp \
-    ../memstore.cpp \
     ../kstr.cpp \
-    ../inlines.cpp \
     ../iafx.cpp \
     ../hasht.cpp \
     ../findall.cpp \
@@ -70,21 +70,16 @@ HEADERS += \
     ../vectb.h \
     ../unify.h \
     ../tracer.h \
-    ../term.hpp \
     ../term.h \
     ../syntaxcolor.h \
     ../stdafx.h \
     ../stack.h \
     ../srcpos.h \
     ../slist.h \
-    ../scanner.hpp \
     ../scanner.h \
     ../reduce.h \
-    ../query.hpp \
     ../query.h \
-    ../qdata.hpp \
     ../qdata.h \
-    ../proios.hpp \
     ../proios.h \
     ../parsemsg.h \
     ../parse.h \
@@ -96,16 +91,12 @@ HEADERS += \
     ../kstr.h \
     ../iafx.h \
     ../hasht.h \
-    ../fastree.hpp \
     ../fastree.h \
-    ../fastacc.h \
     ../eng.h \
     ../dlist.h \
     ../defsys.h \
-    ../dbintlog.hpp \
     ../dbintlog.h \
     ../constr.h \
-    ../clause.hpp \
     ../clause.h \
     ../chkrel.h \
     ../builtin.h \

@@ -39,12 +39,6 @@
 #include "reduce.h"
 #include "eng.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 const int IntlogParser::MaxOpPrec = 255;
 const int IntlogParser::MaxOpCdr = 240;
 
@@ -72,18 +66,18 @@ void IntlogParser::SetSource(istream *pStream, kstring kFileid, kstr_list *pVars
 	ASSERT(pStream != 0);
 	ASSERT(MemStoreRef(kFileid) != MSR_NULL);
 	ASSERT(pVars != 0);
-	
+
 	iDesc *pDesc = new iDesc;
-	
+
 	pDesc->nRow = scan->rowcnt;
 	pDesc->nCol = scan->colcnt;
 	pDesc->lhChar = scan->clc;
 	pDesc->pStream = scan->i;
 	pDesc->kFileid = scan->id;
 	pDesc->pVars = var_ids;
-	
+
 	activeScan.insert(pDesc, 0);
-	
+
 	var_ids = pVars;
 	scan->i = pStream;
 	scan->id = kFileid;
@@ -111,7 +105,7 @@ void IntlogParser::PopSource(istream *pStream)
 		scan->clc = pDesc->lhChar;
 		scan->rowcnt = pDesc->nRow;
 		scan->colcnt = pDesc->nCol;
-		
+
 		activeScan.remove(0);
 	}
 }
@@ -132,7 +126,7 @@ IntlogParser::objType IntlogParser::getinput()
 
 	if (checkCmdRedo())
 		return RedoCommand;
-	
+
 	if (!(parsed = term()).type(f_NOTERM))
 		return NewClause;
 
@@ -146,6 +140,7 @@ Term IntlogParser::term()
 {
 	Term line(f_NOTERM);
 	RedEl *r;
+
 
 	rs->Clear();
 	rs->Begin();
@@ -238,7 +233,7 @@ int IntlogParser::Expr(int maxLev)
 		err_msg(UNEXPECT_OPER);
 		return 1;
 	}
-	
+
 	return Termp() || Expr1(maxLev);
 }
 
@@ -313,14 +308,14 @@ int IntlogParser::Termp()
 		break;
 
 	// list
-	case '[':
+	case IntlogScanner::OPEN_SQ:
 		return Listd();
 
 	// atom: possibly an operator
 	case IntlogScanner::ATOM_N:
 	case IntlogScanner::ATOM_S:
 	case IntlogScanner::ATOM_Q:
-	case '!':
+	case IntlogScanner::FENCE:
 		return Symbol();
 
 	default:
@@ -418,7 +413,7 @@ int IntlogParser::Listd()
 			rh = rs->Reduce(TRUE);
 			Term th(f_NOTERM),	// [X,Y,...
 				 tt(ListNULL);	// |X]
-	
+
 			if (!rh)
 			{
 				err_msg(OPER_REDUCE);
@@ -522,7 +517,7 @@ void IntlogParser::advance()
 		curr_tok = IntlogScanner::EOSTREAM;
 		return;
 	}
-	
+
 	curr_tok = scan->Next();
 }
 

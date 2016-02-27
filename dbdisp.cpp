@@ -31,12 +31,6 @@
 #include "dbintlog.h"
 #include "query.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ///////// DISPLAY /////////
 
 ostream& operator<<(ostream& s, kstring k)
@@ -98,7 +92,7 @@ ostream& e_DbList::Display(ostream& s, int mode) const
 ostream& DbVTable::Display(ostream& s, int) const
 {
 	slist_iter it(this);
-	
+
 	e_VTable *e;
 	while ((e = (e_VTable *)it.next()) != 0)
 		s << '[' << e->db << ',' << e->first << ']';
@@ -133,7 +127,7 @@ ostream& DbEntry::Display(ostream& s, int mode) const
 		if (vProp == dynamic)	s << "Dynamic ";
 		s << ')';
 	}
-		
+
 	s << endl;
 
 	if (mode & DbIntlog::Entries)

@@ -33,12 +33,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 // initialize basic scanner status
 //
 IntlogScanner::IntlogScanner(int maxbuf)
@@ -47,7 +41,7 @@ IntlogScanner::IntlogScanner(int maxbuf)
 	id = MSR_NULL;
 	rowcnt = colcnt = 0;
 	rowtok = coltok = -1;
-		
+
 	buftok = new char[bufmax = maxbuf + 1];
 	buftok[buflen = 0] = 0;
 
@@ -56,6 +50,10 @@ IntlogScanner::IntlogScanner(int maxbuf)
 
 	m_bTranslateAnsiSeq = TRUE;
 }
+IntlogScanner::~IntlogScanner()
+{
+    delete buftok;
+}
 
 // get current token and position to next
 //
@@ -63,7 +61,7 @@ IntlogScanner::Codes IntlogScanner::Next()
 {
 	if (clc == -2)
 		get();
-		
+
 	clear();
 	addchar();
 
@@ -319,7 +317,7 @@ void IntlogScanner::addchar()
 IntlogScanner::Codes IntlogScanner::seq(Codes rc, int errc)
 {
 	int qchar = clc;
-	
+
 	while (get() != qchar && clc != '\n' && clc != -1)
 		if (clc == '\\')
 			if (m_bTranslateAnsiSeq)
@@ -447,4 +445,97 @@ IntlogScanner::Codes IntlogScanner::retc(Codes c)
 	somechange = 1;
 	useInput(c);
 	return c;
+}
+
+// hpp
+
+#define inline
+
+inline const char* IntlogScanner::Name() const
+{
+	return id;
+}
+
+inline const char* IntlogScanner::Image() const
+{
+	return buftok;
+}
+inline int IntlogScanner::Row() const
+{
+	return rowtok;
+}
+inline int IntlogScanner::Col() const
+{
+	return coltok;
+}
+inline int IntlogScanner::Len() const
+{
+	return buflen - 1;
+}
+
+inline void IntlogScanner::tokenFix()
+{
+	somechange = 0;
+}
+inline int IntlogScanner::tokenChanged() const
+{
+	return somechange;
+}
+
+inline void IntlogScanner::clear()
+{
+	buftok[buflen = overflow = 0] = 0;
+}
+inline void IntlogScanner::nl()
+{
+	colcnt = 0;
+	rowcnt++;
+}
+
+inline int IntlogScanner::issign(ch_t c)
+{
+	return (chclass[c] & Sign);
+}
+inline int IntlogScanner::issymbody(ch_t c)
+{
+	return (chclass[c] & SymBody);
+}
+inline int IntlogScanner::isnumber(ch_t c)
+{
+	return (chclass[c] & Digit);
+}
+inline int IntlogScanner::isnumberh(ch_t c)
+{
+	return (chclass[c] & DigitH);
+}
+inline int IntlogScanner::isblank(ch_t c)
+{
+	return (chclass[c] & Blank);
+}
+inline int IntlogScanner::issymhead(ch_t c)
+{
+	return (chclass[c] & SymHead);
+}
+inline int IntlogScanner::isvarhead(ch_t c)
+{
+	return (chclass[c] & VarHead);
+}
+inline int IntlogScanner::isused(ch_t c)
+{
+	return chclass[c];
+}
+inline void IntlogScanner::ident()
+{
+	while (issymbody(ch_t(clc)))
+		get();
+}
+inline void IntlogScanner::SetSource(istream *data, kstring fileId)
+{
+	i = data;
+	id = fileId;
+	clc = -2;
+}
+inline IntlogScanner::operator SourcePos() const
+{
+	return SourcePos(Row(), Col(), Len());
 }

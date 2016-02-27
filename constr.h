@@ -24,13 +24,8 @@
 // define console IO interface
 ////////////////////////////////
 
-#ifndef _ENG_H_
 #include "eng.h"
-#endif
-
-#ifndef _QUERY_H_
 #include "query.h"
-#endif
 
 class ConsoleEngines : public EngineHandlers
 {

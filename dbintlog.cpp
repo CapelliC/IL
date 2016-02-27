@@ -32,12 +32,6 @@
 #include "builtin.h"
 #include "eng.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ///////////////////////////////////////
 // helper class to seek data in DbList
 //
@@ -334,7 +328,7 @@ DbIntlog *DbIntlog::RemoveFileClauses(kstring fileId, slistvptr &updated)
 //////////////////////////////////
 // and reinsert at named position
 //
-BOOL DbIntlog::RestoreClause(Clause *pClause)
+bool DbIntlog::RestoreClause(Clause *pClause)
 {
     Add(pClause, 0, 0);
     return TRUE;

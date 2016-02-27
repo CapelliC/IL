@@ -26,17 +26,9 @@
 #ifndef _PARSE_H_
 #define _PARSE_H_
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _SCANNER_H_
 #include "scanner.h"
-#endif
 
 class ReduceStack;
 class SrcPosTree;
@@ -74,7 +66,7 @@ public:
 
 	// return operator table
 	OperTable* get_ops() const;
-	
+
 	// display message on parsing error with infos on source location
 	void err_msg(int, const char * = 0) const;
 
@@ -100,22 +92,22 @@ private:
 
 	// term reduction stack
 	ReduceStack* rs;
-	
+
 	// hold last token code read
 	IntlogScanner::Codes curr_tok;
 
 	// read next token
 	void advance();
-	
+
 	// return next term read (0 at EOF or error)
 	Term term();
 
 	// Term Expr1 | '(' Expr ')' Expr1 | Opre Expr Expr1
 	int	Expr(int maxLev = MaxOpPrec);
-	
+
 	// Oinf Expr Expr1 | Opos Expr1
 	int	Expr1(int maxLev = MaxOpPrec);
-	
+
 	// atom '(' Expr ')' | int | var | '[' Expr ']'
 	int	Termp();
 

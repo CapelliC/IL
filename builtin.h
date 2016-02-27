@@ -26,17 +26,9 @@
 #ifndef _BUILTIN_H_
 #define _BUILTIN_H_
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _MESSAGE_H_
 #include "message.h"
-#endif
 
 class IntlogExec;
 

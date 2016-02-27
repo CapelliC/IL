@@ -30,9 +30,7 @@
 // engine(s) tied in handlers list
 //---------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 // forward classes
 class IntlogExec;
@@ -44,15 +42,13 @@ class MsgTable;
 typedef unsigned	EngHandle;
 #define EH_NULL		unsigned(-1)
 
-#ifndef _KSTR_H_
 #include "kstr.h"
-#endif
 
 class IAFX_API EngineHandlers : protected slist
 {
 public:
 	EngineHandlers(ostream *msgStream);
-	~EngineHandlers();
+	virtual ~EngineHandlers();
 
 	virtual EngHandle create(DbIntlog* = 0);
 	virtual int destroy(EngHandle);

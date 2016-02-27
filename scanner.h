@@ -26,13 +26,8 @@
 #ifndef _SCANNER_H_
 #define _SCANNER_H_
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _SRCPOS_H_
 #include "srcpos.h"
-#endif
 
 class IntlogParser;
 
@@ -43,30 +38,34 @@ class IAFX_API IntlogScanner
 {
 public:
     IntlogScanner(int);
-    ~IntlogScanner();
+    virtual ~IntlogScanner();
 
-    void SetSource(istream *data, kstring fileId = kstring(MSR_NULL));
+    void SetSource(istream *data, kstring fileId = kstring());
     operator SourcePos() const;
 
     enum Codes {
         ATOM_N = 256,	// atom 'normal'
-        ATOM_S,		// signed
-        ATOM_Q,		// quoted
-        INTEGER,	// integer numeric sequence
-        INTHEX,		// hexadecimal numeric sequence
-        DOUBLE,		// numeric sequence floating point
-        VAR_N,		// symbol variable
-        VAR_A,		// anonym variable
-        STRING,		// sequence of characters
-        POINT,		// a single '.'
-        EOSTREAM,	// end of stream
+        ATOM_S,         // signed
+        ATOM_Q,         // quoted
+        INTEGER,        // integer numeric sequence
+        INTHEX,         // hexadecimal numeric sequence
+        DOUBLE,         // numeric sequence floating point
+        VAR_N,          // symbol variable
+        VAR_A,          // anonym variable
+        STRING,         // sequence of characters
+        POINT,          // a single '.'
+        EOSTREAM,       // end of stream
 
         // blanks, never returned by Next
         MCOMM_BEGIN,	// begin multi line comment
-        MCOMM_LINE,	// line, followed by \n
-        MCOMM_END,	// end multi line comment
-        SCOMM_LINE,	// a comment line, followed by \n
-        BLANKS		// spaces, tabs, \n
+        MCOMM_LINE,     // line, followed by \n
+        MCOMM_END,      // end multi line comment
+        SCOMM_LINE,     // a comment line, followed by \n
+        BLANKS,         // spaces, tabs, \n
+
+        FENCE = '!',
+        OPEN_SQ = '[',
+
     };
     Codes Next();
 
@@ -154,11 +153,7 @@ protected:
 
     // enable formatting...
     virtual void useInput(Codes /*c*/){}
-    BOOL m_bTranslateAnsiSeq;
+    bool m_bTranslateAnsiSeq;
 };
-
-#ifndef _DEBUG
-#include "scanner.hpp"
-#endif
 
 #endif

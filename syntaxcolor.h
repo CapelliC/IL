@@ -20,9 +20,7 @@
 #ifndef _SyntaxColor_h_
 #define _SyntaxColor_h_
 
-#ifndef  _SCANNER_H_
-#include "Scanner.h"
-#endif
+#include "scanner.h"
 
 #define SCAN_BUFFER_LEN 1024
 
@@ -31,7 +29,7 @@ class SyntaxColor : public IntlogScanner
 public:
 
     SyntaxColor(ostream &f);
-    void Format(istream *ps, BOOL bDefTable, int nHeight = -1);
+    void Format(istream *ps, bool bDefTable, int nHeight = -1);
 
     void OpenTable();
     void SetHeight(int h);

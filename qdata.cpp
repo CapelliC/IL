@@ -35,12 +35,6 @@
 #include "eng.h"
 #include <stdarg.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////
 // keep parser active, using parsed terms
 //
@@ -154,7 +148,7 @@ Term IntlogExec::value(Var rv, stkpos posenv) const
         return f_NOTERM;
 
     // get top node
-    ProofStack::Env *e = ps->get(posenv);
+    Env *e = ps->get(posenv);
     Term v = vs->getvar(rv + e->vspos, &posenv, &posenv);
 
     // make copy
@@ -305,7 +299,7 @@ Clause *IntlogExec::make_clause(Term t)
 {
     // adjust variables
     OffVars rix(t);
-    ProofStack::Env *etop = ps->topget();
+    Env *etop = ps->topget();
     const Clause *c = etop->call->get_clause();
     kstr_list vnames;
     for (unsigned v = 0; v < rix.nvars(); v++)
@@ -326,7 +320,7 @@ Clause *IntlogExec::make_clause(Term t)
 //
 static void absVars(Term t, stkpos p)
 {
-    stackTerm st;
+    stack<Term> st;
     st.push(t);
 
     for ( ; st.size() > 0; )
@@ -389,7 +383,7 @@ int IntlogExec::BtErr(int nCodeMsg, ...)
     else
     {
         va_start(argptr, nCodeMsg);
-	
+
         char buf[512];
         //_vsnprintf(buf, sizeof buf, l->string, argptr);
         vsprintf(buf, l->string, argptr);
@@ -450,7 +444,7 @@ void OffVars::SetTerm(Term& tin, stkpos offbase)
         return;
     }
 
-    stackTerm st;
+    stack<Term> st;
     st.push(tin);
 
     for ( ; st.size() > 0; ) {
@@ -541,4 +535,37 @@ int IntlogExec::reuse_file(kstring fileId)
         seen();
     }
     return 1;	// dont' fail anyway
+}
+
+BltinData* IntlogExec::get_btdata() const
+{
+    Env *e = ps->topget();
+    ASSERT(e->call->get_type() == CallData::BUILTIN);
+    return e->ptr;
+}
+void IntlogExec::set_btdata(BltinData* ptr)
+{
+    Env *e = ps->topget();
+    ASSERT(e->call->get_type() == CallData::BUILTIN);
+    e->ptr = ptr;
+}
+
+// return which CallData is currently executed
+const CallData *IntlogExec::on_call() const
+{
+    return ps->topget()->call;
+}
+
+// build a copy of term using variable access
+Term IntlogExec::copy(Term t) const
+{
+    Env *e = ps->topget();
+    ASSERT(!t.type(f_NOTERM) && e);
+    return copy_term(t, e->vspos);
+}
+
+// variable data access: get top node
+Term IntlogExec::tval(Var rv, stkpos posenv) const
+{
+    return rv == ANONYM_IX? Term(f_NOTERM) : vs->getvar(rv + ps->topget()->vspos, &posenv, &posenv);
 }

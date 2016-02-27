@@ -26,9 +26,7 @@
 #ifndef _ACTIOS_H_
 #define _ACTIOS_H_
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 class IntlogSourceStream;	// source file input
 class Scanner;				// source binded

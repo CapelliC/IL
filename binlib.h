@@ -26,9 +26,7 @@
 #ifndef _BINLIB_H_
 #define _BINLIB_H_
 
-#ifndef _TERM_H_
 #include "term.h"
-#endif
 
 // defined classes
 class SourceBinaryLib;
@@ -54,9 +52,10 @@ protected:
     unsigned nobjects;		// counter of file elements
 
     /*
- streampos begdata;		// track begin data in library file
- streampos enddata;		// file dimension
- */
+     streampos begdata;		// track begin data in library file
+     streampos enddata;		// file dimension
+    */
+
     streamoff begdata;		// track begin data in library file
     streamoff enddata;		// file dimension
 

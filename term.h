@@ -31,13 +31,8 @@
 //	mimic the recursive nature of TERMs
 ////////////////////////////////////////
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _OPERATOR_H_
 #include "operator.h"
-#endif
 
 class	Term;
 class	Struct;
@@ -200,7 +195,7 @@ private:
 //////////////////////////////////////
 // fast acces to arguments of a Term
 //	with debug support
-//	
+//
 class IAFX_API TermArgs
 {
 public:
@@ -280,10 +275,7 @@ IAFX_API istream& operator>>(istream&, SysData*&);
 // exec a preorder visit of requested term
 //	declare and use a Term stack
 //
-decl_vect(Term);
-decl_stack(Term);
-
-class TermVisit : protected stackTerm
+class TermVisit : protected stack<Term>
 {
 public:
 	// initialize
@@ -295,9 +287,5 @@ public:
 	// set starting position
 	void start(Term);
 };
-
-#ifndef _DEBUG
-#include "term.hpp"
-#endif
 
 #endif

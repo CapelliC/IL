@@ -31,17 +31,11 @@
 #include "bterr.h"
 #include "dbintlog.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 /////////////////////////////////////////
 // standard Edinburgh builtin predicates
 /////////////////////////////////////////
 extern BuiltIn IO_oriented[22];
-extern BuiltIn execution_control[6];
+extern BuiltIn execution_control[8];
 extern BuiltIn tracing_control[7];
 extern BuiltIn database_control[7];
 extern BuiltIn metalogical[7];

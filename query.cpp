@@ -34,12 +34,6 @@
 #include "tracer.h"
 #include "unify.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //----------------------
 // initialize/terminate
 //
@@ -69,7 +63,7 @@ int IntlogExec::query(const Clause *q)
 {
     unsigned nc = 0;
 
-    ProofStack::Env *pcn, *pfn;
+    Env *pcn, *pfn;
     stkpos cn, fn;
 #define PCN (pcn = ps->get(cn))
 #define PFN (pfn = ps->get(fn))
@@ -92,7 +86,7 @@ A:	if (!q->get_body()) {
 A1:		//fn = ps->curr_dim() - 1;
         fn = cn;
 
-        ProofStack::Env *e = ps->get(fn);
+        Env *e = ps->get(fn);
         while (e->father != STKNULL) {
             if (tr && e->call && tr->exit(fn, e->call))
                 return -1;
@@ -165,7 +159,7 @@ A2:	PFN;
                 pfn->call->is_last() &&
                 pfn->call == pcn->call->next()) {
             // tail recursion optimization
-            ProofStack::Env *pgf = ps->get(gf);
+            Env *pgf = ps->get(gf);
             pgf->vspos = pfn->vspos;
 
             ASSERT(!pcn->call->is_last());
@@ -331,7 +325,7 @@ C2:	if ((fn = pcn->father) == STKNULL)
 int IntlogExec::call(Term tc)
 {
     // get top call clause (for variables...)
-    ProofStack::Env *e = ps->topget();
+    Env *e = ps->topget();
     OffVars rix(tc);
 
     DbIntlog *dbc = e->call->get_clause()->get_db();
@@ -431,7 +425,7 @@ int IntlogExec::gcall(Term pcall, IntlogExec *eng)
         pc = &cs->c;
     }
 
-    ProofStack::Env *locenv = ps->topget();
+    Env *locenv = ps->topget();
 
     int rc = eng->query(pc);
     if (rc == 1)
@@ -462,7 +456,7 @@ int IntlogExec::call(Term pcall, IntlogExec *eng)
     unsigned nnv = 0, offv = vs->curr_dim() - ps->topget()->vspos;
 
     // find top call clause to get variable names
-    ProofStack::Env *locenv = ps->topget();
+    Env *locenv = ps->topget();
 
     OffVars rix(pcall);
 
@@ -575,4 +569,14 @@ void IntlogExec::query_fail(stkpos n)
 ProofTracer *IntlogExec::make_tracer()
 {
     return new ProofTracer(this);
+}
+
+ostream& operator<<(ostream& s, teWrite& data)
+{
+    return data.m_pExec->write(data.m_toWrite, s, data.m_stkPos);
+}
+ostream& operator<<(ostream& s, Term t)
+{
+    teWrite w(t, 0);
+    return s << w;
 }

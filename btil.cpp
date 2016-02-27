@@ -36,12 +36,6 @@
 #include "defsys.h"
 #include "bterr.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 /////////////////////////////////////
 // MUST be allocated from main()...
 /////////////////////////////////////
@@ -97,7 +91,7 @@ BuiltIn interface_obj[13*2-1] = {
 ///////////////////////////////////////
 
 static SysData* mkEngObj() { return new EngineObj(EH_NULL); }
-SysData::rtinfo EngineObj::rti = { "EngObj", mkEngObj };
+SysData::rtinfo EngineObj::rti = { "EngObj", mkEngObj, 0 };
 
 EngineObj::EngineObj(EngHandle h)
 : SysData(rti)

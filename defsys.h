@@ -30,13 +30,8 @@
 // default system configuration
 //------------------------------
 
-#ifndef _MESSAGE_H_
 #include "message.h"
-#endif
-
-#ifndef _OPERATOR_H_
 #include "operator.h"
-#endif
 
 // allow functions to display their messages
 //extern MsgTable* MsgTbl;

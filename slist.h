@@ -30,9 +30,7 @@
 // single linked list
 //--------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 class slist;
 class e_slist;
@@ -63,8 +61,8 @@ class IAFX_API slist
 {
 public:
 	slist() { first = 0; }
-	~slist() { clear(); }
-	
+	virtual ~slist() { clear(); }
+
 	unsigned append(e_slist *);
 	void insert(e_slist *, unsigned);
 	void clear();
@@ -150,18 +148,18 @@ public:
 	void append(void *p) {
 		slist::append(new e_slistvptr(p));
 	}
-	
+
 	// insert a pointer
 	void insert(void *p, unsigned ix) {
 		slist::insert(new e_slistvptr(p), ix);
 	}
-	
+
 	// return indexed pointer
 	void* get(unsigned index) const {
 		e_slistvptr* e = (e_slistvptr*)slist::get(index);
 		return e? e->vptr : 0;
 	}
-	
+
 	// matching condition
 	int match(e_slist *e1, void *e2) const {
 		return ((e_slistvptr*)e1)->vptr == ((e_slistvptr*)e2)->vptr;

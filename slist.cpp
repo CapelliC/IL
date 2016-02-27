@@ -31,12 +31,6 @@
 #include "iafx.h"
 #include "slist.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //-------------------------------
 // count elements to end of list
 //
@@ -49,7 +43,7 @@ unsigned e_slist::offlast() const
 		c++;
 		n = n->next;
 	}
-	
+
 	return c;
 }
 
@@ -209,7 +203,7 @@ e_slist* slist::get(unsigned index) const
 void slist_scan::delitem()
 {
 	e_slist *n = lref.first, *p = 0;
-	
+
 	// seek current, fixing previous
 	while (n) {
 		if (n->next == e)
@@ -218,7 +212,7 @@ void slist_scan::delitem()
 	}
 
 	ASSERT(n);
-	
+
 	if (!p)
 		lref.first = n->next;
 	else

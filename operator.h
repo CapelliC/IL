@@ -32,9 +32,7 @@
 //	allowing for insertion of user defined
 //
 
-#ifndef _MYCONT_H_
 #include "mycont.h"
-#endif
 
 class Operator
 {
@@ -103,25 +101,12 @@ public:
 /////////////////////////////////////////////
 // mainly, an operator is checked using IsOp
 //
-decl_vect(Operator);
-class OperTable : vectOperator
+class OperTable : vect<Operator>
 {
 public:
-	OperTable();
 	Operator* IsOp(kstring) const;
 	Operator* GetNext(Operator*) const;
 	void Add(kstring, short, Operator::assocTag, Operator::opCodeTag);
-
-private:
-	unsigned m_nCount;
 };
-
-/////////////////////
-// initialize empty
-//
-inline OperTable::OperTable()
-{
-	m_nCount = 0;
-}
 
 #endif

@@ -30,17 +30,9 @@
 // query evaluation execution engine
 //-----------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _PROIOS_H_
 #include "proios.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
 
 // forward classes
 class ProofStack;
@@ -65,7 +57,7 @@ public:
     IntlogExec(DbIntlog*);
 
     // release memory
-    ~IntlogExec();
+    virtual ~IntlogExec();
 
     // start/continue a query
     virtual int query(const Clause * = 0);
@@ -96,19 +88,25 @@ public:
 
     // builtin context sensitive data
     BltinData* get_btdata() const;
-    void set_btdata(BltinData*);
+    void set_btdata(BltinData* ptr);
 
     // return current database
-    DbIntlog* get_db() const;
+    DbIntlog* get_db() const{
+        return db;
+    }
 
     // change current database
-    void set_db(DbIntlog*);
+    void set_db(DbIntlog* d) {
+        db = d;
+    }
 
     // evalute current term value
-    Term eval_term(Term) const;
+    Term eval_term(Term t) const {
+        return t.type(f_VAR)? tval(Var(t)) : t;
+    }
 
     // build a copy of term dereferencing variables
-    Term copy(Term) const;
+    Term copy(Term t) const;
 
     // insert in temporary store list
     Term save(Term);
@@ -132,7 +130,7 @@ public:
 
     // variable value access
     Term value(Var, stkpos = STKNULL) const;	// copy full value
-    Term tval(Var, stkpos = STKNULL) const;		// only first reference
+    Term tval(Var rv, stkpos posenv = STKNULL) const; // only first reference
 
     // attempt unification of terms t1 & t2 (top env for both term)
     int unify(Term t1, Term t2);
@@ -222,7 +220,11 @@ protected:
 class IAFX_API teWrite
 {
 public:
-    teWrite(Term toWrite, IntlogExec *pExec = 0, stkpos stkPos = STKNULL);
+    teWrite(Term toWrite, IntlogExec *pExec = 0, stkpos stkPos = STKNULL) {
+        m_toWrite = toWrite;
+        m_pExec = pExec;
+        m_stkPos = stkPos;
+    }
 
     Term m_toWrite;
     IntlogExec* m_pExec;
@@ -231,9 +233,5 @@ public:
 
 IAFX_API ostream& operator<<(ostream& s, teWrite& data);
 IAFX_API ostream& operator<<(ostream& s, Term t);
-
-#ifndef _DEBUG
-#include "query.hpp"
-#endif
 
 #endif

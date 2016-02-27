@@ -26,9 +26,7 @@
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 /////////////////////
 // a messages table

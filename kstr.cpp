@@ -32,13 +32,7 @@
 #include "mycont.h"
 #include "binstr.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
-MemStorage_CCP kstring::nameSpace;
+MemStorage<CCP> kstring::nameSpace;
 hashtable* kstring::strTbl = 0;
 
 class e_kstrtable : public e_hashtable

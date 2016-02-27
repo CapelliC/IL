@@ -32,9 +32,7 @@
 //	to hook in system debug
 //---------------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 class SpyEntry;
 class SpyCall;
@@ -47,7 +45,7 @@ class ProofStack;
 
 class IAFX_API ProofTracer : public hashtable_str
 {
-public:	
+public:
 
 	ProofTracer(IntlogExec *);
 	virtual ~ProofTracer();
@@ -192,9 +190,7 @@ public:
 // display formatted
 //-------------------
 
-#ifndef _FASTREE_H_
 #include "fastree.h"
-#endif
 
 class IAFX_API FmtProofTree : public FastTree
 {

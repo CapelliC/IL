@@ -31,17 +31,10 @@
 #include "qdata.h"
 #include "tracer.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
-
 //////////////////////////
 // get the display string
 //
-static const char* BASED_CODE action_str[4] = {
+static const char* action_str[4] = {
     "CALL", "FAIL", "EXIT", "REDO"
 };
 
@@ -159,7 +152,7 @@ int ProofTracer::work(stkpos p, CallData* t, Action act)
 //
 ostream& ProofTracer::fmtentry(ostream &os, SpyCall *c) const
 {
-    ProofStack::Env *e = eng->ps->get(c->pos);
+    Env *e = eng->ps->get(c->pos);
     e = eng->ps->get(e->father);
     ASSERT(e);
 
@@ -187,7 +180,7 @@ void ProofTracer::showentry(SpyCall *c, SpyEntry*, Action act, ostream &os)
 //
 stkpos ProofTracer::findoffset(stkpos pos) const
 {
-    ProofStack::Env *ec = eng->ps->get(pos);
+    Env *ec = eng->ps->get(pos);
     int off = 0;
 
     while (ec->father != STKNULL)
@@ -229,7 +222,7 @@ void ProofTracer::trace_off()
     }
 }
 
-#define GetEnv(Index) ((const ProofStack::Env *)GetAt(Index)->m_data)
+#define GetEnv(Index) ((const Env *)GetAt(Index)->m_data)
 
 // make proof formatted
 FmtProofTree::FmtProofTree(const ProofStack *ps)
@@ -243,7 +236,7 @@ FmtProofTree::FmtProofTree(const ProofStack *ps)
     // build actual sub trees
     for (stkpos i = 0; i < ps->curr_dim(); i++)
     {
-        const ProofStack::Env *e = ps->get(i);
+        const Env *e = ps->get(i);
 
         NodeIndex n = AllocNode();
         GetAt(n)->m_data = NodeData(e);
@@ -257,7 +250,7 @@ FmtProofTree::FmtProofTree(const ProofStack *ps)
 
 int FmtProofTree::DisplayNode(ostream &s, int, const NodeLevel & nd) const
 {
-    const ProofStack::Env *e = GetEnv(nd.n);
+    const Env *e = GetEnv(nd.n);
     if (e)
     {
         if (e->call)
@@ -278,7 +271,7 @@ int FmtProofTree::DisplayNode(ostream &s, int, const NodeLevel & nd) const
 // find node, really!
 NodeIndex FmtProofTree::FindNode(stkpos pNode) const
 {
-    const ProofStack::Env *e = m_ps->get(pNode);
+    const Env *e = m_ps->get(pNode);
 
     for (NodeIndex i = 0; i < m_nTop; i++)
         if (GetEnv(i) == e)
@@ -288,9 +281,9 @@ NodeIndex FmtProofTree::FindNode(stkpos pNode) const
     return INVALID_NODE;
 }
 /*
- const ProofStack::Env *GetEnv(NodeIndex Index) const;
-const ProofStack::Env *FmtProofTree::GetEnv(NodeIndex Index) const;
+ const Env *GetEnv(NodeIndex Index) const;
+const Env *FmtProofTree::GetEnv(NodeIndex Index) const;
 {
- return (const ProofStack::Env *)GetAt(Index)->m_data;
+ return (const Env *)GetAt(Index)->m_data;
 }
 */

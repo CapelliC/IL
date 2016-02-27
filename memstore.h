@@ -26,17 +26,8 @@
 #ifndef _MEMSTORE_H_
 #define _MEMSTORE_H_
 
-#ifndef _VECTB_H_
 #include "vectb.h"
-#endif
-
-#ifndef _FASTACC_H_
-#include "fastacc.h"
-#endif
-
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 typedef unsigned	MemStoreRef;
 #define MSR_NULL	MemStoreRef(-1)
@@ -45,101 +36,53 @@ typedef unsigned	MemStoreRef;
 // allocation schema for frequently allocated items
 //	dimensions must be power of 2, for fast address compute
 //
-class IAFX_API MemStorage : vectvptr
+//  now simplified to vector...
+//
+template <typename T>
+class MemStorage : vect<T>
 {
 public:
-	// insert element at free location (grow if needed)
-	MemStoreRef EmptyStore();
+
+    // insert element at free location (grow if needed)
+    MemStoreRef EmptyStore() { return this->dim(); }
 
 	// insert consecutive uninitialized
-	MemStoreRef Reserve(unsigned = 1);
+    MemStoreRef Reserve(unsigned n = 1) {
+        MemStoreRef p = EmptyStore();
+        this->grow(n);
+        return p;
+    }
 
 	// release used cell
-	void Delete(MemStoreRef);
-
-	// release consecutive cells
-	void DelReserved(MemStoreRef, unsigned);
+    void Delete(MemStoreRef) {
+    }
 
 	// release all memory
-	void FreeMem();
+    void FreeMem() {
+        this->resize(0);
+    }
 
-#ifdef _DEBUG
-	void Dump(ostream&) const;
-	virtual void DumpEmpty(ostream&, MemStoreRef) const;
-	virtual void DumpFull(ostream&, MemStoreRef) const;
-	void MemStorageCheckUsed(MemStoreRef) const;
-#else
-	#define MemStorageCheckUsed(c)
-#endif
+    MemStoreRef Store(const T& v) {
+		MemStoreRef r = Reserve();
+		*cell(r) = v;
+		return r;
+	}
+
+	T* operator[](MemStoreRef c) const {
+		return cell(c);
+	}
 
 protected:
 
-	// dimension of data item: elSize = log2(sizeof(type)), ceiled
-	MemStorage(int elSize);
-	~MemStorage();
-
 	// get pointer to cell as index
-	MemStoreRef* cell(MemStoreRef) const;
+    T* cell(MemStoreRef p) const {
+        return this->getptr(p);
+    }
 
 	// true if cell is used
-	int used(MemStoreRef) const;
-
-private:
-
-	// current allocation dim
-	unsigned m_vectTop;
-
-	// free items linked list pointer
-	MemStoreRef m_firstFree;
-
-	// an element cell size
-	int m_cellSize;
-
-	// allocate space for vector
-	void alloc();
-};
-
-#ifndef _DEBUG
-
-/////////////////////////////////
-// get pointer to cell as index
-//
-inline MemStoreRef* MemStorage::cell(MemStoreRef p) const
-{
-	return (MemStoreRef*)(
-		(char*)getat(OPDIV(p, BLKDIM)) + (OPMOD(p, BLKDIM) << m_cellSize)
-	);
-}
-
-//////////////////////////////
-// destructor release memory
-//
-inline MemStorage::~MemStorage()
-{
-	FreeMem();
-}
-
-#endif
-
-//////////////////////////////////////////
-// template macro: instance specific code
-// of type required
-//
-#define MemStorageDecl(type, elsize)		\
-class IAFX_API MemStorage_##type			\
-:	public MemStorage						\
-{ public:									\
-	MemStorage_##type()						\
-		 : MemStorage(elsize){}				\
-	MemStoreRef Store(const type& v) {		\
-		MemStoreRef r = EmptyStore();		\
-		*((type*)cell(r)) = v;				\
-		return r;							\
-	}										\
-	type* operator[](MemStoreRef c) const {	\
-		MemStorageCheckUsed(c);				\
-		return (type*)cell(c);				\
-	}										\
+    int used(MemStoreRef r) const {
+        return r >= 0 && r < this->dim();
+    }
 };
 
 #endif

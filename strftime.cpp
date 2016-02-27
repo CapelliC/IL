@@ -19,10 +19,10 @@
 
 #include "stdafx.h"
 #include <time.h>
-#include <strstream>
+#include <sstream>
 #include <iomanip>
 
-static char BASED_CODE weekday[7][10] = {
+static char weekday[7][10] = {
 	"Lunedi",
 	"Martedi",
 	"Mercoledi",
@@ -31,7 +31,7 @@ static char BASED_CODE weekday[7][10] = {
 	"Sabato",
 	"Domenica"
 };
-static char BASED_CODE month[12][10] = {
+static char month[12][10] = {
 	"Gennaio",
 	"Febbraio",
 	"Marzo",
@@ -46,9 +46,9 @@ static char BASED_CODE month[12][10] = {
 	"Dicembre"
 };
 
-size_t strftime(char *buf, size_t dim, const char *fmt, const struct tm *t)
+size_t strftime(char *buf, size_t, const char *fmt, const struct tm *t)
 {
-	ostrstream os(buf, dim);
+	ostringstream os(buf);
 	os.fill('0');
 
 	char c;
@@ -147,5 +147,5 @@ size_t strftime(char *buf, size_t dim, const char *fmt, const struct tm *t)
 			os << c;
 
 	os << ends;
-	return os.pcount();
+	return os.tellp();
 }

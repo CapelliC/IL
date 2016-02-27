@@ -34,12 +34,6 @@
 #include "aritval.h"
 #include <math.h>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 BtFDecl(btsin);
 BtFDecl(btacos);
 BtFDecl(btasin);
@@ -85,7 +79,7 @@ BuiltIn mathfunctions[20] = {
 	{"cast",	3, cast}
 };
 
-BOOL argin(Term t, IntlogExec *p, Double &x)
+bool argin(Term t, IntlogExec *p, Double &x)
 {
 	AritValue v;
 	v.evalexpr(t, p);

@@ -21,17 +21,12 @@
 #include "fastree.h"
 #include <iomanip>
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 void FastTree::Assign(const FastTree& toCopy)
 {
 	m_nRoot = toCopy.m_nRoot;
 	grow(m_nTop = toCopy.m_nTop);
-	memcpy(base, toCopy.base, sizeof(NodeDefinition) * m_nTop);
+    ASSERT(false);
+	//memcpy(base, toCopy.base, sizeof(NodeDefinition) * m_nTop);
 }
 
 // display indented
@@ -43,7 +38,7 @@ int FastTree::DisplayNode(ostream &s, int, const NodeLevel &n) const
 
 void FastTree::Display(ostream &s, unsigned off) const
 {
-	stackNodeLevel v;
+	stack<NodeLevel> v;
 
 	NodeLevel q = { m_nRoot, 0 };
 	v.push(q);
@@ -66,7 +61,7 @@ void FastTree::Display(ostream &s, unsigned off) const
 }
 void FastTree::DisplayConnected(ostream &s, unsigned char setc[5], unsigned off) const
 {
-	stackNodeLevel snl;
+	stack<NodeLevel> snl;
 
 	NodeLevel q = { m_nRoot, 0 };
 	snl.push(q);
@@ -90,26 +85,26 @@ void FastTree::DisplayConnected(ostream &s, unsigned char setc[5], unsigned off)
 					if (t.l == l)
 						break;
 				}
-	
+
 				if (h >= 1)
 					s << setc[CH_V];
 				else
 					s << setc[CH_SP];
-	
+
 				for (unsigned k = 0; k < off; k++)
 					s << setc[CH_SP];
 			}
-	
+
 			// draw node
 			NodeDefinition &nd = *GetAt(q.n);
-	
+
 			if (q.l > 0)
 			{
 				if (nd.m_nBrother != INVALID_NODE)
 					s << setc[CH_VR];
 				else
 					s << setc[CH_BR];
-		
+
 				for (unsigned k = 0; k < off; k++)
 					s << setc[CH_H];
 			}
@@ -142,11 +137,11 @@ void FastTree::CharConnections(unsigned char setc[5], selConn select)
 // reserve a slot to be filled later
 NodeIndex FastTree::AllocNode()
 {
-	if (m_nTop == vdim)
+	if (m_nTop == dim())
 		grow(256);
 
-	base[m_nTop].m_nFirstSon = INVALID_NODE;
-	base[m_nTop].m_nBrother = INVALID_NODE;
+	getptr(m_nTop)->m_nFirstSon = INVALID_NODE;
+	getptr(m_nTop)->m_nBrother = INVALID_NODE;
 
 	return m_nTop++;
 }
@@ -178,7 +173,7 @@ NodeIndex FastTree::NthSon(NodeIndex father, unsigned index) const
 }
 
 // push sons in order
-void FastTree::PushSons(stackNodeLevel &v, const NodeLevel &q) const
+void FastTree::PushSons(stack<NodeLevel> &v, const NodeLevel &q) const
 {
 	for (unsigned z = NumSons(q.n); z > 0; z--)
 	{
@@ -192,17 +187,17 @@ unsigned FastTree::GetSize(NodeIndex node) const
 {
 	unsigned size = 1;
 
-	stackNodeLevel v;
+	stack<NodeLevel> v;
 	NodeLevel q = { node, 0 };
 	v.push(q);
-	
+
 	while (v.size() > 0)
 	{
 		size++;
 
 		q = v.get();
 		v.pop();
-	
+
 		for (NodeIndex z = GetAt(q.n)->m_nFirstSon; z != INVALID_NODE; z = GetAt(z)->m_nBrother)
 		{
 			NodeLevel h = { z, q.l + 1 };

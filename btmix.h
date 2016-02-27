@@ -26,11 +26,7 @@
 #ifndef _BTMIX_H_
 #define _BTMIX_H_
 
-extern BuiltIn mixing[14];
-
-#ifdef _BCPP
-#include <time.h>
-#endif
+extern BuiltIn mixing[15];
 
 //---------------------------------------
 // time representation as user data test

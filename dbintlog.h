@@ -51,17 +51,9 @@
 //	while references are added when no ambiguity arise
 ///////////////////////////////////////////////////////////////////
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef  _CLAUSE_H_
 #include "clause.h"
-#endif
-
-#ifndef  _BUILTIN_H_
 #include "builtin.h"
-#endif
 
 // storage classes
 class e_DbList;
@@ -87,8 +79,19 @@ class DbDisplayer;
 class IAFX_API e_DbList : public e_slist
 {
 public:
-    const Clause*	get() const;
-    const e_DbList*	succ(const DbIntlog *) const;
+
+    // get current procedure clause
+    const Clause*	get() const {
+        ASSERT(type == tClause || type == tLocData || type == tShared || type == tBuiltin);
+        return clause;
+    }
+
+    // fetch next element in procedure list
+    const e_DbList*	succ(const DbIntlog *dbs) const {
+        ASSERT(this);
+        return next()->fix_clause(dbs);
+    }
+
 
     ostream& Display(ostream& s, int mode) const;
 
@@ -110,16 +113,35 @@ private:
         BuiltIn*		bltin;	// system defined builtin
     };
 
-    e_DbList(Clause *c);
-    e_DbList(DbVTable *t);
-    e_DbList(const DbEntry *e);
-    e_DbList(BuiltIn *bt);
+    e_DbList(Clause *c) {
+        type = tClause;
+        clause = c;
+    }
+
+    e_DbList(DbVTable *t) {
+        type = tVTable;
+        table = t;
+    }
+
+    e_DbList(const DbEntry *e) {
+        type = tExtRef;
+        extref = e;
+    }
+
+    e_DbList(BuiltIn *bt) {
+        type = tBuiltin;
+        bltin = bt;
+    }
+
     ~e_DbList();
 
     // search in VTables chainings
     const e_DbList *fix_clause(const DbIntlog *) const;
     const e_DbList* searchVTbl(const DbIntlog *) const;
-    const e_DbList *next() const;
+    const e_DbList *next() const {
+        return (const e_DbList *)e_slist::next;
+    }
+
 
     friend class DbEntry;
     friend class DbEntryIter;
@@ -136,8 +158,14 @@ private:
 class IAFX_API DbList : slist
 {
     int match(e_slist *, void *) const;
-    e_DbList *seekptr(void*) const;
-    unsigned seek(void *) const;
+
+    e_DbList *seekptr(void* e) const {
+        return (e_DbList *)slist::seekptr(e);
+    }
+
+    unsigned seek(void *e) const {
+        return slist::seek(e);
+    }
 
     ostream& Display(ostream& s, int mode) const;
 
@@ -152,9 +180,16 @@ class IAFX_API DbList : slist
 class DbEntry : e_hashtable
 {
 public:
-    DbEntry(kstring, int);
 
-    e_DbList *get_first() const;
+    DbEntry(kstring f, int a) {
+        funct = f;
+        arity = a;
+        vProp = local;
+    }
+
+    e_DbList *get_first() const {
+        return (e_DbList*)entries.get_first();
+    }
 
     // inter DB entries scope properties
     enum scopemode {
@@ -168,7 +203,9 @@ public:
 
 private:
 
-    const char*	getstr() const;
+    const char*	getstr() const {
+        return funct;
+    }
 
     // proc identification
     kstring funct;
@@ -199,7 +236,7 @@ public:
     DbIntlog();
     DbIntlog(DbIntlog *);
     DbIntlog(kstring, DbIntlog *);
-    virtual ~DbIntlog();
+    virtual ~DbIntlog() {}
 
     ///////// LOCAL STORE CONTROL ///////
 
@@ -210,7 +247,14 @@ public:
     DbEntry *GetEntryRef(Term);
 
     // get first clause in procedure list entry
-    const e_DbList* StartProc(const DbEntry *) const;
+    const e_DbList* StartProc(const DbEntry *dbe) const {
+    #ifdef _DEBUG
+        CCP tstring = dbe->funct;
+    #endif
+
+        return dbe->get_first()->fix_clause(this);
+    }
+
 
     // delete matched by name/arity
     virtual int Del(DbEntryIter&);
@@ -225,7 +269,7 @@ public:
     DbIntlog *RemoveFileClauses(kstring fileId, slistvptr &updated);
 
     // and reinsert at named position
-    BOOL RestoreClause(Clause *);
+    bool RestoreClause(Clause *);
 
     ////////// BUILTINS CONTROL //////////
 
@@ -250,21 +294,32 @@ protected:
     int keymatch(e_hashtable *, e_hashtable *) const;
 
     // apply type casting to contained elements
-    DbEntry* isin(DbEntry *e) const;
-    DbEntry* isin(DbEntry &e) const;
+    DbEntry* isin(DbEntry *e) const {
+        return (DbEntry*)hashtable::isin((e_hashtable*)e);
+    }
+
+    DbEntry* isin(DbEntry &e) const {
+        return (DbEntry*)hashtable::isin((e_hashtable*)&e);
+    }
+
 
     ///////// INTERFACE CONTROL //////////
 
 public:
 
     // return DB identifier
-    kstring GetId() const;
+    kstring GetId() const {
+        return m_name;
+    }
+
 
     // enable to change identifier
     void SetId(kstring);
 
     // get father
-    DbIntlog *GetFather() const;
+    DbIntlog *GetFather() const {
+        return m_father;
+    }
 
     // start definition of new local interface
     DbIntlog *BeginInterface(kstring);
@@ -365,8 +420,14 @@ class DbEntryIter
 {
 public:
     Clause* next();
-    Clause* curr() const;
-    DbIntlog* owner() const;
+    Clause* curr() const {
+        return pcp? pcp->clause : 0;
+    }
+
+    DbIntlog* owner() const {
+        return own;
+    }
+
 
 private:
     e_DbList *pcc;
@@ -398,14 +459,15 @@ private:
 class IAFX_API DbInherIter : slistvptr_iter
 {
 public:
-    DbInherIter(const DbIntlog *);
-    DbIntlog* next();
+    DbInherIter(const DbIntlog *db) : slistvptr_iter(db->m_inherited)
+    {}
+
+    DbIntlog* next() {
+        return (DbIntlog*)slistvptr_iter::next();
+    }
+
 private:
     friend class DbIntlog;
 };
-
-#ifndef _DEBUG
-#include "dbintlog.hpp"
-#endif
 
 #endif

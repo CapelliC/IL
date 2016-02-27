@@ -36,12 +36,6 @@ static AFX_EXTENSION_MODULE NEAR extensionDLL = { 0, 0 };
 
 static int runquery(IntlogExec *, Term, kstr_list *, Term*, int);
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 #ifdef _AFXDLL
 extern "C" int CALLBACK LibMain(HINSTANCE hInstance, WORD, WORD, LPSTR)
 {

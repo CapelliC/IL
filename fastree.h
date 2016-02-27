@@ -26,17 +26,11 @@
 //	to store source positions
 //
 
-#ifndef _STACK_H_
 #include "stack.h"
-#endif
-
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 // forward decl
 class FastTree;
-class stackNodeLevel;
 struct NodeLevel;
 
 // data types
@@ -62,15 +56,24 @@ private:
     friend class FastTree;
 };
 
-decl_vect(NodeDefinition);
-
-class IAFX_API FastTree : vectNodeDefinition
+class IAFX_API FastTree : vect<NodeDefinition>
 {
 public:
 
-    FastTree();
-    FastTree(const FastTree&);
-    FastTree& operator=(const FastTree&);
+    FastTree() {
+        m_nRoot = INVALID_NODE;
+        m_nTop = 0;
+    }
+
+    FastTree(const FastTree& toCopy) {
+        Assign(toCopy);
+    }
+
+    FastTree& operator=(const FastTree& toCopy) {
+        Assign(toCopy);
+        return *this;
+    }
+    virtual ~FastTree() {}
 
     // formatted display indented
     virtual int DisplayNode(ostream &s, int nline, const NodeLevel & nd) const;
@@ -83,36 +86,103 @@ public:
     static void CharConnections(unsigned char connLines[5], selConn select = V1H1);
 
     // release all elements indexs
-    void RemoveAll();
+    void RemoveAll() {
+        m_nRoot = INVALID_NODE;
+        m_nTop = 0;
+    }
 
     // access a node (debug validate index)
-    NodeDefinition &operator[](NodeIndex allocated);
-    NodeDefinition *GetAt(NodeIndex allocated) const;
+    NodeDefinition &operator[](NodeIndex allocated) {
+        return *GetAt(allocated);
+    }
+
+    NodeDefinition *GetAt(NodeIndex allocated) const {
+        ASSERT(/*allocated >= 0 && */allocated < m_nTop);
+        return getptr(allocated);
+    }
 
     // tree construction
-    void SetSon(NodeIndex father, NodeIndex firstSon);
-    void CatSon(NodeIndex father, NodeIndex firstSon);
-    void AddSon(NodeIndex father, NodeIndex newSon);
-    void SetBrother(NodeIndex firstSon, NodeIndex secSon);
-    void CatBrother(NodeIndex firstSon, NodeIndex secSon);
-    void SetRoot(NodeIndex root);
-    NodeIndex UnlinkBrother(NodeIndex son);
+    void SetSon(NodeIndex father, NodeIndex firstSon) {
+        ASSERT(GetAt(father)->m_nFirstSon == INVALID_NODE);
+        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        GetAt(father)->m_nFirstSon = firstSon;
+    }
+
+    void CatSon(NodeIndex father, NodeIndex firstSon) {
+        ASSERT(GetAt(father)->m_nFirstSon == INVALID_NODE);
+        ASSERT(GetAt(firstSon) != 0);
+        GetAt(father)->m_nFirstSon = firstSon;
+    }
+
+    void AddSon(NodeIndex father, NodeIndex newSon) {
+        NodeIndex lastBrother = LastSon(father);
+        if (lastBrother != INVALID_NODE)
+            CatBrother(lastBrother, newSon);
+        else
+            CatSon(father, newSon);
+    }
+
+    void SetBrother(NodeIndex firstSon, NodeIndex secSon) {
+        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        ASSERT(GetAt(secSon)->m_nBrother == INVALID_NODE);
+        GetAt(firstSon)->m_nBrother = secSon;
+    }
+
+    void CatBrother(NodeIndex firstSon, NodeIndex secSon) {
+        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        ASSERT(GetAt(secSon) != 0);
+        GetAt(firstSon)->m_nBrother = secSon;
+    }
+
+    void SetRoot(NodeIndex root) {
+        ASSERT(m_nRoot == INVALID_NODE);
+        ASSERT(GetAt(root) != 0);
+        m_nRoot = root;
+    }
+
+    NodeIndex UnlinkBrother(NodeIndex son) {
+        NodeIndex brother = GetAt(son)->m_nBrother;
+        GetAt(son)->m_nBrother = INVALID_NODE;
+        return brother;
+    }
 
     // reserve a slot to be given to GetAt, SetSon, CatSon, ...
     NodeIndex AllocNode();
 
     // tree visit
-    NodeIndex Root() const;
-    NodeIndex FirstSon(NodeIndex father) const;
-    NodeIndex LastSon(NodeIndex father) const;
-    NodeIndex NextSon(NodeIndex brother) const;
+    NodeIndex Root() const {
+        return m_nRoot;
+    }
+
+    NodeIndex FirstSon(NodeIndex father) const {
+        return GetAt(father)->m_nFirstSon;
+    }
+
+    NodeIndex LastSon(NodeIndex father) const {
+        NodeIndex s = FirstSon(father), l = INVALID_NODE;
+
+        while (s != INVALID_NODE)
+        {
+            l = s;
+            s = GetAt(s)->m_nBrother;
+        }
+
+        return l;
+    }
+
+    NodeIndex NextSon(NodeIndex brother) const {
+        return GetAt(brother)->m_nBrother;
+    }
+
     unsigned NumSons(NodeIndex father) const;
     NodeIndex NthSon(NodeIndex father, unsigned index) const;
-    void PushSons(stackNodeLevel &v, const NodeLevel &q) const;
+    void PushSons(stack<NodeLevel> &v, const NodeLevel &q) const;
 
     // compute dimension from required node
     unsigned GetSize(NodeIndex node) const;
-    unsigned TotalSize() const;
+    unsigned TotalSize() const {
+        return m_nTop;
+    }
 
 protected:
 
@@ -121,7 +191,6 @@ protected:
     // save free allocation
     NodeIndex m_nTop;
     NodeIndex m_nRoot;
-
 };
 
 // used to fast visit term
@@ -130,12 +199,5 @@ struct NodeLevel
     NodeIndex n;
     unsigned l;
 };
-
-decl_vect(NodeLevel);
-decl_stack(NodeLevel);
-
-#ifndef _DEBUG
-#include "fastree.hpp"
-#endif
 
 #endif

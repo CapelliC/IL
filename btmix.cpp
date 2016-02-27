@@ -47,12 +47,6 @@
 #include <windows.h>
 #endif
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 BtFDecl(genrand);
 
 BtFDecl(listfiles);
@@ -73,13 +67,13 @@ BtFDecl(timecurr);
 BtFDecl(timeform);
 BtFDecl(timediff);
 
-BuiltIn mixing[14] = {
+BuiltIn mixing[15] = {
 	{"random",		3,	genrand},
 
 	{"listfiles",	3,	listfiles},
 	{"os_command",	1,	os_command},
 	{"os_name",		1,	os_name},
-//	{"os_mem",		1,	os_mem},
+	{"os_mem",		1,	os_mem},
 	{"os_interrupt",3,	os_interrupt},
 
 	{"showstatus",	1,	showstatus},
@@ -89,7 +83,7 @@ BuiltIn mixing[14] = {
 	{"getch",		1,	pgetch},
 	{"getche",		1,	pgetche},
 	{"flush",		0,	pflush},
-	
+
 	{"timecurr",	1,	timecurr},
 	{"timeform",	3,	timeform},
 	{"timediff",	3,	timediff}
@@ -142,7 +136,7 @@ BtFImpl(os_command, t, p)
 
 #else
 
-	extern BOOL WaitTaskExecution(UINT ntc);
+	extern bool WaitTaskExecution(UINT ntc);
 	char cmdBuf[256];
     //_snprintf(cmdBuf, sizeof cmdBuf, "COMMAND.COM /c %s", CCP(kstring(c)));
     snprintf(cmdBuf, sizeof cmdBuf, "COMMAND.COM /c %s", CCP(kstring(c)));
@@ -174,11 +168,10 @@ BtFImpl(os_name, t, p)
 	return p->unify(Term(os_id), t.getarg(0));
 }
 
+BtFTBD(os_interrupt)
+#if 0
 BtFImpl(os_interrupt, t, p)
 {
-//#if !defined(WIN32)
-#if 0
-
 	Term inum = p->eval_term(t.getarg(0)),
 		 ireg = p->copy(t.getarg(1)),
 		 oreg = t.getarg(2);
@@ -243,32 +236,27 @@ BtFImpl(os_interrupt, t, p)
 	}
 
 	return p->unify(oreg, p->save(lreg));
-
-#else
-
-	return 0;
-
+}
 #endif
 
-}
-
-/*///////////////////////
+////////////////////////
 // get available memory
 //
+BtFTBD(os_mem)
+#if 0
 BtFImpl(os_mem, t, p)
 {
 	return p->unify(t.getarg(0), Term(Int(-1)));
 }
-*/
+#endif
 
 /////////////////////////////////////
 // search all files matching pattern
 //
+BtFTBD(listfiles)
+#if 0
 BtFImpl(listfiles, t, p)
 {
-//#if !defined(WIN32)
-#if 0
-
 	Term patt = p->eval_term(t.getarg(0));
 
 	if (!patt.type(f_ATOM)) {
@@ -323,10 +311,8 @@ BtFImpl(listfiles, t, p)
 
 	// no matches
 	return p->unify(Term(ListNULL), t.getarg(2));
-#else
-	return 0;
-#endif
 }
+#endif
 
 //////////////////
 // display status
@@ -359,9 +345,11 @@ BtFImpl(showstatus, t, p)
 ////////////////////////
 // display all builtins
 //
+BtFTBD(listbltins)
+#if 0
 BtFImpl_P1(listbltins, p)
 {
-/*	hashtable_iter it(GetEngines()->get_bttbl());
+    hashtable_iter it(GetEngines()->get_bttbl());
 	e_bttable *e;
 
 	while ((e = (e_bttable*)it.next()) != 0) {
@@ -376,9 +364,8 @@ BtFImpl_P1(listbltins, p)
 	}
 
 	return 1;
-*/
-	return 0;
 }
+#endif
 
 //////////////////////////////////
 // true if a keyboard key pressed
@@ -484,7 +471,7 @@ BtFImpl(timediff, t, p)
 }
 
 static SysData* mkmtime() { return new mtime(); }
-SysData::rtinfo mtime::rti = { "time", mkmtime};
+SysData::rtinfo mtime::rti = { "time", mkmtime, 0 };
 
 mtime* mtime::get_data(Term t)
 {

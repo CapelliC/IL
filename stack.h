@@ -30,44 +30,40 @@
 //		stack
 //-------------------
 
-#ifndef _VECTB_H_
 #include "vectb.h"
-#endif
 
-#define decl_stack(type)					\
-class stack##type : protected vect##type {	\
-public:										\
-	stack##type(unsigned dblk = 64) {		\
-		dimblk = dblk;						\
-		count = 0;							\
-	}										\
-	~stack##type() { clear(); }				\
-	unsigned size() const { return count; }	\
-	void push(type v) {						\
-		if (count == vdim) grow(dimblk);	\
-		setat(count++, v);					\
-	}										\
-	type get(unsigned off = 0) const {		\
-		return getat(count - 1 - off);		\
-	}										\
-	type* getptr(unsigned off = 0) const {	\
-		return vect##type::					\
-			getptr(count - 1 - off);		\
-	}										\
-	virtual void pop(unsigned n = 1) {		\
-		ASSERT(n <= count);					\
-		count -= n;							\
-	}										\
-	virtual void clear() { pop(count); }	\
-protected:									\
-	type* reserve() {						\
-		if (count++ == vdim) grow(dimblk);	\
-		return vect##type::getptr(count-1);	\
-	}										\
-	unsigned dimblk;						\
-	unsigned count;							\
+template <class T>
+class stack : protected vect<T> {
+public:
+	stack(unsigned dimblk = 64) : dimblk(dimblk), count(0) { }
+	virtual ~stack() { clear(); }
+
+	unsigned size() const { return count; }
+	void push(T v) {
+		if (count == size()) this->grow(dimblk);
+		this->setat(count++, v);
+	}
+	T get(unsigned off = 0) const {
+		return this->getat(count - 1 - off);
+	}
+	T* getptr(unsigned off = 0) const {
+		return vect<T>::getptr(count - 1 - off);
+	}
+	virtual void pop(unsigned n = 1) {
+		ASSERT(n <= count);
+        ASSERT(n <= vect<T>::size());
+		count -= n;
+	}
+    virtual void clear() { pop(count); }
+
+protected:
+	T* reserve() {
+		if (count++ == vect<T>::size())
+            this->grow(dimblk);
+		return getptr();
+	}
+	unsigned dimblk;
+	unsigned count;
 };
-
-decl_stack(vptr);
 
 #endif

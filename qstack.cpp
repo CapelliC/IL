@@ -31,72 +31,8 @@
 #include "qdata.h"
 
 #ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
-#ifdef _DEBUG
 stkpos countMaxAlloc;
 #endif
-
-// release allocated blocks
-BaseStack::~BaseStack()
-{
-	for (unsigned i = 0; i < vtop; i++)
-		delete base[i];
-}
-
-// allocate top elements
-void BaseStack::push(unsigned n)
-{
-#ifndef WIN32
-	if (free >= 0x40000)
-		throw "stack overflow";
-#endif
-
-	unsigned newfree = free + n;
-	unsigned delta = OPDIV(newfree, BLKDIM) - OPDIV(free, BLKDIM);
-	
-	while (delta--) {
-		if (vtop == vdim)
-			grow(VCTDIM);
-		setat(vtop++, blkalloc(BLKDIM));
-	}
-
-	free = newfree;
-
-#ifdef _DEBUG
-	if (free > countMaxAlloc)
-		countMaxAlloc = free;
-#endif
-
-}
-
-// release top element(s)
-stkpos BaseStack::pop(unsigned n)
-{
-	ASSERT(free >= n);
-
-	stkpos oldfree = free;
-	free -= n;
-
-	stkpos delta = OPDIV(oldfree, BLKDIM) - OPDIV(free, BLKDIM);
-    /*ASSERT(delta >= 0);*/
-	while (delta--)
-		delete base[--vtop];
-
-	return free;
-}
-
-// ensure empty on create
-void BaseStack::init()
-{
-	free = 0;
-	vtop = 0;
-	grow(VCTDIM);
-	setat(vtop++, blkalloc(BLKDIM));
-}
 
 //----------------------------
 // display current proof tree
@@ -149,7 +85,7 @@ int ProofStack::isancestor(stkpos f, stkpos n) const
 //--------------------------------------
 // attempt to find env that have p vars
 //
-const ProofStack::Env* ProofStack::findVarEnv(stkpos p) const
+const Env* ProofStack::findVarEnv(stkpos p) const
 {
 	for (stkpos l = free - 1; l > 0; l--)
 	{
@@ -176,7 +112,7 @@ stkpos BindStack::reserve(unsigned n)
 	stkpos ret = free;
 
 	push(n);
-				
+
 	for ( ; n > 0; n--) {
 		elbind *e = getptr(free - n);
 		e->value = f_NOTERM;

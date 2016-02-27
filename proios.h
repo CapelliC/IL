@@ -37,13 +37,8 @@
 //	saving data while source input file are scanned.
 //---------------------------------------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
 
 class IntlogExec;	// forward decl
 class IntlogStream;	// a named stream
@@ -60,15 +55,23 @@ class IAFX_API IntlogStream : e_slist
 public:
 
     // keep identifier
-    kstring name() const;
+    kstring name() const {
+        return ident;
+    }
 
     enum mode { input, output, none };
-    mode get_mode() const;
+    mode get_mode() const {
+        return md;
+    }
+
     virtual void close(){};
 
 protected:
 
-    IntlogStream(kstring id, mode m);
+    IntlogStream(kstring id, mode m){
+        ident = id;
+        md = m;
+    }
 
     kstring ident;
     mode md;
@@ -102,7 +105,10 @@ public:
 
 protected:
 
-    IntlogIStream(kstring);
+    IntlogIStream(kstring id) : IntlogStream(id, input)
+    {
+    }
+
     istream *i;
 
     friend class IntlogIOStreams;
@@ -113,7 +119,11 @@ protected:
 //
 class IntlogOStream : public IntlogStream
 {
-    IntlogOStream(kstring, ostream*);
+    IntlogOStream(kstring id, ostream* s) : IntlogStream(id, output)
+    {
+        o = s;
+    }
+
     ostream* o;
     friend class IntlogIOStreams;
 };
@@ -126,36 +136,61 @@ class IAFX_API IntlogIOStreams
 {
 public:
 
-    IntlogIOStreams();
+    IntlogIOStreams() {
+        currinp = 0;
+        currout = 0;
+    }
+
     void closeall();
 
     // console identify
-    static kstring name();
-    static void setuser(kstring user, kstring envvar);
+    static kstring name() {
+        return user;
+    }
+
+    static void setuser(kstring console, kstring searchpath) {
+        user = console;
+        envar = searchpath;
+    }
 
     // input control
-    int seeing(kstring) const;
+    int seeing(kstring id) const {
+        return id == currinp->ident;
+    }
+
     int see(kstring name, int flags = 0);
     int seen();
 
-    IntlogIStream *ips() const;
+    IntlogIStream *ips() const{
+        return currinp;
+    }
+
     istream& inp() const;
 
     // find by name
     IntlogStream *isin(kstring ident, IntlogStream::mode = IntlogStream::none) const;
 
     // output control
-    int telling(kstring) const;
+    int telling(kstring id) const {
+        return id == currout->ident;
+    }
+
     int tell(kstring name, int flags = 0);
     int told();
 
-    IntlogOStream *ops() const;
-    ostream& out() const;
+    IntlogOStream *ops() const {
+        return currout;
+    }
+
+    ostream& out() const {
+        return *currout->o;
+    }
+
 
     // in-memory files support
     void NewBuffer(kstring name);
     void DelBuffer(kstring name);
-    BOOL IsBuffer(kstring name) const;
+    bool IsBuffer(kstring name) const;
     const char *GetBuffer(kstring name);
     void SetBuffer(kstring name, const char *value);
 
@@ -168,8 +203,12 @@ public:
     // open file buf (avoid a problem arise from WINDLL streams...)
     static filebuf *openfile(kstring id, int of, char *path = 0, char *buf = 0, int maxbuf = -1);
     static kstring envar;
-    static void setenvar(kstring var);
-    static kstring getenvar();
+    static void setenvar(kstring var) {
+        envar = var;
+    }
+    static kstring getenvar() {
+        return envar;
+    }
 
 protected:
 
@@ -193,7 +232,7 @@ protected:
     void closestream(IntlogStream *s);
 
     IntlogIStream *create_input_file(kstring ident, int flags);
-    virtual void openedbin(kstring);
+    virtual void openedbin(kstring) {}
 
     // keep memory buffers
     slist membuffer;
@@ -201,9 +240,5 @@ protected:
     // binary lib control
     static SourceBinaryLib*	sbl;
 };
-
-#ifndef _DEBUG
-#include "proios.hpp"
-#endif
 
 #endif

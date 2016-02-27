@@ -32,28 +32,17 @@
 //	to parse prolog expressions
 //--------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _FASTREE_H_
 #include "fastree.h"
-#endif
-
-#ifndef _SRCPOS_H_
 #include "srcpos.h"
-#endif
 
 class IAFX_API SrcPosTree : public FastTree
 {
 public:
 	virtual int DisplayNode(ostream &s, int, const NodeLevel & nd) const;
 };
-	
+
 class IntlogParser;
 class ReduceStack;
 
@@ -88,27 +77,27 @@ public:
 	int is_term() const;
 };
 
-decl_vect(RedEl);
-decl_stack(RedEl);
-
 //---------------------------------------
 // shift/reduction operation
 //	parsing operations must be bracketed
 //	with Begin()... End()
 //
-class ReduceStack : stackRedEl
+class ReduceStack : stack<RedEl>
 {
+friend class IntlogParser;
+
 public:
 
 	// only a parser utility
 	ReduceStack();
+    virtual ~ReduceStack();
 
 	// begin a section
 	void Begin();
 
 	RedEl* AddOper(Operator *op, SourcePos sp);
 	RedEl* AddTerm(Term t, SourcePos sp);
-	RedEl* Reduce(BOOL bUsePar = FALSE);
+	RedEl* Reduce(bool bUsePar = FALSE);
 
 	// terminate a section
 	void End();
@@ -136,7 +125,7 @@ private:
 	RedEl* getchk(unsigned = 0) const;
 
 	// actual arguments (m_Args will point to its elements)
-	vectTerm m_vArgs;
+	vect<Term> m_vArgs;
 	unsigned CountArgs() const;
 };
 

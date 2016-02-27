@@ -32,59 +32,67 @@
 //	other data for variables and status
 ////////////////////////////////////////////
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _QUERY_H_
 #include "query.h"
-#endif
-
-#ifndef _DBINTLOG_H_
 #include "dbintlog.h"
-#endif
 
 //////////////////////////////////
 // stack base behaviour
 //	a vector of allocation blocks
 //
-class IAFX_API BaseStack : protected vectvptr
+template<class T>
+class IAFX_API BaseStack : protected vect<T>
 {
 public:
+
     // allocate top elements
-    void push(unsigned = 1);
+    void push(unsigned n = 1) {
+        for (unsigned c = 0; c < n; ++c) {
+            this->push_back(T());
+            ++free;
+        }
+    }
 
     // release top element(s)
-    stkpos pop(unsigned = 1);
+    stkpos pop(unsigned n = 1) {
+        ASSERT(free >= n);
+        free -= n;
+        return free;
+    }
 
     // return current dimension
-    stkpos curr_dim() const;
+    stkpos curr_dim() const { return free; }
 
     // ensure empty on create
-    void init();
-
-    // release memory
-    ~BaseStack();
+    void init() {
+    }
 
 protected:
+    unsigned free = 0;
+};
 
-    // next free location
-    stkpos free;
+// stack vector entry
+struct elbind {
 
-    // allocation control
-    unsigned vtop;
+    // binder Env reference
+    stkpos envp;
 
-    // elements allocator
-    virtual void* blkalloc(unsigned) = 0;
+    // shared or ground: check envp
+    union {
+        stkpos		share;
+        TermData	value;
+    };
 };
 
 /////////////////////////////
 // keep unification bindings
 //
-class IAFX_API BindStack : public BaseStack
+class IAFX_API BindStack : public BaseStack<elbind>
 {
 public:
-    BindStack();
+    BindStack() {
+        init();
+    }
 
     // alloc and return base of reserved cells
     stkpos reserve(unsigned);
@@ -93,62 +101,87 @@ public:
     Term getvar(stkpos, stkpos *, stkpos *) const;
 
     // change offset var from base
-    void setvar(stkpos, Term, stkpos);
+    void setvar(stkpos off, Term t, stkpos envp) {
+        ASSERT(envp != STKNULL);
+        elbind *vval = getptr(off);
+        vval->value = t;
+        vval->envp = envp;
+    }
 
     // make a shared variable cell
-    void setshare(stkpos, stkpos);
+    void setshare(stkpos cell, stkpos rpos) {
+        ASSERT(rpos != STKNULL);
+        ASSERT(cell != rpos);
+        elbind *e = getptr(cell);
+        e->share = rpos;
+        e->envp = STKNULL;
+    }
 
     // clear binding of requested cell
-    void clearcell(stkpos);
+    void clearcell(stkpos cell)  {
+        elbind *e = getptr(cell);
+        e->value = f_NOTERM;
+        e->envp = 0;
+    }
 
     // display current proof segment
     void show(ostream &) const;
 
-private:
-
-    // stack vector entry
-    struct elbind {
-
-        // binder Env reference
-        stkpos envp;
-
-        // shared or ground: check envp
-        union {
-            stkpos		share;
-            TermData	value;
-        };
-    };
-
-    // fetch element at position
-    elbind* getptr(stkpos) const;
-
-    // allocate entries
-    void* blkalloc(unsigned);
 };
 
 /////////////////////////////////////////////
 // register bindings to undo on backtracking
 //
-class IAFX_API TrailStack : public BaseStack
+class IAFX_API TrailStack : public BaseStack<stkpos>
 {
 public:
 
-    TrailStack();
+    TrailStack() {
+        init();
+    }
 
     // register a bind
-    void bind(unsigned);
+    void bind(unsigned v) {
+        push();
+        set(free - 1, v);
+    }
 
     // access n-th element
-    stkpos get(stkpos) const;
-    void set(stkpos, stkpos);
+    stkpos get(stkpos n) const {
+        return getat(n);
+    }
+
+    void set(stkpos n, stkpos v) {
+        setat(n, v);
+    }
 
     // display current bindings segment
-    void show(ostream &) const;
+    void show(std::ostream &) const;
+};
 
-private:
+/////////////////////////////
+// Proof main data structure
+//	keep track of a try
+//
+struct Env
+{
+    // current RHB procedure
+    CallData* call;
 
-    // allocate entries
-    void* blkalloc(unsigned);
+    // location in DB (if DBPRED) or other infos
+    union {
+        const e_DbList*	dbpos;
+        BltinData*		ptr;
+    };
+
+    // father of this (-1 if none)
+    stkpos father;
+
+    // query variables start
+    stkpos vspos;
+
+    // binded trail start index
+    stkpos trail;
 };
 
 //////////////////////////////////////////////////////
@@ -156,44 +189,31 @@ private:
 //	not a full stack:
 //	access needed to elements with incomplete searchs
 //
-class IAFX_API ProofStack : public BaseStack
+class IAFX_API ProofStack : public BaseStack<Env>
 {
 public:
-    ProofStack();
-
-    /////////////////////////////
-    // Proof main data structure
-    //	keep track of a try
-    //
-    struct Env
-    {
-        // current RHB procedure
-        CallData* call;
-
-        // location in DB (if DBPRED) or other infos
-        union {
-            const e_DbList*	dbpos;
-            BltinData*		ptr;
-        };
-
-        // father of this (-1 if none)
-        stkpos father;
-
-        // query variables start
-        stkpos vspos;
-
-        // binded trail start index
-        stkpos trail;
-    };
+    ProofStack() {
+        init();
+    }
 
     // get element at pos from base
-    Env* get(stkpos) const;
+    Env* get(stkpos pos) const {
+        return getptr(pos);
+    }
 
     // return <nth> from top
-    Env* topget() const;
+    Env* topget() const {
+        return get(free - 1);
+    }
 
     // insert a new element
-    stkpos push(stkpos);
+    stkpos push(stkpos from) {
+        BaseStack::push();
+        stkpos ret = free - 1;
+        Env *e = get(ret);
+        e->father = from;
+        return ret;
+    }
 
     // find base of required, following fathers' chain
     stkpos baseof(stkpos = STKNULL) const;
@@ -206,11 +226,6 @@ public:
 
     // attempt to recover variables env
     const Env *findVarEnv(stkpos) const;
-
-private:
-
-    // allocate entries
-    void* blkalloc(unsigned);
 };
 
 /////////////////////////////////
@@ -219,20 +234,42 @@ private:
 class IAFX_API ProofStatus
 {
 public:
-    ProofStatus(IntlogExec *);
+    ProofStatus(IntlogExec *pe) {
+        p = pe;
+        save();
+    }
 
     void save();
     void restore();
 
-    int	ok() const;
-    int empty() const;
-    stkpos pdim() const;
-    stkpos vdim() const;
-    stkpos tdim() const;
-    IntlogExec *eng() const;
+    int	ok() const {
+        return psdim != STKNULL;
+    }
+
+    int empty() const {
+        return psdim == 0;
+    }
+
+    stkpos pdim() const {
+        return psdim;
+    }
+
+    stkpos vdim() const {
+        return vsdim;
+    }
+
+    stkpos tdim() const {
+        return tsdim;
+    }
+
+    IntlogExec *eng() const {
+        return p;
+    }
 
 private:
-    void init();
+    void init() {
+        psdim = STKNULL;
+    }
 
     IntlogExec *p;
     stkpos psdim, vsdim, tsdim;
@@ -265,34 +302,71 @@ class ElemTmp : public e_slist
     } type;
     stkpos spos;
 
-    ElemTmp(Term, stkpos);
-    ElemTmp(Clause *, stkpos);
-    ElemTmp(BltinData *, stkpos);
-    ~ElemTmp();
+    ElemTmp(Term ts, stkpos atp) {
+        t = TermData(ts);
+        spos = atp;
+        type = vT;
+    }
+    ElemTmp(Clause *cs, stkpos atp) {
+        c = cs;
+        spos = atp;
+        type = vC;
+    }
+    ElemTmp(BltinData *ds, stkpos atp) {
+        d = ds;
+        spos = atp;
+        type = vD;
+    }
+
+    ~ElemTmp() {
+        switch (type) {
+        case vT:
+            Term(t).Destroy();
+            break;
+        case vC:
+            delete c;
+            break;
+        case vD:
+            delete d;
+            break;
+        }
+    }
 };
 
 //////////////////////////////////////////////
 // visit reindexing on linear search position
 //
-decl_vect(Var);
-class OffVars : vectVar
+class OffVars : vect<Var>
 {
 public:
-    OffVars(Term&, unsigned = 0);
+    OffVars(Term& t, unsigned off = 0) {
+        SetTerm(t, off);
+    }
+
     void SetTerm(Term&, unsigned);
 
-    Var old2new(Var) const;
-    Var new2old(Var) const;
-    unsigned nvars() const;
+    Var old2new(Var oldv) const {
+        return Var(search(oldv));
+    }
+
+    Var new2old(Var newv) const {
+        return getat(unsigned(newv));
+    }
+
+    unsigned nvars() const {
+        return count;
+    }
 
 private:
-    unsigned search(Var) const;
+    unsigned search(Var v) const {
+        for (unsigned i = 0; i < count; i++)
+            if (getat(i) == v)
+                return i;
+        return unsigned(-1);
+    }
+
     Var lookup(Var);
     unsigned count;
 };
-
-#ifndef _DEBUG
-#include "qdata.hpp"
-#endif
 
 #endif

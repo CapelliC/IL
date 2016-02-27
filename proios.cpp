@@ -40,11 +40,6 @@
 #include <io.h>
 #include <fcntl.h>
 */
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
 
 ///////////////////////////////////
 // static IntlogIOStreams members
@@ -300,7 +295,7 @@ void IntlogIOStreams::DelBuffer(kstring id)
     if (mb)
         s.delitem();
 }
-BOOL IntlogIOStreams::IsBuffer(kstring id) const
+bool IntlogIOStreams::IsBuffer(kstring id) const
 {
     slist_iter i(membuffer);
     return find(id, i) != 0;

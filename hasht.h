@@ -35,9 +35,7 @@ class hashtable;
 class hashtable_str;
 class hashtable_iter;
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 //-------------------------------------
 // a table entry
@@ -80,7 +78,7 @@ class IAFX_API hashtable
 {
 public:
     hashtable(unsigned initsize = 997);
-    ~hashtable();
+    virtual ~hashtable();
 
     // return 0 if not found
     e_hashtable* isin(const e_hashtable *key) const;

@@ -32,25 +32,13 @@
 //	strings are represented by their 'nominal index'
 //
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _SLIST_H_
 #include "slist.h"
-#endif
-
-#ifndef _HASHT_H_
 #include "hasht.h"
-#endif
-
-#ifndef _MEMSTORE_H_
 #include "memstore.h"
-#endif
 
-// pointers retrieval location
+// shorthand POD string
 typedef const char* CCP;
-MemStorageDecl(CCP, SL_PTR);
 
 class kstring;
 class kstr_list;
@@ -74,7 +62,7 @@ public:
 private:
     MemStoreRef m_nameIndex;
 
-    static MemStorage_CCP nameSpace;
+    static MemStorage<CCP> nameSpace;
     static hashtable* strTbl;
     friend class e_kstrtable;
 };

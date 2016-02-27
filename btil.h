@@ -26,13 +26,8 @@
 #ifndef _BTIL_H_
 #define _BTIL_H_
 
-#ifndef _ENG_H_
 #include "eng.h"
-#endif
-
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
 
 extern BuiltIn interface_obj[13*2-1];
 

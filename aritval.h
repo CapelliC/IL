@@ -20,9 +20,7 @@
 #ifndef _ARITVAL_H_
 #define _ARITVAL_H_
 
-#ifndef _TERM_H_
 #include "term.h"
-#endif
 
 class IntlogExec;
 

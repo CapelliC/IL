@@ -26,37 +26,26 @@
 #ifndef _VECTB_H_
 #define _VECTB_H_
 
-#define decl_vect(type)					\
-class vect##type {					\
-public:							\
-    void grow(unsigned dim) {				\
-        type *basenew = new type[vdim + dim];		\
-        memcpy(basenew, base, sizeof(type) * vdim);	\
-        delete [] base;					\
-        base = basenew;					\
-        vdim += dim;					\
-    }							\
-    void setat(unsigned pos, type val) {		\
-        ASSERT(pos < vdim);				\
-        base[pos] = val;				\
-    }							\
-    type getat(unsigned pos) const {			\
-        ASSERT(pos < vdim);				\
-        return base[pos];				\
-    }							\
-    type* getptr(unsigned pos) const {			\
-        ASSERT(pos < vdim);				\
-        return base + pos;				\
-    }							\
-    unsigned dim() const { return vdim; }		\
-    vect##type() { base = 0; vdim = 0; }		\
-    ~vect##type() { delete [] base; }			\
-protected:						\
-    type* base;						\
-    unsigned vdim;					\
-};
+#include <vector>
 
-typedef void *vptr;
-decl_vect(vptr);
+template <typename T>
+class vect : protected std::vector<T> {
+public:
+    void grow(unsigned dim) {
+        for (unsigned c = 0; c < dim; ++c)
+            this->push_back(T());
+    }
+    void setat(unsigned pos, T val) {
+        this->at(pos) = val;
+    }
+    T getat(unsigned pos) const {
+        return this->at(pos);
+    }
+    T* getptr(unsigned pos) const {
+        const T* p = &(this->at(pos));
+        return const_cast<T*>(p);
+    }
+    unsigned dim() const { return this->size(); }
+};
 
 #endif

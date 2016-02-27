@@ -36,12 +36,6 @@
 #include "parsemsg.h"
 #include "proios.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ////////////////////////////////////////////
 // on read use already stored files
 // on write register each file to be stored
@@ -396,9 +390,11 @@ void BinIFile::restart()
 BinOFile::BinOFile(kstring id, SourceBinaryLib *l)
     : BinFile(id, l)
 {
-    tmpnam(tfn);
     out = 0;
-    status = created;
+    if (0 == mkstemp(strcpy(tfn, "ILXXXXXX")))
+        status = created;
+    else
+        status = err;
 }
 BinOFile::~BinOFile()
 {
@@ -550,13 +546,9 @@ void BinOFile::cat_data(ostream &slib)
 //
 void BinOFile::write_dir(ostream &slib) const
 {
-#if 0
     ASSERT(out == 0);
     bswrite(slib, plib->kstrl.add(id));
     bswrite(slib, begdata);
     bswrite(slib, enddata);
     bswrite(slib, nobjects);
-#else
-    assert(false);
-#endif
 }

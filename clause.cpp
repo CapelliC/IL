@@ -33,12 +33,6 @@
 #include "defsys.h"
 #include "reduce.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //////////////////////////////////////////////
 // make a  clause: check for semantic
 //	variable names are behaviour sectors here
@@ -164,7 +158,7 @@ CallData *Clause::makebody(Term *pt, DbIntlog* db, SrcPosTree *sp, NodeIndex nIn
         if (cl->type == CallData::DISJUNCT)
         {
             // link all terminals paths to right part
-            stackvptr s;
+            stack<void*> s;
             s.push(cl->link);
             s.push(cl->orelse);
             while (s.size())
@@ -356,8 +350,8 @@ kstring Clause::get_varid(Var v) const
 //
 Term Clause::cd_image(const CallData *pData) const
 {
-    stackvptr cs;	// CallData stack
-    stackTerm ts;	// image Term stack
+    stack<void*> cs;	// CallData stack
+    stack<Term> ts;	// image Term stack
 
     // prepare stacks
     cs.push(body);

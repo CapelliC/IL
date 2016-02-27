@@ -39,7 +39,7 @@ public:
 	unsigned len() const;
 
 	operator long() const;
-	BOOL Used() const;
+	bool Used() const;
 
 private:
 
@@ -83,7 +83,7 @@ inline SourcePos::operator long() const
 {
 	return m_data;
 }
-inline BOOL SourcePos::Used() const
+inline bool SourcePos::Used() const
 {
 	return m_data != -1;
 }

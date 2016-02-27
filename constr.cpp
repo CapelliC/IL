@@ -22,12 +22,6 @@
 #include "constr.h"
 #include "membuf.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ////////////////////////////////
 // define console IO interface
 ////////////////////////////////
@@ -49,7 +43,7 @@ ConsoleExec::ConsoleExec(DbIntlog *pDb)
 ///////////////////////////////
 // create the stream as output
 //
-ostream *ConsoleExec::openout(kstring id, int flags)
+ostream *ConsoleExec::openout(kstring id, int)
 {
     if (id == user)
         return &cout;

@@ -28,30 +28,24 @@
 #include "builtin.h"
 #include "unify.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 /*
 	findall : Clocksin, Mellish PROLOG implementation
 
 findall(X,G,_):-
-	asserta(found('$mark')), 
-	call(G), 
-	asserta(found(X)), 
+	asserta(found('$mark')),
+	call(G),
+	asserta(found(X)),
 	fail.
 findall(_,_,N) :-
-	collect_found([],N), 
+	collect_found([],N),
 collect_found(S,L) :-
-	getnext(X), 
-	!, 
+	getnext(X),
+	!,
 	collect_found([X|S],L).
 collect_found(L,L).
 getnext(X) :-
-	retract(found(X)), 
-	!, 
+	retract(found(X)),
+	!,
 	X \= '$mark'.
 */
 int IntlogExec::findall(Term X, Term G, Term L)
@@ -81,7 +75,7 @@ int IntlogExec::findall(Term X, Term G, Term L)
 
 	int qr = query(&c);
 	if (qr == 1)
-	{      
+	{
 		int qp = ts->curr_dim();
 		for (Var v = 0; v < oG.nvars(); v++)
 		{

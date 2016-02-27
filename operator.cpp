@@ -30,12 +30,6 @@
 #include "iafx.h"
 #include "operator.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 ////////////////////////////////
 // append a definition
 //	dont' check for duplicates
@@ -44,14 +38,7 @@ void OperTable::Add(kstring name,
 	short prec, Operator::assocTag assoc, Operator::opCodeTag opc)
 {
 	ASSERT(opc == int(name) || opc == Operator::UserDef);
-	if (m_nCount == vdim)
-		grow(32);
-
-	Operator *o = getptr(m_nCount++);
-	o->name	= name;
-	o->assoc = assoc;
-	o->prec	= prec;
-	o->opCode = opc;
+    push_back(Operator {name, opc, prec, assoc});
 }
 
 ////////////////////////////////
@@ -63,7 +50,7 @@ Operator* OperTable::IsOp(kstring name) const
 		return getptr(name);
 
 	// now search in user defined space
-	for (unsigned ix = Operator::UserDef; ix < m_nCount; ix++)
+	for (unsigned ix = Operator::UserDef; ix < size(); ix++)
 		if (getptr(ix)->name == name)
 			return getptr(ix);
 
@@ -75,13 +62,13 @@ Operator* OperTable::IsOp(kstring name) const
 //
 Operator* OperTable::GetNext(Operator* op) const
 {
-	ASSERT(op && unsigned(op->opCode) < m_nCount);
+	ASSERT(op && unsigned(op->opCode) < size());
 
 	Operator *opnext = 0;
 	if (op->opCode != Operator::UserDef) {
 		unsigned ix = op->opCode + 1;
 
-		while (ix < m_nCount) {
+		while (ix < size()) {
 			if (CCP(getptr(ix)->name) == CCP(op->name)) {
 				opnext = getptr(ix);
 				break;

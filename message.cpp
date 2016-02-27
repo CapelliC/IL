@@ -27,12 +27,6 @@
 #include "message.h"
 #include "eng.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 // global messages table
 //MsgTable *MsgTbl;
 

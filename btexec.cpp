@@ -33,12 +33,6 @@
 #include "builtin.h"
 #include "bterr.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 BtFDecl(true_rep);
 BtFDecl(fail);
 BtFDecl(call);
@@ -47,15 +41,15 @@ BtFDecl(findall);
 BtFDecl(setof);
 BtFDecl(bagof);
 
-BuiltIn execution_control[6] = {
+BuiltIn execution_control[8] = {
     {"repeat",	0|BuiltIn::retry,	true_rep},
     {"true",	0,					true_rep},
     {"fail",	0,					fail},
     {"call",	1,					call},
     {"not",		1,					not_},
-    {"findall",	3,					findall}
-    //	{"setof",	3,					setof},
-    //	{"bagof",	3,					bagof}
+    {"findall",	3,					findall},
+    {"setof",	3,					setof},
+    {"bagof",	3,					bagof}
 };
 
 BtFImpl_NP(true_rep)
@@ -103,6 +97,9 @@ BtFImpl(findall, t, p)
 {
     return p->findall(t.getarg(0), t.getarg(1), t.getarg(2));
 }
+BtFTBD(setof)
+BtFTBD(bagof)
+#if 0
 BtFImpl(setof, t, p)
 {
     return p->setof(t.getarg(0), t.getarg(1), t.getarg(2));
@@ -111,3 +108,4 @@ BtFImpl(bagof, t, p)
 {
     return p->bagof(t.getarg(0), t.getarg(1), t.getarg(2));
 }
+#endif

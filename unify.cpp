@@ -27,12 +27,6 @@
 #include "qdata.h"
 #include "unify.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //-----------------------------------------------------
 // generate MGU of terms t1, t2
 //	return 0 if failure (t1, t2 don't unify)
@@ -154,7 +148,7 @@ int UnifyStack::work(Term t1, stkpos envp1, Term t2, stkpos envp2)
 			if (!SysDataPtr(t1)->unify(t2))
 				return 0;
 			break;
-			
+
 		default:
 			ASSERT(0);
 		}

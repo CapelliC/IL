@@ -33,12 +33,6 @@
 #include "dbintlog.h"
 #include "bterr.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 BtFDecl(clause);
 BtFDecl(functor);
 BtFDecl(arg);
@@ -247,7 +241,7 @@ BtFImpl(univ, t, p)
 			tailFollow = tl;
 			x.setarg(i, Int(0));	// avoid shared memory
 		}
-		
+
 		u1 = t.getarg(1);
 
 	} else {
@@ -310,7 +304,7 @@ BtFImpl(freeze, r, p)
 	Term c = p->copy(r.getarg(0));
 	Atom idVar("%VAR%");
 
-	stackTerm st;
+	stack<Term> st;
 	st.push(c);
 
 	for ( ; st.size() > 0; )

@@ -32,17 +32,14 @@
 #include "parse.h"
 #include "proios.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 #define DIMGROW 32
 
-ReduceStack::ReduceStack()
+ReduceStack::ReduceStack() : stack<RedEl>()
 {
 	m_vArgs.grow(DIMGROW);
+}
+ReduceStack::~ReduceStack()
+{
 }
 
 //-----------------------------------------------
@@ -50,10 +47,13 @@ ReduceStack::ReduceStack()
 //	if sp.Used(), check for parentesized terms,
 //	to avoid losing nesting infos
 //
-RedEl *ReduceStack::Reduce(BOOL bUsePar)
+RedEl *ReduceStack::Reduce(bool bUsePar)
 {
 	RedEl *el0 = get(0), *el1;
-	unsigned count;
+
+el1 = get(1);
+
+	unsigned a_count = 0;
 	NodeIndex lastIdx = INVALID_NODE;
 
 	if (bUsePar)
@@ -73,7 +73,7 @@ RedEl *ReduceStack::Reduce(BOOL bUsePar)
 			m_Args = m_vArgs.getptr(cbase);	// resinc on memory realloc
 		}
 
-		count = m_nArgs;
+		a_count = m_nArgs;
 	}
 
 	while (get(1)->type != RedEl::aMark)
@@ -122,7 +122,7 @@ RedEl *ReduceStack::Reduce(BOOL bUsePar)
 				m_ft.CatBrother(top->idx, lastIdx);
 			lastIdx = top->idx;
 
-			m_Args[--count] = Term(top->term);
+			m_Args[--a_count] = Term(top->term);
 			pop(2);
 		}
 		else
@@ -139,8 +139,8 @@ RedEl *ReduceStack::Reduce(BOOL bUsePar)
 		if (lastIdx != INVALID_NODE)
 			m_ft.CatBrother(top->idx, lastIdx);
 
-		m_Args[--count] = Term(top->term);
-		ASSERT(count == 0);
+		m_Args[--a_count] = Term(top->term);
+		ASSERT(a_count == 0);
 	}
 
 	ASSERT(el0->term != f_NOTERM);

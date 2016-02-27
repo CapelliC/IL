@@ -32,17 +32,9 @@
 //	see DBINTLOG for details
 //----------------------------------------------------------------
 
-#ifndef _IAFX_H_
 #include "iafx.h"
-#endif
-
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _FASTREE_H_
 #include "fastree.h"
-#endif
 
 // local classes
 class Clause;
@@ -59,50 +51,102 @@ class IAFX_API Clause
 {
 public:
 
-    // init state and  check semantic correctness
+    // init state and check semantic correctness
     Clause(Term tData, kstr_list *vars, DbIntlog *dbOwn, kstring fileId = MSR_NULL, SrcPosTree * = 0);
 
     // release allocated memory and term image
     ~Clause();
 
     // verify construction process
-    int is_ok() const;
+    int is_ok() const {
+        return !get_image().type(f_NOTERM);
+    }
 
     // qualifiers
-    int	is_rule() const;
-    int is_fact() const;
-    int	is_query() const;
-    int	is_command() const;
+    int	is_rule() const {
+        return image.is_rule();
+    }
+
+    int is_fact() const {
+        return !image.is_rule() && !image.is_query() && !image.is_command();
+    }
+
+    int	is_query() const {
+        return image.is_query();
+    }
+
+    int	is_command() const {
+        return image.is_command();
+    }
+
 
     // accessors
-    Term get_image() const;
-    Term get_head() const;
+    Term get_image() const {
+        return image;
+    }
 
-    kstring get_source() const;
-    void set_source(kstring newsrc);
+    Term get_head() const {
+        ASSERT(!is_query());
+        return image.is_rule()? image.getarg(0) : image;
+    }
 
-    TermArgs h_args() const;
-    int h_arity() const;
+    kstring get_source() const {
+        return src;
+    }
 
-    CallData* get_body() const;
-    unsigned get_nvars() const;
+    void set_source(kstring newsrc) {
+        src = newsrc;
+    }
+
+    TermArgs h_args() const {
+        ASSERT(!is_query());
+        return argp;
+    }
+
+    int h_arity() const {
+        ASSERT(!is_query());
+        return arity;
+    }
+
+
+    CallData* get_body() const {
+        return body;
+    }
+
+    unsigned get_nvars() const {
+        return nvars;
+    }
+
     kstring get_varid(Var) const;
 
     // DB owner (where stored) control
-    DbIntlog* get_db() const;
-    void set_db(DbIntlog *dbOwn);
+    DbIntlog* get_db() const {
+        return db;
+    }
+
+    void set_db(DbIntlog *owner) {
+        db = owner;
+    }
 
     // release local pointer to term
-    void no_image();
+    void no_image() {
+        image = Term(f_NOTERM);
+    }
 
     // if no variables names, set number
-    void set_nvars(unsigned);
+    void set_nvars(unsigned nv) {
+        ASSERT(varids == 0);
+        nvars = nv;
+    }
 
     // find term image from calldata pointer
     Term cd_image(const CallData*) const;
 
     // file source position storage
-    SrcPosTree* GetSrcPosTree() const;
+    SrcPosTree* GetSrcPosTree() const {
+        return spt;
+    }
+
 
 private:
     Term		image;	// parsed term (semantically correct!)
@@ -148,29 +192,66 @@ public:
     };
 
     // generic accessors
-    Term val() const;
-    TermArgs args() const;
+    Term val() const {
+        return owner->cd_image(this);
+    }
+
+    TermArgs args() const {
+        return argp;
+    }
+
 
     // source position
-    NodeIndex srcpos() const;
+    NodeIndex srcpos() const {
+        return spos;
+    }
+
     unsigned row() const;
     unsigned col() const;
     unsigned len() const;
 
-    const Clause* get_clause() const;
-    enum cdtype get_type() const;
-    CallData* get_orelse() const;
-    BuiltIn* get_builtin() const;
-    DbEntry* get_dbe() const;
+    const Clause* get_clause() const {
+        return owner;
+    }
+
+    enum cdtype get_type() const {
+        return type;
+    }
+
+    CallData* get_orelse() const {
+        ASSERT(type == DISJUNCT);
+        return orelse;
+    }
+
+    BuiltIn* get_builtin() const {
+        ASSERT(type == BUILTIN);
+        return bltin;
+    }
+
+    DbEntry* get_dbe() const {
+        ASSERT(type == DBPRED);
+        return entry;
+    }
+
 
     // return direct right hand brother
-    CallData* next() const;
+    CallData* next() const {
+        return link;
+    }
 
     // true if last right hand brother
-    int is_last() const;
+    int is_last() const {
+        return link? 0 : 1;
+    }
 
 private:
-    CallData(Clause *c);
+
+    CallData(Clause *c) {
+        owner = c;
+        link = 0;
+        spos = INVALID_NODE;
+    }
+
     ~CallData();
 
     TermArgs	argp;	// fast access to arguments
@@ -189,9 +270,5 @@ private:
 
     friend class Clause;
 };
-
-#ifndef _DEBUG
-#include "clause.hpp"
-#endif
 
 #endif

@@ -31,12 +31,6 @@
 #include "defsys.h"
 #include "parsemsg.h"
 
-#ifdef _DEBUG
-#undef THIS_FILE
-static char BASED_CODE THIS_FILE[] = __FILE__;
-#define new DEBUG_NEW
-#endif
-
 //----------------
 // setup messages
 //
@@ -141,6 +135,5 @@ void AddStdOpers(OperTable *tbl)
 	tbl->Add(kstring(":^", 1),	31,		Operator::XFX,	Operator::I_PROPLIST);
 	tbl->Add(kstring(":&", 1),	31,		Operator::XFX,	Operator::I_ISA);
 
-	kstring kl = kstring(".");
-	kstring kc = kstring("!");
+	kstring kl("."), kc("!");
 }

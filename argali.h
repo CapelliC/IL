@@ -26,13 +26,8 @@
 #ifndef _ARGALI_H_
 #define _ARGALI_H_
 
-#ifndef _TERM_H_
 #include "term.h"
-#endif
-
-#ifndef _QUERY_H_
 #include "query.h"
-#endif
 
 //--------------------------------------------------
 // a class to iterate arguments of form like spy...
