@@ -548,7 +548,11 @@ void BinOFile::write_dir(ostream &slib) const
 {
     ASSERT(out == 0);
     bswrite(slib, plib->kstrl.add(id));
+#if 0
     bswrite(slib, begdata);
     bswrite(slib, enddata);
+#else
+    assert(false);
+#endif
     bswrite(slib, nobjects);
 }

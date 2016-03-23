@@ -219,7 +219,7 @@ public:
     stkpos baseof(stkpos = STKNULL) const;
 
     // true if <a> is ancestor of <n>
-    int isancestor(stkpos, stkpos) const;
+    int isancestor(stkpos a, stkpos n) const;
 
     // display current proof segment
     void show(ostream &) const;

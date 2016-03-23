@@ -69,13 +69,13 @@ stkpos ProofStack::baseof(stkpos p) const
 }
 
 //--------------------------
-// true if f is father on n
+// true if a is ancestor on n
 //
-int ProofStack::isancestor(stkpos f, stkpos n) const
+int ProofStack::isancestor(stkpos a, stkpos n) const
 {
 	Env *e = get(n);
 	while (e->father != STKNULL) {
-		if (e->father == f)
+		if (e->father == a)
 			return 1;
 		e = get(e->father);
 	}

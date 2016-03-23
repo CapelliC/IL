@@ -60,15 +60,8 @@ IIFTYPE(void) IAFX_Initialize()
 	SetEngines(0);
 }
 
-#ifdef _DEBUG
-extern stkpos countMaxAlloc;
-#endif
-
 IIFTYPE(void) IAFX_Terminate()
 {
-#ifdef _DEBUG
-	TRACE("IAFX_Terminate (countMaxAlloc=%d)\n", countMaxAlloc);
-#endif
 }
 
 /////////////////////////////////////////////////////////////////
