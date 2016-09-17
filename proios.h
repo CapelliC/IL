@@ -64,7 +64,7 @@ public:
         return md;
     }
 
-    virtual void close(){};
+    virtual void close() {}
 
 protected:
 

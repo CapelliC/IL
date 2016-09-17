@@ -33,6 +33,7 @@
 #include "defsys.h"
 #include "tracer.h"
 #include "unify.h"
+#include "parse.h"
 
 //----------------------
 // initialize/terminate
@@ -53,6 +54,63 @@ IntlogExec::~IntlogExec()
     delete vs;
     delete ts;
     delete tr;
+}
+
+//---------------------------------------------
+// from main.cpp, factored commodity interface
+//
+int IntlogExec::query(Term tquery, kstr_list *var_ids, Term *v, int nv)
+{
+    for (int j = 0; j < nv; j++)
+        v[j] = Term(f_NOTERM);
+
+    // save current status
+    ProofStatus ps(this);
+    stkpos cvbase = ps.pdim();
+
+    Clause q(tquery, var_ids, get_db());
+    int rc = query(&q);
+
+    if (rc) // query succed: copy variables to caller
+        for (int i = 0; i < nv; i++)
+            v[i] = value(Var(i), cvbase);
+
+    q.no_image();
+    ps.restore();
+
+    return rc;
+}
+int IntlogExec::runquery(const char *src)
+{
+    int rc = -1;
+
+    Term *var_val = 0;
+    kstr_list var_ids;
+
+    // prepare input source stream
+    IntlogParser* parser = GetEngines()->get_parser();
+    istringstream srcstream(src);
+
+    // save status
+    parser->SetSource(&srcstream, "-q", &var_ids);
+
+    // submit source line: if parse ok, query
+    if (parser->getinput() == IntlogParser::NewClause)
+    {
+        Term tparsed = parser->parsed;
+
+        int nv = var_ids.numel();
+        if (nv > 0)
+            var_val = new Term[nv];
+
+        rc = query(tparsed, &var_ids, var_val, var_ids.numel());
+
+        delete [] var_val;
+        tparsed.Destroy();
+    }
+
+    // some error occurred
+    return rc;
 }
 
 //--------------------------

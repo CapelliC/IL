@@ -261,17 +261,17 @@ filebuf* IntlogIOStreams::openfile(kstring id, int of, char *paths, char *buf, i
         char dir[128];
         basic_istringstream<char> dirs(paths);
         int szdir = sizeof(dir) - strlen(fid) + 1;
-
-        while (dirs.getline(dir, szdir, ';'))
-        {
-            char *pdir = strcat(strcat(dir, "\\"), fid);
-            if (fb->open(pdir, ios::in))
+        if (szdir > 0)
+            while (dirs.getline(dir, szdir, ';'))
             {
-                if (buf)
-                    strncpy(buf, dir, maxbuf);
-                return fb;
+                char *pdir = strcat(strcat(dir, "\\"), fid);
+                if (fb->open(pdir, ios::in))
+                {
+                    if (buf)
+                        strncpy(buf, dir, maxbuf);
+                    return fb;
+                }
             }
-        }
     }
 
     // not found

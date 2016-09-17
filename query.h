@@ -59,6 +59,10 @@ public:
     // release memory
     virtual ~IntlogExec();
 
+    // from main.cpp, factored commodity interface
+    int query(Term tquery, kstr_list *var_ids, Term *v, int nv);
+    int runquery(const char *src);
+
     // start/continue a query
     virtual int query(const Clause * = 0);
 
