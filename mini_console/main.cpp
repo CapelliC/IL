@@ -25,7 +25,7 @@
 #include "parse.h"
 #include <sstream>
 
-static int runquery(IntlogExec *, const char *);
+//static int runquery(IntlogExec *, const char *);
 static void load_args(char *argfile);
 static void createBinLib(IntlogExec *eng, int &arg, int argc, char **argv);
 
@@ -63,7 +63,8 @@ int main(int argc, char **argv)
                 break;
 
             case 'q':
-                runquery(eng, parg + 2);
+                //runquery(eng, parg + 2);
+                eng->runquery(parg + 2);
             }
         }
         else
@@ -109,6 +110,7 @@ void createBinLib(IntlogExec *eng, int &arg, int argc, char **argv)
         cerr << Msg_BadLibName << endl;
 }
 
+/*
 static int query(IntlogExec *eng, Term tquery, kstr_list *var_ids, Term *v, int nv)
 {
     for (int j = 0; j < nv; j++)
@@ -130,7 +132,6 @@ static int query(IntlogExec *eng, Term tquery, kstr_list *var_ids, Term *v, int 
 
     return rc;
 }
-
 int runquery(IntlogExec *ile, const char *src)
 {
     int rc = -1;
@@ -163,3 +164,4 @@ int runquery(IntlogExec *ile, const char *src)
     // some error occurred
     return rc;
 }
+*/
