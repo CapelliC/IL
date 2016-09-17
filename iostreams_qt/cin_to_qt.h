@@ -5,10 +5,8 @@
 #ifndef CIN_TO_QT_H
 #define CIN_TO_QT_H
 
-#include <streambuf>
 #include <iostream>
-#include <string>
-
+#include <streambuf>
 #include <QTextEdit>
 
 class cin_to_qt : public std::basic_streambuf<char>
@@ -24,9 +22,9 @@ protected:
 private:
     std::istream &stream;
     std::streambuf *old_buf;
-    std::string buffer;
-    QTextEdit* con_window;
+    //std::string buffer;
 
+    QTextEdit* con_window;
     int lastCursorSeen;
     char inputBuffer_[1];
     int fgetc_cstream_();

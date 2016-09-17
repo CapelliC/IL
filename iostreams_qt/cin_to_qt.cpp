@@ -18,13 +18,9 @@ cin_to_qt::cin_to_qt(std::istream &stream, QTextEdit* text_edit)
     : stream(stream),
       lastCursorSeen(-1)
 {
-    qDebug() << "cin_to_qt::cin_to_qt";
-
     con_window = text_edit;
     old_buf = stream.rdbuf();
     stream.rdbuf(this);
-
-    //Q_ASSERT(C.movePosition(T::End));
     lastCursorSeen = text_edit->textCursor().position();
 }
 

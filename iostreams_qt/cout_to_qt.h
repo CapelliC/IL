@@ -7,10 +7,8 @@
 #ifndef COUT_TO_QT_H
 #define COUT_TO_QT_H
 
-#include <streambuf>
 #include <iostream>
-#include <string>
-
+#include <streambuf>
 #include <QTextEdit>
 
 class cout_to_qt : public std::basic_streambuf<char>
@@ -26,7 +24,6 @@ protected:
 private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
-    std::string m_string;
     QTextEdit* log_window;
 };
 
