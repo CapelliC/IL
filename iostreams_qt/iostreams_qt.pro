@@ -75,7 +75,6 @@ OTHER_FILES += \
     ../README.md
 
 HEADERS += \
-    FILEbuf.h \
     cin_to_qt.h \
     cout_to_qt.h \
     ../xtrace.h \
