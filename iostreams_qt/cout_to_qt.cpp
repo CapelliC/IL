@@ -35,21 +35,12 @@ cout_to_qt::~cout_to_qt()
 
 cout_to_qt::int_type cout_to_qt::overflow(int_type v)
 {
-    auto c = log_window->textCursor();
-    c.movePosition(c.End);
-    c.insertText(QString(QChar(v)));
-    c.movePosition(c.End);
-    log_window->setTextCursor(c);
+    log_window->add_string(QString(QChar(v)));
     return v;
 }
 
 std::streamsize cout_to_qt::xsputn(const char *p, std::streamsize n)
 {
-    std::string s(p, p + n);
-    auto c = log_window->textCursor();
-    c.movePosition(c.End);
-    c.insertText(QString::fromStdString(s));
-    c.movePosition(c.End);
-    log_window->setTextCursor(c);
+    log_window->add_string(QString::fromStdString(std::string(p, p + n)));
     return n;
 }

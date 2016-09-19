@@ -300,16 +300,16 @@ static int getargs(TermArgs t, IntlogExec *p, AritValue &l, AritValue &r)
 }
 
 // functions differ only for operator
-#define	CmpF(op)			\
-{   AritValue l, r;			\
-    if (getargs(t, p, l, r)) {		\
-    if (l.t == AritValue::IVAL)		\
-    return l.i op r.i; 			\
-    if (l.t == AritValue::DBL)		\
-    return l.d op r.d; 			\
-    if (l.t == AritValue::ATOM)		\
-    return strcmp(l.a, r.a) op 0;	\
-    } return 0;				\
+#define	CmpF(op)\
+{   AritValue l, r;\
+    if (getargs(t, p, l, r)) {\
+        if (l.t == AritValue::IVAL)\
+            return l.i op r.i;\
+        if (l.t == AritValue::DBL)\
+            return l.d op r.d;\
+        if (l.t == AritValue::ATOM)\
+            return strcmp(l.a, r.a) op 0;\
+    } return 0;\
 }
 
 // true is a1 < a2

@@ -50,8 +50,7 @@ public:
 private:
 
     // tree construction info
-    NodeIndex	m_nFirstSon,
-    m_nBrother;
+    NodeIndex m_nFirstSon, m_nBrother;
 
     friend class FastTree;
 };

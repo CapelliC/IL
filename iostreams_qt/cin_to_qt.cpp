@@ -37,15 +37,15 @@ cin_to_qt::cin_to_qt(std::istream &stream, TEXT_WIDGET* text_edit)
     con_window = text_edit;
     old_buf = stream.rdbuf();
     stream.rdbuf(this);
-
+    /*
     QObject::connect(text_edit, &TEXT_WIDGET::cursorPositionChanged, [this]() {
         auto p = con_window->textCursor().position();
         con_window->setReadOnly(p < lastCursorSeen);
     });
+    */
 }
 
-cin_to_qt::~cin_to_qt()
-{
+cin_to_qt::~cin_to_qt() {
     qDebug() << "cin_to_qt::~cin_to_qt";
 
     // pass any input left...
@@ -54,8 +54,7 @@ cin_to_qt::~cin_to_qt()
     stream.rdbuf(old_buf);
 }
 
-cin_to_qt::int_type cin_to_qt::underflow()
-{
+cin_to_qt::int_type cin_to_qt::underflow() {
     if (gptr() == NULL || gptr() >= egptr()) {
         int gotted = next_char();
         if (gotted == EOF)
@@ -68,8 +67,7 @@ cin_to_qt::int_type cin_to_qt::underflow()
     return traits_type::to_int_type(*one_char);
 }
 
-cin_to_qt::int_type cin_to_qt::sync()
-{
+cin_to_qt::int_type cin_to_qt::sync() {
     qDebug() << "cin_to_qt::sync" << lastCursorSeen;
     return 0;
 }
@@ -90,9 +88,8 @@ _:  if (!saved.empty()) {
         c.setPosition(lastCursorSeen);
         c.movePosition(c.End, c.KeepAnchor);
         auto s = c.selectedText();
-        if (s.length() > 0 && s.right(1) == QChar(0x2029)) {
-            saved = s.left(s.length() - 1).toStdString();
-            saved += '\n';
+        if (s.indexOf(QChar(0x2029)) >= 0) {
+            saved = s.replace(QChar(0x2029), QChar('\n')).toStdString();
             goto _;
         }
         do_events();

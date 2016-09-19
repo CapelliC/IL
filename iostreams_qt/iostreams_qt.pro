@@ -72,7 +72,8 @@ SOURCES += \
     ../binstr.cpp \
     ../binlib.cpp \
     ../argali.cpp \
-    ../actios.cpp
+    ../actios.cpp \
+    text_widget.cpp
 
 OTHER_FILES += \
     ../README.md

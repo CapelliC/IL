@@ -22,6 +22,24 @@
 #define TEXT_WIDGET_H
 
 #include <QPlainTextEdit>
-#define TEXT_WIDGET QPlainTextEdit
+#define TEXT_WIDGET_SUPER QPlainTextEdit
+
+class TEXT_WIDGET : public TEXT_WIDGET_SUPER {
+
+    Q_OBJECT
+    int fixedPosition;
+
+public:
+
+    explicit TEXT_WIDGET(QWidget *parent = Q_NULLPTR);
+    explicit TEXT_WIDGET(const QString &text, QWidget *parent = Q_NULLPTR);
+
+    void add_string(QString s);
+
+protected:
+
+    /** strict control on keyboard events required */
+    virtual void keyPressEvent(QKeyEvent *event);
+};
 
 #endif // TEXT_WIDGET_H
