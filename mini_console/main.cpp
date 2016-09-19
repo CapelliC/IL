@@ -50,6 +50,10 @@ int main(int argc, char **argv)
         {
             switch (parg[1])
             {
+            case 'e':
+                IntlogIOStreams::envar = kstring(parg + 2);
+                break;
+
             case 'u':
                 eng->use_file("user");
                 break;

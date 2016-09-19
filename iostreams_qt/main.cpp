@@ -1,6 +1,7 @@
 /*
-    IL : Prolog interpreter
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    IL : Intlog Language
+    Object Oriented Prolog Project
+    Copyright (C) 2016-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    QTextEdit ed;
+    TEXT_WIDGET ed;
     QMainWindow mw;
     mw.setCentralWidget(&ed);
     mw.show();
@@ -53,6 +54,9 @@ int main(int argc, char **argv)
             {
                 switch (parg[1])
                 {
+                case 'e':
+                    IntlogIOStreams::envar = kstring(parg + 2);
+                    break;
                 case 'u':
                     eng->use_file("user");
                     break;

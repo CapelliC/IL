@@ -400,14 +400,12 @@ void IntlogScanner::initchclass()
 		initchset('A', 'F', DigitH);
 		initchset('a', 'f', DigitH);
 
-		#if 0
 		// italian chars
 		static ch_t
 			ANSI_set[] = {133,138,130,141,149,151,0},
-			WIND_set[] = ""; keept accented letters, QtCreator complains about invalid encodings
+			WIND_set[] = "àèéìòù"; // keept accented letters, QtCreator complains about invalid encodings
 		initchstr(ANSI_set, SymBody|SymHead);
 		initchstr(WIND_set, SymBody|SymHead);
-		#endif
 	}
 }
 

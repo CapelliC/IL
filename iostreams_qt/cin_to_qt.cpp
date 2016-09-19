@@ -1,6 +1,22 @@
-//
-// cin_to_qt.cpp
-//
+/*
+    IL : Intlog Language
+    Object Oriented Prolog Project
+    Copyright (C) 2016-2016 - Ing. Capelli Carlo
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+*/
 
 #include "cin_to_qt.h"
 #include <QDebug>
@@ -14,14 +30,18 @@ inline void do_events(int delay = 1) {
     lp.exec();
 }
 
-cin_to_qt::cin_to_qt(std::istream &stream, QTextEdit* text_edit)
+cin_to_qt::cin_to_qt(std::istream &stream, TEXT_WIDGET* text_edit)
     : stream(stream),
-      lastCursorSeen(-1)
+      lastCursorSeen(text_edit->textCursor().position())
 {
     con_window = text_edit;
     old_buf = stream.rdbuf();
     stream.rdbuf(this);
-    lastCursorSeen = text_edit->textCursor().position();
+
+    QObject::connect(text_edit, &TEXT_WIDGET::cursorPositionChanged, [this]() {
+        auto p = con_window->textCursor().position();
+        con_window->setReadOnly(p < lastCursorSeen);
+    });
 }
 
 cin_to_qt::~cin_to_qt()
@@ -37,18 +57,15 @@ cin_to_qt::~cin_to_qt()
 cin_to_qt::int_type cin_to_qt::underflow()
 {
     if (gptr() == NULL || gptr() >= egptr()) {
-        int gotted = fgetc_cstream_();
-        if (gotted == EOF) {
+        int gotted = next_char();
+        if (gotted == EOF)
             return traits_type::eof();
-        } else {
-            *inputBuffer_ = gotted;
-            setg(inputBuffer_, inputBuffer_, inputBuffer_+1);
-            return traits_type::to_int_type(*inputBuffer_);
-        }
-    } else {
-        return traits_type::to_int_type(*inputBuffer_);
+
+        *one_char = gotted;
+        setg(one_char, one_char, one_char + 1);
+        return traits_type::to_int_type(*one_char);
     }
-    return 0;
+    return traits_type::to_int_type(*one_char);
 }
 
 cin_to_qt::int_type cin_to_qt::sync()
@@ -57,42 +74,27 @@ cin_to_qt::int_type cin_to_qt::sync()
     return 0;
 }
 
-int cin_to_qt::fgetc_cstream_() {
+int cin_to_qt::next_char() {
+_:  if (!saved.empty()) {
+        int c = saved[0];
+        saved = saved.substr(1);
+        return c;
+    }
+
     auto c = con_window->textCursor();
 
     c.movePosition(c.End);
     lastCursorSeen = c.position();
 
     for ( ; ; ) {
-        c.movePosition(c.End);
-        auto p = c.position();
-//qDebug() << p << lastCursorSeen << "1 fgetc_cstream_";
-        if (p > lastCursorSeen) {
-            c.setPosition(lastCursorSeen);
-            c.movePosition(c.Right, c.KeepAnchor);
-            auto s = c.selectedText();
-//qDebug() << s << s.length() << "2 fgetc_cstream_";
-            if (s.length() >= 1) {
-                lastCursorSeen = c.position();
-                auto r = s[0];
-                if (r == QChar(0x2029))
-                    return '\n';
-//qDebug() << r << r.toLatin1() << "3 fgetc_cstream_";
-                return r.toLatin1();
-            }
+        c.setPosition(lastCursorSeen);
+        c.movePosition(c.End, c.KeepAnchor);
+        auto s = c.selectedText();
+        if (s.length() > 0 && s.right(1) == QChar(0x2029)) {
+            saved = s.left(s.length() - 1).toStdString();
+            saved += '\n';
+            goto _;
         }
         do_events();
     }
-
-    /*
-    c.movePosition(QTextCursor::End);
-    //auto l = c.position();
-
-    c.setPosition(lastCursorSeen);
-    if (c.movePosition(c.Right, c.KeepAnchor)) {
-        QChar q = c.selectedText()[0];
-        return q.toLatin1();
-    }
-    return EOF;
-    */
 }
