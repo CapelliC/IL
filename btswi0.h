@@ -20,42 +20,10 @@
 */
 
 
-#include "stdafx.h"
+#ifndef BTSWI0_H
+#define BTSWI0_H
 
-bool WaitTaskExecution(UINT /*ntc*/)
-{
-#if 0
-	CTimeSpan timeOut;
-	CTime tStart = CTime::GetCurrentTime(), tCurr;
+#include "builtin.h"
+extern BuiltIn btswi0[3];
 
-	timeOut = 20;
-	while (GetNumTasks() == ntc)
-	{
-		if (!AfxGetApp()->PumpMessage())
-			return FALSE;
-
-		if (tStart + timeOut < CTime::GetCurrentTime())
-		{
-			TRACE("Timeout waiting for start\n");
-			return FALSE;
-		}
-	}
-
-	timeOut = 60 * 3;
-	while (GetNumTasks() > ntc)
-	{
-		if (!AfxGetApp()->PumpMessage())
-			return FALSE;
-
-		if (tStart + timeOut < CTime::GetCurrentTime())
-		{
-			TRACE("Timeout waiting for end\n");
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-#else
-	return FALSE;
-#endif
-}
+#endif // BTSWI0_H

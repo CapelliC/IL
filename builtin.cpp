@@ -1,5 +1,7 @@
+
 /*
-    IL : Prolog interpreter
+    IL : Intlog Language
+    Object Oriented Prolog Project
     Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
@@ -17,11 +19,6 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-/*
-	Intlog Language
-	Object Oriented Prolog Project
-	Ing. Capelli Carlo - Brescia
-*/
 
 #include "stdafx.h"
 #include "builtin.h"
@@ -30,6 +27,8 @@
 #include "btil.h"
 #include "bterr.h"
 #include "dbintlog.h"
+
+#include "btswi0.h"
 
 /////////////////////////////////////////
 // standard Edinburgh builtin predicates
@@ -135,4 +134,6 @@ void BuiltIn::Initialize(DbIntlog* pDB, MsgTable *msg)
 	addt(mixing);
 	addt(interface_obj);
 	addt(mathfunctions);
+
+    addt(btswi0);
 }

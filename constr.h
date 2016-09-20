@@ -1,5 +1,7 @@
+
 /*
-    IL : Prolog interpreter
+    IL : Intlog Language
+    Object Oriented Prolog Project
     Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
@@ -16,6 +18,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
 
 #ifndef _CONSTR_H_
 #define _CONSTR_H_

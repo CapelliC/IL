@@ -1,5 +1,7 @@
+
 /*
-    IL : Prolog interpreter
+    IL : Intlog Language
+    Object Oriented Prolog Project
     Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
@@ -17,11 +19,6 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-/*
-	Intlog Language
-	Object Oriented Prolog Project
-	Ing. Capelli Carlo - Brescia
-*/
 
 //-----------------
 // term operations
@@ -544,5 +541,6 @@ inline Term TermArgs::getarg(int n) const
 	counter++;
 	ASSERT(n >= 0 && n < arity);
 #endif
-	return args[n];
+
+	return args ? args[n] : Term(f_NOTERM);
 }

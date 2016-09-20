@@ -1,7 +1,8 @@
+
 /*
-    IL : Prolog interpreter
+    IL : Intlog Language
+    Object Oriented Prolog Project
     Copyright (C) 1992-2016 - Ing. Capelli Carlo
-    2011 - Ported to Qt 4.7
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
+
 
 #include <stdlib.h>
 #include <string.h>

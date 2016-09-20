@@ -21,41 +21,38 @@
 
 
 #include "stdafx.h"
+#include "btswi0.h"
+#include "qdata.h"
 
-bool WaitTaskExecution(UINT /*ntc*/)
-{
-#if 0
-	CTimeSpan timeOut;
-	CTime tStart = CTime::GetCurrentTime(), tCurr;
+#include <dirent.h>
+#include <stdio.h>
 
-	timeOut = 20;
-	while (GetNumTasks() == ntc)
-	{
-		if (!AfxGetApp()->PumpMessage())
-			return FALSE;
+BtFDecl(cd);
+BtFDecl(ls);
+BtFDecl(pwd);
 
-		if (tStart + timeOut < CTime::GetCurrentTime())
-		{
-			TRACE("Timeout waiting for start\n");
-			return FALSE;
-		}
-	}
+BuiltIn btswi0[3] = {
+    {"cd",  0,   cd},
+//    {"cd",  1,   cd},
+    {"ls",  0,   ls},
+    {"pwd", 0,   pwd},
+};
 
-	timeOut = 60 * 3;
-	while (GetNumTasks() > ntc)
-	{
-		if (!AfxGetApp()->PumpMessage())
-			return FALSE;
-
-		if (tStart + timeOut < CTime::GetCurrentTime())
-		{
-			TRACE("Timeout waiting for end\n");
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-#else
-	return FALSE;
-#endif
+BtFImpl(cd, t, p) {
+    //if (t.getarg(0))
+        //;
+    return 0;
+}
+BtFImpl_P1(ls, p) {
+    if (DIR *d = opendir(".")) {
+        struct dirent *dir;
+        while ((dir = readdir(d)) != nullptr)
+            p->out() << dir->d_name << endl;
+        closedir(d);
+        return 1;
+    }
+    return 0;
+}
+BtFImpl_P1(pwd, p) {
+    return 0;
 }

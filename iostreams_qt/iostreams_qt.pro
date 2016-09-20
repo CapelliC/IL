@@ -74,7 +74,8 @@ SOURCES += \
     ../argali.cpp \
     ../actios.cpp \
     text_widget.cpp \
-    main_window.cpp
+    main_window.cpp \
+    ../btswi0.cpp
 
 OTHER_FILES += \
     ../README.md
@@ -125,4 +126,5 @@ HEADERS += \
     ../argali.h \
     ../actios.h \
     text_widget.h \
-    main_window.h
+    main_window.h \
+    ../btswi0.h
