@@ -73,7 +73,8 @@ SOURCES += \
     ../binlib.cpp \
     ../argali.cpp \
     ../actios.cpp \
-    text_widget.cpp
+    text_widget.cpp \
+    main_window.cpp
 
 OTHER_FILES += \
     ../README.md
@@ -123,4 +124,5 @@ HEADERS += \
     ../aritval.h \
     ../argali.h \
     ../actios.h \
-    text_widget.h
+    text_widget.h \
+    main_window.h

@@ -18,28 +18,20 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-#ifndef TEXT_WIDGET_H
-#define TEXT_WIDGET_H
+#include "main_window.h"
+#include <QDebug>
 
-#include <QPlainTextEdit>
-#define TEXT_WIDGET_SUPER QPlainTextEdit
-
-class text_widget : public TEXT_WIDGET_SUPER {
-
-    Q_OBJECT
-    int fixedPosition;
-
-public:
-
-    explicit text_widget(QWidget *parent = Q_NULLPTR);
-    explicit text_widget(const QString &text, QWidget *parent = Q_NULLPTR);
-
-    void add_string(QString s);
-
-protected:
-
-    /** strict control on keyboard events required */
-    virtual void keyPressEvent(QKeyEvent *event);
-};
-
-#endif // TEXT_WIDGET_H
+main_window::main_window(QWidget *parent)
+    : QMainWindow(parent) {
+    setCentralWidget(ed = new text_widget);
+    in = new cin_to_qt(std::cin, ed);
+    out = new cout_to_qt(std::cout, ed);
+}
+main_window::~main_window() {
+    delete in;
+    delete out;
+}
+void main_window::closeEvent(QCloseEvent *event) {
+    qDebug() << "closeEvent" << event;
+    delete ed;
+}

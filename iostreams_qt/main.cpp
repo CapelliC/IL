@@ -26,51 +26,43 @@
 #include "constr.h"
 #include "qdata.h"
 #include "parse.h"
-#include <sstream>
 
-#include "cout_to_qt.h"
-#include "cin_to_qt.h"
+#include "main_window.h"
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    TEXT_WIDGET ed;
-    QMainWindow mw;
-    mw.setCentralWidget(&ed);
+    main_window mw;
     mw.show();
 
-    {   cin_to_qt in(cin, &ed);
-        cout_to_qt out(cout, &ed);
+    SetEngines(new ConsoleEngines);
+    IntlogExec *eng = GetEngines()->HtoD(GetEngines()->create());
 
-        SetEngines(new ConsoleEngines);
-        IntlogExec *eng = GetEngines()->HtoD(GetEngines()->create());
+    for (int arg = 1; arg < argc; arg++)
+    {
+        CCP parg = argv[arg];
 
-        for (int arg = 1; arg < argc; arg++)
+        if (parg[0] == '-')
         {
-            CCP parg = argv[arg];
-
-            if (parg[0] == '-')
+            switch (parg[1])
             {
-                switch (parg[1])
-                {
-                case 'e':
-                    IntlogIOStreams::envar = kstring(parg + 2);
-                    break;
-                case 'u':
-                    eng->use_file("user");
-                    break;
-                case 'q':
-                    eng->runquery(parg + 2);
-                }
+            case 'e':
+                IntlogIOStreams::envar = kstring(parg + 2);
+                break;
+            case 'u':
+                eng->use_file("user");
+                break;
+            case 'q':
+                eng->runquery(parg + 2);
             }
-            else
-                eng->use_file(kstring(parg));
         }
-
-        if (argc == 1)
-            eng->use_file("user");
-
-        delete GetEngines();
+        else
+            eng->use_file(kstring(parg));
     }
+
+    if (argc == 1)
+        eng->use_file("user");
+
+    delete GetEngines();
 }

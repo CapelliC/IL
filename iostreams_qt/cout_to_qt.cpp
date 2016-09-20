@@ -21,7 +21,7 @@
 #include "cout_to_qt.h"
 #include <QDebug>
 
-cout_to_qt::cout_to_qt(std::ostream &stream, TEXT_WIDGET* text_edit) : m_stream(stream)
+cout_to_qt::cout_to_qt(std::ostream &stream, text_widget* text_edit) : m_stream(stream)
 {
     log_window = text_edit;
     m_old_buf = stream.rdbuf();

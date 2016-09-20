@@ -33,7 +33,7 @@
 class cout_to_qt : public std::basic_streambuf<char>
 {
 public:
-    cout_to_qt(std::ostream &stream, TEXT_WIDGET* text_edit);
+    cout_to_qt(std::ostream &stream, text_widget* text_edit);
     ~cout_to_qt();
 
 protected:
@@ -43,7 +43,7 @@ protected:
 private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
-    TEXT_WIDGET* log_window;
+    text_widget* log_window;
 };
 
 #endif

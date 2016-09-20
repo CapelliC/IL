@@ -20,7 +20,6 @@
 
 #include "cin_to_qt.h"
 #include <QDebug>
-
 #include <QTimer>
 #include <QEventLoop>
 
@@ -30,37 +29,32 @@ inline void do_events(int delay = 1) {
     lp.exec();
 }
 
-cin_to_qt::cin_to_qt(std::istream &stream, TEXT_WIDGET* text_edit)
+cin_to_qt::cin_to_qt(std::istream &stream, text_widget* text_edit)
     : stream(stream),
       lastCursorSeen(text_edit->textCursor().position())
 {
     con_window = text_edit;
     old_buf = stream.rdbuf();
     stream.rdbuf(this);
-    /*
-    QObject::connect(text_edit, &TEXT_WIDGET::cursorPositionChanged, [this]() {
-        auto p = con_window->textCursor().position();
-        con_window->setReadOnly(p < lastCursorSeen);
+
+    QObject::connect(text_edit, &text_widget::destroyed, [this]() {
+        qDebug() << "cin_to_qt:destroyed";
+        con_window = 0;
     });
-    */
 }
 
 cin_to_qt::~cin_to_qt() {
-    qDebug() << "cin_to_qt::~cin_to_qt";
-
-    // pass any input left...
-    // ...
-
+    // should pass any input left ?
     stream.rdbuf(old_buf);
 }
 
 cin_to_qt::int_type cin_to_qt::underflow() {
     if (gptr() == NULL || gptr() >= egptr()) {
-        int gotted = next_char();
-        if (gotted == EOF)
+        int c = next_char();
+        if (c == EOF)
             return traits_type::eof();
 
-        *one_char = gotted;
+        *one_char = c;
         setg(one_char, one_char, one_char + 1);
         return traits_type::to_int_type(*one_char);
     }
@@ -73,7 +67,11 @@ cin_to_qt::int_type cin_to_qt::sync() {
 }
 
 int cin_to_qt::next_char() {
-_:  if (!saved.empty()) {
+
+_:  if (!con_window)
+        return EOF;
+
+    if (!saved.empty()) {
         int c = saved[0];
         saved = saved.substr(1);
         return c;
@@ -85,6 +83,8 @@ _:  if (!saved.empty()) {
     lastCursorSeen = c.position();
 
     for ( ; ; ) {
+        if (!con_window)
+            return EOF;
         c.setPosition(lastCursorSeen);
         c.movePosition(c.End, c.KeepAnchor);
         auto s = c.selectedText();

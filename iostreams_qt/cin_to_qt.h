@@ -31,7 +31,7 @@
 class cin_to_qt : public std::basic_streambuf<char>
 {
 public:
-    cin_to_qt(std::istream &stream, TEXT_WIDGET* text_edit);
+    cin_to_qt(std::istream &stream, text_widget* text_edit);
     ~cin_to_qt();
 
 protected:
@@ -42,7 +42,7 @@ private:
     std::istream &stream;
     std::streambuf *old_buf;
 
-    TEXT_WIDGET* con_window;
+    text_widget* con_window;
     int lastCursorSeen;
 
     /*

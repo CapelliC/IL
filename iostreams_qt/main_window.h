@@ -18,28 +18,31 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-#ifndef TEXT_WIDGET_H
-#define TEXT_WIDGET_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
-#include <QPlainTextEdit>
-#define TEXT_WIDGET_SUPER QPlainTextEdit
+#include <QMainWindow>
 
-class text_widget : public TEXT_WIDGET_SUPER {
+#include "cout_to_qt.h"
+#include "cin_to_qt.h"
 
+/** keep informing stream handlers */
+class main_window : public QMainWindow
+{
     Q_OBJECT
-    int fixedPosition;
-
 public:
+    explicit main_window(QWidget *parent = 0);
+    ~main_window();
 
-    explicit text_widget(QWidget *parent = Q_NULLPTR);
-    explicit text_widget(const QString &text, QWidget *parent = Q_NULLPTR);
+signals:
 
-    void add_string(QString s);
+public slots:
 
 protected:
-
-    /** strict control on keyboard events required */
-    virtual void keyPressEvent(QKeyEvent *event);
+    text_widget *ed;
+    cin_to_qt *in;
+    cout_to_qt *out;
+    virtual void closeEvent(QCloseEvent *event);
 };
 
-#endif // TEXT_WIDGET_H
+#endif // MAIN_WINDOW_H

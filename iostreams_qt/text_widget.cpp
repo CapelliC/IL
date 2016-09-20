@@ -20,15 +20,15 @@
 
 #include "text_widget.h"
 
-TEXT_WIDGET::TEXT_WIDGET(QWidget *parent) : TEXT_WIDGET_SUPER(parent) {
+text_widget::text_widget(QWidget *parent) : TEXT_WIDGET_SUPER(parent) {
     fixedPosition = 0;
 }
-TEXT_WIDGET::TEXT_WIDGET(const QString &text, QWidget *parent) : TEXT_WIDGET_SUPER(text, parent) {
+text_widget::text_widget(const QString &text, QWidget *parent) : TEXT_WIDGET_SUPER(text, parent) {
     fixedPosition = 0;
 }
 
 /** strict control on keyboard events required */
-void TEXT_WIDGET::keyPressEvent(QKeyEvent *event) {
+void text_widget::keyPressEvent(QKeyEvent *event) {
     using namespace Qt;
     bool ctrl = event->modifiers() == CTRL;
     QTextCursor c = textCursor();
@@ -65,7 +65,7 @@ void TEXT_WIDGET::keyPressEvent(QKeyEvent *event) {
         TEXT_WIDGET_SUPER::keyPressEvent(event);
 }
 
-void TEXT_WIDGET::add_string(QString s) {
+void text_widget::add_string(QString s) {
     auto c = textCursor();
     c.movePosition(c.End);
     c.insertText(s);
