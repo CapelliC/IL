@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 2016-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,13 +43,8 @@ private:
     std::streambuf *old_buf;
 
     text_widget* con_window;
-    int lastCursorSeen;
+    int last_cursor_seen;
 
-    /*
-    char_type *p_editable_input_area = 0;
-    int_type l_editable_input_area;
-    //char inputBuffer_[1];
-    */
     char one_char[1];
     int next_char();
     std::string saved;

@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 2016-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@
 #define TEXT_WIDGET_H
 
 #include <QPlainTextEdit>
-#define TEXT_WIDGET_SUPER QPlainTextEdit
+#define TEXT_WIDGET_BASE QPlainTextEdit
 
-class text_widget : public TEXT_WIDGET_SUPER {
+class text_widget : public TEXT_WIDGET_BASE {
 
     Q_OBJECT
     int fixedPosition;

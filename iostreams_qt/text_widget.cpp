@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 2016-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 
 #include "text_widget.h"
 
-text_widget::text_widget(QWidget *parent) : TEXT_WIDGET_SUPER(parent) {
+text_widget::text_widget(QWidget *parent) : TEXT_WIDGET_BASE(parent) {
     fixedPosition = 0;
 }
-text_widget::text_widget(const QString &text, QWidget *parent) : TEXT_WIDGET_SUPER(text, parent) {
+text_widget::text_widget(const QString &text, QWidget *parent) : TEXT_WIDGET_BASE(text, parent) {
     fixedPosition = 0;
 }
 
@@ -62,7 +62,7 @@ void text_widget::keyPressEvent(QKeyEvent *event) {
     }
 
     if (accept)
-        TEXT_WIDGET_SUPER::keyPressEvent(event);
+        TEXT_WIDGET_BASE::keyPressEvent(event);
 }
 
 void text_widget::add_string(QString s) {

@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 2016-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2016 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ inline void do_events(int delay = 1) {
 
 cin_to_qt::cin_to_qt(std::istream &stream, text_widget* text_edit)
     : stream(stream),
-      lastCursorSeen(text_edit->textCursor().position())
+      last_cursor_seen(text_edit->textCursor().position())
 {
     con_window = text_edit;
     old_buf = stream.rdbuf();
@@ -62,7 +62,7 @@ cin_to_qt::int_type cin_to_qt::underflow() {
 }
 
 cin_to_qt::int_type cin_to_qt::sync() {
-    qDebug() << "cin_to_qt::sync" << lastCursorSeen;
+    qDebug() << "cin_to_qt::sync" << last_cursor_seen;
     return 0;
 }
 
@@ -80,12 +80,12 @@ _:  if (!con_window)
     auto c = con_window->textCursor();
 
     c.movePosition(c.End);
-    lastCursorSeen = c.position();
+    last_cursor_seen = c.position();
 
     for ( ; ; ) {
         if (!con_window)
             return EOF;
-        c.setPosition(lastCursorSeen);
+        c.setPosition(last_cursor_seen);
         c.movePosition(c.End, c.KeepAnchor);
         auto s = c.selectedText();
         if (s.indexOf(QChar(0x2029)) >= 0) {
