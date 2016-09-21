@@ -135,5 +135,6 @@ void BuiltIn::Initialize(DbIntlog* pDB, MsgTable *msg)
 	addt(interface_obj);
 	addt(mathfunctions);
 
+    //#define adda(t)	pDB->addtable(t.begin(), t.size())
     addt(btswi0);
 }

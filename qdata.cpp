@@ -30,7 +30,8 @@
 #include "defsys.h"
 #include "parsemsg.h"
 #include "eng.h"
-#include <stdarg.h>
+#include <cstdarg>
+#include <stdexcept>
 
 //////////////////////////////////////////
 // keep parser active, using parsed terms
@@ -382,8 +383,7 @@ int IntlogExec::BtErr(int nCodeMsg, ...)
         va_start(argptr, nCodeMsg);
 
         char buf[512];
-        //_vsnprintf(buf, sizeof buf, l->string, argptr);
-        vsprintf(buf, l->string, argptr);
+        vsnprintf(buf, sizeof buf, l->string, argptr);
 
         if (TermData(cc->val()) != f_NOTERM)
         {
@@ -394,6 +394,7 @@ int IntlogExec::BtErr(int nCodeMsg, ...)
             out() << "builtin error:" << buf << endl;
     }
 
+    //throw std::runtime_error("exception");
     return 0;
 }
 

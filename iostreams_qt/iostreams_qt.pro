@@ -128,3 +128,46 @@ HEADERS += \
     text_widget.h \
     main_window.h \
     ../btswi0.h
+
+DISTFILES += \
+    ../scripts/ISO/isoTestSuite.pl \
+    ../scripts/ac.il \
+    ../scripts/ansidrv.il \
+    ../scripts/between.il \
+    ../scripts/bordo.il \
+    ../scripts/deriv.il \
+    ../scripts/genAlberi.il \
+    ../scripts/hanoi.il \
+    ../scripts/hanoiv0.il \
+    ../scripts/keybdrv.il \
+    ../scripts/linee.il \
+    ../scripts/listproc.il \
+    ../scripts/lookup.il \
+    ../scripts/menu.il \
+    ../scripts/mousedrv.il \
+    ../scripts/msort.il \
+    ../scripts/nla.il \
+    ../scripts/qsort.il \
+    ../scripts/readwl.il \
+    ../scripts/regine.il \
+    ../scripts/s2pc.il \
+    ../scripts/scacch.il \
+    ../scripts/sm.il \
+    ../scripts/test_dcg.il \
+    ../scripts/tgf.il \
+    ../scripts/utili.il \
+    ../scripts/vectuty.il \
+    ../scripts/vrmluty.il \
+    ../scripts/dcg.il \
+    ../scripts/eliza.il \
+    ../scripts/hanoiv1.il \
+    ../scripts/hanoiv2.il \
+    ../scripts/kalah.il \
+    ../scripts/masmind.il \
+    ../scripts/mescola.il \
+    ../scripts/nim.il \
+    ../scripts/play.il \
+    ../scripts/rwl.il \
+    ../scripts/tabsim.il \
+    README.md \
+    ../scripts/length.il

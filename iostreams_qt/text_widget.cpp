@@ -53,6 +53,11 @@ void text_widget::keyPressEvent(QKeyEvent *event) {
     case Key_PageDown:
         break;
 
+    case Key_Enter:
+        c.movePosition(c.End);
+        setTextCursor(c);
+        break;
+
     case Key_Backspace:
         accept = (cp > fixedPosition);
         break;

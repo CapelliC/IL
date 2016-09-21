@@ -20,6 +20,7 @@
 
 #include <QApplication>
 #include <QMainWindow>
+#include <QMessageBox>
 
 #include "stdafx.h"
 #include "iafx.h"
@@ -36,33 +37,38 @@ int main(int argc, char **argv)
     main_window mw;
     mw.show();
 
-    SetEngines(new ConsoleEngines);
-    IntlogExec *eng = GetEngines()->HtoD(GetEngines()->create());
+    try {
+        SetEngines(new ConsoleEngines);
+        IntlogExec *eng = GetEngines()->HtoD(GetEngines()->create());
 
-    for (int arg = 1; arg < argc; arg++)
-    {
-        CCP parg = argv[arg];
-
-        if (parg[0] == '-')
+        for (int arg = 1; arg < argc; arg++)
         {
-            switch (parg[1])
+            CCP parg = argv[arg];
+
+            if (parg[0] == '-')
             {
-            case 'e':
-                IntlogIOStreams::envar = kstring(parg + 2);
-                break;
-            case 'u':
-                eng->use_file("user");
-                break;
-            case 'q':
-                eng->runquery(parg + 2);
+                switch (parg[1])
+                {
+                case 'e':
+                    IntlogIOStreams::envar = kstring(parg + 2);
+                    break;
+                case 'u':
+                    eng->use_file("user");
+                    break;
+                case 'q':
+                    eng->runquery(parg + 2);
+                }
             }
+            else
+                eng->use_file(kstring(parg));
         }
-        else
-            eng->use_file(kstring(parg));
+
+        if (argc == 1)
+            eng->use_file("user");
+
+        delete GetEngines();
     }
-
-    if (argc == 1)
-        eng->use_file("user");
-
-    delete GetEngines();
+    catch(std::exception &e) {
+        QMessageBox::critical(&mw, "IL exception", e.what());
+    }
 }
