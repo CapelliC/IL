@@ -32,6 +32,8 @@
 #include "unify.h"
 #include "parse.h"
 
+#include <QDebug>
+
 //----------------------
 // initialize/terminate
 //
@@ -92,8 +94,7 @@ int IntlogExec::runquery(const char *src)
     parser->SetSource(&srcstream, "-q", &var_ids);
 
     // submit source line: if parse ok, query
-    if (parser->getinput() == IntlogParser::NewClause)
-    {
+    if (parser->getinput() == IntlogParser::NewClause) {
         Term tparsed = parser->parsed;
 
         int nv = var_ids.numel();
@@ -119,11 +120,13 @@ int IntlogExec::query(const Clause *q)
     unsigned nc = 0;
 
     Env *pcn, *pfn;
-    stkpos cn, fn;
+    stkpos cn = STKNULL, fn;
 #define PCN (pcn = ps->get(cn))
 #define PFN (pfn = ps->get(fn))
 
     UnifyStack us(vs, ts);
+
+qDebug() << q;
 
     if (!q)
         goto C;
@@ -138,16 +141,17 @@ int IntlogExec::query(const Clause *q)
 A:	if (!q->get_body()) {
 
         // search untried calls
-A1:		//fn = ps->curr_dim() - 1;
+A1:		ASSERT(cn != STKNULL);
         fn = cn;
 
         Env *e = ps->get(fn);
         while (e->father != STKNULL) {
             if (tr && e->call && tr->exit(fn, e->call))
                 return -1;
+            fn = e->father;
             if (e->call && !e->call->is_last())
                 break;
-            e = ps->get(fn = e->father);
+            e = ps->get(fn);
         }
         if (e->father == STKNULL)
             return 1;
@@ -155,6 +159,7 @@ A1:		//fn = ps->curr_dim() - 1;
         // set call to next untried brother
         cn = ps->push(PFN->father);
         PCN->call = pfn->call->next();
+
         pcn->vspos = pfn->vspos;
         fn = pfn->father;
 
@@ -167,8 +172,7 @@ A2:	PFN;
     pcn->dbpos = 0;
     cc = pcn->call;
 
-    if (nc++ == ncycle)
-    {
+    if (nc++ == ncycle) {
         nc = 0;
         sighandler();
     }
@@ -250,19 +254,20 @@ A2:	PFN;
         pcn->dbpos = db->StartProc(cc->get_dbe());
 
         // DB matching & unification
-B:	if (pcn->dbpos && (q = pcn->dbpos->get()) != 0) {
+B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != 0) {
 
             unsigned nvars = q->get_nvars();
             pcn->vspos = vs->reserve(nvars);
             pcn->trail = ts->curr_dim();
 
             /*
-   if (!unify(	pfn->vspos, cc->args(),
-      pcn->vspos, q->h_args(), q->h_arity()))
-   */
+            if (!unify(	pfn->vspos, cc->args(),
+                pcn->vspos, q->h_args(), q->h_arity()))
+            */
             if (q->h_arity() > 0) {
-                TermArgs pa1 = cc->args(),
-                        pa2 = q->h_args();
+                TermArgs
+                    pa1 = cc->args(),
+                    pa2 = q->h_args();
 
                 us.clear();
                 for (int i = q->h_arity() - 1; i > 0; i--) {
@@ -586,12 +591,11 @@ ProofTracer* IntlogExec::tracer(int mk)
 void IntlogExec::showstatus(ostream &s, statusmode mode) const
 {
     if (mode & Base) {
-        s	<< "proof tree:"	<< ps->curr_dim() << ' '
-                << "variables:"		<< vs->curr_dim() << ' '
-                << "trail:"		<< ts->curr_dim() << ' '
-                << "temporary:"		<< tmpt.numel() << ' '
-
-                << endl;
+        s   << "proof tree:"    << ps->curr_dim() << ' '
+            << "variables:"     << vs->curr_dim() << ' '
+            << "trail:"         << ts->curr_dim() << ' '
+            << "temporary:"     << tmpt.numel() << ' '
+            << endl;
     }
 
     if (mode & Proof)

@@ -30,8 +30,7 @@
 
 #include "main_window.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     QApplication app(argc, argv);
 
     main_window mw;
@@ -41,14 +40,11 @@ int main(int argc, char **argv)
         SetEngines(new ConsoleEngines);
         IntlogExec *eng = GetEngines()->HtoD(GetEngines()->create());
 
-        for (int arg = 1; arg < argc; arg++)
-        {
+        for (int arg = 1; arg < argc; arg++) {
             CCP parg = argv[arg];
 
-            if (parg[0] == '-')
-            {
-                switch (parg[1])
-                {
+            if (parg[0] == '-') {
+                switch (parg[1]) {
                 case 'e':
                     IntlogIOStreams::envar = kstring(parg + 2);
                     break;

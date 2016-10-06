@@ -401,7 +401,7 @@ int IntlogParser::Listd()
 		int rc;
 
 		RedEl *rh, *rt = 0;
-		NodeIndex ih, it;
+		NodeIndex ih, it = -1;
 
 		rs->Begin();
 
@@ -493,8 +493,10 @@ int IntlogParser::Listd()
 			ih = ib;
 		}
 
-		if (rt)
+        if (rt) {
+            ASSERT(it != NodeIndex(-1));
 			ft.SetBrother(fb, it);
+        }
 	}
 	else
 		rs->AddTerm(Term(ListNULL), sp)->SetPos(ft);

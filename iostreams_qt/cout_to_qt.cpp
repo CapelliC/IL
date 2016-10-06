@@ -21,26 +21,21 @@
 #include "cout_to_qt.h"
 #include <QDebug>
 
-cout_to_qt::cout_to_qt(std::ostream &stream, text_widget* text_edit) : m_stream(stream)
+cout_to_qt::cout_to_qt(std::ostream &stream, text_widget* text_edit)
+    : m_stream(stream)
 {
     log_window = text_edit;
     m_old_buf = stream.rdbuf();
     stream.rdbuf(this);
 }
-
-cout_to_qt::~cout_to_qt()
-{
+cout_to_qt::~cout_to_qt() {
     m_stream.rdbuf(m_old_buf);
 }
-
-cout_to_qt::int_type cout_to_qt::overflow(int_type v)
-{
+cout_to_qt::int_type cout_to_qt::overflow(int_type v) {
     log_window->add_string(QString(QChar(v)));
     return v;
 }
-
-std::streamsize cout_to_qt::xsputn(const char *p, std::streamsize n)
-{
+std::streamsize cout_to_qt::xsputn(const char *p, std::streamsize n) {
     log_window->add_string(QString::fromStdString(std::string(p, p + n)));
     return n;
 }

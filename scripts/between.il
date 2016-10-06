@@ -9,4 +9,4 @@ between(N, M, K) :- N < M, N1 is N+1, between(N1, M, K).
 :-  i_inherit(between).
 
 t(N,L) :- findall(X,between(1,N,X),L).
-/* ?-t(681,X). */
+/* ?-t(682,X). */
