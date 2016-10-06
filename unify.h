@@ -23,6 +23,8 @@
 #ifndef _UNIFY_H_
 #define _UNIFY_H_
 
+#include <stdexcept>
+
 //////////////////////////
 // Unification data stack
 //
@@ -74,16 +76,8 @@ inline void UnifyStack::clear()
 
 inline void UnifyStack::check_overflow() const
 {
-#if 0
-	if (free >= MaxUnifyStack) {
-#ifndef _WINDLL
-		cout << "stack overflow" << endl;
-		exit(0);
-#else
-		AfxThrowUserException();
-#endif
-	}
-#endif
+    if (free >= MaxUnifyStack)
+        throw std::range_error("unification stack overflow");
 }
 
 #endif

@@ -126,7 +126,7 @@ int IntlogExec::query(const Clause *q)
 
     UnifyStack us(vs, ts);
 
-qDebug() << q;
+//qDebug() << q;
 
     if (!q)
         goto C;
@@ -148,9 +148,9 @@ A1:		ASSERT(cn != STKNULL);
         while (e->father != STKNULL) {
             if (tr && e->call && tr->exit(fn, e->call))
                 return -1;
-            fn = e->father;
             if (e->call && !e->call->is_last())
                 break;
+            fn = e->father;
             e = ps->get(fn);
         }
         if (e->father == STKNULL)

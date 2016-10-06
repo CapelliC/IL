@@ -19,6 +19,7 @@
 */
 
 #include "text_widget.h"
+#include <QDebug>
 
 text_widget::text_widget(QWidget *parent) : TEXT_WIDGET_BASE(parent) {
     fixedPosition = 0;
@@ -71,6 +72,8 @@ void text_widget::keyPressEvent(QKeyEvent *event) {
 }
 
 void text_widget::add_string(QString s) {
+    //qDebug() << "add_string" << s;
+
     auto c = textCursor();
     c.movePosition(c.End);
     c.insertText(s);

@@ -25,6 +25,9 @@
 #include "builtin.h"
 #include "unify.h"
 
+#include <QDebug>
+#include <QTime>
+
 /*
 	findall : Clocksin, Mellish PROLOG implementation
 
@@ -47,6 +50,7 @@ getnext(X) :-
 */
 int IntlogExec::findall(Term X, Term G, Term L)
 {
+    qDebug() << "findall" << QTime::currentTime();
 	Term cG = copy(G),
 		 N = ListNULL, V;
 
@@ -120,8 +124,12 @@ int IntlogExec::findall(Term X, Term G, Term L)
 	// allocate space to new vars
 	vs->reserve(nnv);
 
+    qDebug() << "findall unify" << QTime::currentTime();
+
 	UnifyStack us(vs, ts);
-	return us.work(L, pX, save(N), pX);
+    auto rc = us.work(L, pX, save(N), pX);
+    qDebug() << "findall done" << QTime::currentTime() << "with" << rc;
+	return rc;
 }
 
 int IntlogExec::setof(Term, Term, Term) //(Term V, Term L, Term P)
