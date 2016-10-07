@@ -20,12 +20,18 @@
 
 #include "iostream_widget.h"
 #include <QDebug>
+#include <stdexcept>
 
 iostream_widget::iostream_widget(QWidget *parent) : IOSTREAM_WIDGET_BASE(parent) {
-    fixedPosition = 0;
+    setup();
 }
 iostream_widget::iostream_widget(const QString &text, QWidget *parent) : IOSTREAM_WIDGET_BASE(text, parent) {
+    setup();
+}
+void iostream_widget::setup() {
     fixedPosition = 0;
+    if (!startTimer(100))
+        throw std::runtime_error("no timer available");
 }
 
 /** strict control on keyboard events required */
@@ -34,7 +40,7 @@ void iostream_widget::keyPressEvent(QKeyEvent *event) {
     bool ctrl = event->modifiers() == CTRL;
     QTextCursor c = textCursor();
     int cp = c.position(), k = event->key();
-    bool accept = true, /*ret = false, down = true,*/ editable = cp >= fixedPosition;
+    bool accept = true, editable = cp >= fixedPosition;
 
     switch (k) {
     case Key_Home:
@@ -71,13 +77,22 @@ void iostream_widget::keyPressEvent(QKeyEvent *event) {
         IOSTREAM_WIDGET_BASE::keyPressEvent(event);
 }
 
-void iostream_widget::add_string(QString s) {
-    //qDebug() << "add_string" << s;
+void iostream_widget::timerEvent(QTimerEvent *) {
+    out_string();
+}
 
-    auto c = textCursor();
-    c.movePosition(c.End);
-    c.insertText(s);
-    c.movePosition(c.End);
-    fixedPosition = c.position();
-    setTextCursor(c);
+void iostream_widget::add_string(QString s) {
+    buffer += s;
+}
+
+void iostream_widget::out_string() {
+    if (!buffer.isEmpty()) {
+        auto c = textCursor();
+        c.movePosition(c.End);
+        c.insertText(buffer);
+        buffer.clear();
+        c.movePosition(c.End);
+        fixedPosition = c.position();
+        setTextCursor(c);
+    }
 }

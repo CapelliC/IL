@@ -77,6 +77,9 @@ _:  if (!con_window)
         return c;
     }
 
+    // flush output
+    con_window->out_string();
+
     auto c = con_window->textCursor();
 
     c.movePosition(c.End);

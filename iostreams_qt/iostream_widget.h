@@ -27,7 +27,6 @@
 class iostream_widget : public IOSTREAM_WIDGET_BASE {
 
     Q_OBJECT
-    int fixedPosition;
 
 public:
 
@@ -40,6 +39,19 @@ protected:
 
     /** strict control on keyboard events required */
     virtual void keyPressEvent(QKeyEvent *event);
+
+    /** flushing buffer */
+    virtual void timerEvent(QTimerEvent *event);
+
+private:
+
+    int fixedPosition;
+    QString buffer;
+    void setup();
+
+public slots:
+
+    void out_string();
 };
 
 #endif // IOSTREAM_WIDGET_H
