@@ -18,18 +18,18 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-#include "text_widget.h"
+#include "iostream_widget.h"
 #include <QDebug>
 
-text_widget::text_widget(QWidget *parent) : TEXT_WIDGET_BASE(parent) {
+iostream_widget::iostream_widget(QWidget *parent) : IOSTREAM_WIDGET_BASE(parent) {
     fixedPosition = 0;
 }
-text_widget::text_widget(const QString &text, QWidget *parent) : TEXT_WIDGET_BASE(text, parent) {
+iostream_widget::iostream_widget(const QString &text, QWidget *parent) : IOSTREAM_WIDGET_BASE(text, parent) {
     fixedPosition = 0;
 }
 
 /** strict control on keyboard events required */
-void text_widget::keyPressEvent(QKeyEvent *event) {
+void iostream_widget::keyPressEvent(QKeyEvent *event) {
     using namespace Qt;
     bool ctrl = event->modifiers() == CTRL;
     QTextCursor c = textCursor();
@@ -68,10 +68,10 @@ void text_widget::keyPressEvent(QKeyEvent *event) {
     }
 
     if (accept)
-        TEXT_WIDGET_BASE::keyPressEvent(event);
+        IOSTREAM_WIDGET_BASE::keyPressEvent(event);
 }
 
-void text_widget::add_string(QString s) {
+void iostream_widget::add_string(QString s) {
     //qDebug() << "add_string" << s;
 
     auto c = textCursor();

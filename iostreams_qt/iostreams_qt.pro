@@ -73,9 +73,9 @@ SOURCES += \
     ../binlib.cpp \
     ../argali.cpp \
     ../actios.cpp \
-    text_widget.cpp \
     main_window.cpp \
-    ../btswi0.cpp
+    ../btswi0.cpp \
+    iostream_widget.cpp
 
 OTHER_FILES += \
     ../README.md
@@ -125,9 +125,9 @@ HEADERS += \
     ../aritval.h \
     ../argali.h \
     ../actios.h \
-    text_widget.h \
     main_window.h \
-    ../btswi0.h
+    ../btswi0.h \
+    iostream_widget.h
 
 DISTFILES += \
     ../scripts/ISO/isoTestSuite.pl \

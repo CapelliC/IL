@@ -39,7 +39,7 @@ signals:
 public slots:
 
 protected:
-    text_widget *ed;
+    iostream_widget *ed;
     cin_to_qt *in;
     cout_to_qt *out;
     virtual void closeEvent(QCloseEvent *event);

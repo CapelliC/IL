@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <streambuf>
-#include "text_widget.h"
+#include "iostream_widget.h"
 
 //----------------------------------------
 // output buffer to QTextEdit
@@ -33,7 +33,7 @@
 class cout_to_qt : public std::basic_streambuf<char>
 {
 public:
-    cout_to_qt(std::ostream &stream, text_widget* text_edit);
+    cout_to_qt(std::ostream &stream, iostream_widget* text_edit);
     ~cout_to_qt();
 
 protected:
@@ -43,7 +43,7 @@ protected:
 private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
-    text_widget* log_window;
+    iostream_widget *log_window;
 };
 
 #endif

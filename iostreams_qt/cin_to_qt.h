@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <streambuf>
-#include "text_widget.h"
+#include "iostream_widget.h"
 
 //-------------------------------
 // input buffer from QTextEdit
@@ -31,7 +31,7 @@
 class cin_to_qt : public std::basic_streambuf<char>
 {
 public:
-    cin_to_qt(std::istream &stream, text_widget* text_edit);
+    cin_to_qt(std::istream &stream, iostream_widget* text_edit);
     ~cin_to_qt();
 
 protected:
@@ -42,7 +42,7 @@ private:
     std::istream &stream;
     std::streambuf *old_buf;
 
-    text_widget* con_window;
+    iostream_widget* con_window;
     int last_cursor_seen;
 
     char one_char[1];

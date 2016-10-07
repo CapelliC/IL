@@ -18,21 +18,21 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-#ifndef TEXT_WIDGET_H
-#define TEXT_WIDGET_H
+#ifndef IOSTREAM_WIDGET_H
+#define IOSTREAM_WIDGET_H
 
 #include <QPlainTextEdit>
-#define TEXT_WIDGET_BASE QPlainTextEdit
+#define IOSTREAM_WIDGET_BASE QPlainTextEdit
 
-class text_widget : public TEXT_WIDGET_BASE {
+class iostream_widget : public IOSTREAM_WIDGET_BASE {
 
     Q_OBJECT
     int fixedPosition;
 
 public:
 
-    explicit text_widget(QWidget *parent = Q_NULLPTR);
-    explicit text_widget(const QString &text, QWidget *parent = Q_NULLPTR);
+    explicit iostream_widget(QWidget *parent = Q_NULLPTR);
+    explicit iostream_widget(const QString &text, QWidget *parent = Q_NULLPTR);
 
     void add_string(QString s);
 
@@ -42,4 +42,4 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event);
 };
 
-#endif // TEXT_WIDGET_H
+#endif // IOSTREAM_WIDGET_H

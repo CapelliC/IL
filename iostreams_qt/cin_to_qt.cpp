@@ -29,7 +29,7 @@ inline void do_events(int delay = 1) {
     lp.exec();
 }
 
-cin_to_qt::cin_to_qt(std::istream &stream, text_widget* text_edit)
+cin_to_qt::cin_to_qt(std::istream &stream, iostream_widget* text_edit)
     : stream(stream),
       last_cursor_seen(text_edit->textCursor().position())
 {
@@ -37,7 +37,7 @@ cin_to_qt::cin_to_qt(std::istream &stream, text_widget* text_edit)
     old_buf = stream.rdbuf();
     stream.rdbuf(this);
 
-    QObject::connect(text_edit, &text_widget::destroyed, [this]() {
+    QObject::connect(text_edit, &iostream_widget::destroyed, [this]() {
         qDebug() << "cin_to_qt:destroyed";
         con_window = 0;
     });

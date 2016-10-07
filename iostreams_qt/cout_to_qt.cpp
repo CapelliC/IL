@@ -20,7 +20,7 @@
 
 #include "cout_to_qt.h"
 
-cout_to_qt::cout_to_qt(std::ostream &stream, text_widget* text_edit)
+cout_to_qt::cout_to_qt(std::ostream &stream, iostream_widget* text_edit)
     : m_stream(stream)
 {
     log_window = text_edit;

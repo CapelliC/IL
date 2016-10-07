@@ -22,7 +22,7 @@
 #include <QDebug>
 
 main_window::main_window(QWidget *parent) : QMainWindow(parent) {
-    setCentralWidget(ed = new text_widget);
+    setCentralWidget(ed = new iostream_widget);
     in = new cin_to_qt(std::cin, ed);
     out = new cout_to_qt(std::cout, ed);
 }
