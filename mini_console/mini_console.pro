@@ -67,6 +67,7 @@ SOURCES += main.cpp \
     ../btcmp.cpp \
     ../btclass.cpp \
     ../btarit.cpp \
+    ../btswi0.cpp \
     ../binstr.cpp \
     ../binlib.cpp \
     ../argali.cpp \
