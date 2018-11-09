@@ -69,7 +69,7 @@ BtFImpl_R(clause, t, p, retry)
 
 	if (!retry) {
 		pd = new trackClause;
-		if ((pd->v = p->copy(t.getarg(0))).type(f_NOTERM)) {
+        if (((pd->v = p->copy(t.getarg(0))).type(f_NOTERM)) || pd->v.type(f_VAR)) {
 			p->BtErr(BTERR_REQ_INSTANCE_ARG);
 			delete pd;
 			return 0;

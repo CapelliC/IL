@@ -24,7 +24,7 @@
 #define BTSWI0_H
 
 #include "builtin.h"
-extern BuiltIn btswi0[3];
+extern BuiltIn btswi0[7];
 
 #include <array>
 //extern std::array<BuiltIn, 3> btswi0;

@@ -31,12 +31,11 @@
 BtFDecl(cd);
 BtFDecl(ls);
 BtFDecl(pwd);
-/*
 BtFDecl(between);
 BtFDecl(nth1);
 BtFDecl(nth0);
 BtFDecl(length);
-*/
+
 
 /*
 std::array<BuiltIn, 3> btswi0 = {
@@ -45,16 +44,14 @@ std::array<BuiltIn, 3> btswi0 = {
     {"pwd", 0,   pwd}
 };
 */
-BuiltIn btswi0[3] = {
+BuiltIn btswi0[7] = {
     {"cd",      1,   cd},
     {"ls",      1,   ls},
     {"pwd",     0,   pwd},
-/*
     {"between", 3|BuiltIn::retry, between},
     {"nth1",    3|BuiltIn::retry, nth1},
     {"nth0",    3|BuiltIn::retry, nth0},
     {"length",  2|BuiltIn::retry, length},
-*/
 };
 
 BtFImpl(cd, t, p) {
@@ -84,11 +81,14 @@ BtFImpl_P1(pwd, p) {
     }
     return 0;
 }
-/*
+
 struct between_range : public BltinData
 {
     int a, b;
+    ~between_range() override;
 };
+between_range::~between_range() {}
+
 BtFImpl_R(between, t, p, r) {
     between_range *pd;
     if (!r)
@@ -111,13 +111,10 @@ BtFImpl_R(between, t, p, r) {
 
 BtFTBD(nth1)
 BtFTBD(nth0)
-BtFTBD(length)
-*/
-/*
+
 BtFImpl_R(length, t, p, r) {
     auto list = p->eval_term(t.getarg(0)), len = p->eval_term(t.getarg(1));
     return p->eval_term(t.getarg(0)).type(f_ATOM|f_INT|f_DOUBLE);
-    if (list.type())
-    auto v = list.operator Var();
+    //if (list.type())
+    //auto v = list.operator Var();
 }
-*/

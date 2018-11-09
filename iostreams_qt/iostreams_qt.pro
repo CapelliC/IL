@@ -19,6 +19,7 @@
 #
 
 QT += core gui widgets
+CONFIG += c++11
 
 TARGET = iostreams_qt
 TEMPLATE = app
@@ -27,8 +28,10 @@ INCLUDEPATH += ..
 
 SOURCES += \
     main.cpp \
+    main_window.cpp \
     cin_to_qt.cpp \
     cout_to_qt.cpp \
+    iostream_widget.cpp \
     ../write.cpp \
     ../waittask.cpp \
     ../unify.cpp \
@@ -73,9 +76,7 @@ SOURCES += \
     ../binlib.cpp \
     ../argali.cpp \
     ../actios.cpp \
-    main_window.cpp \
-    ../btswi0.cpp \
-    iostream_widget.cpp
+    ../btswi0.cpp
 
 OTHER_FILES += \
     ../README.md
@@ -83,6 +84,8 @@ OTHER_FILES += \
 HEADERS += \
     cin_to_qt.h \
     cout_to_qt.h \
+    main_window.h \
+    iostream_widget.h \
     ../xtrace.h \
     ../vectb.h \
     ../unify.h \
@@ -125,11 +128,10 @@ HEADERS += \
     ../aritval.h \
     ../argali.h \
     ../actios.h \
-    main_window.h \
-    ../btswi0.h \
-    iostream_widget.h
+    ../btswi0.h
 
 DISTFILES += \
+    README.md \
     ../scripts/ISO/isoTestSuite.pl \
     ../scripts/ac.il \
     ../scripts/ansidrv.il \
@@ -169,5 +171,4 @@ DISTFILES += \
     ../scripts/play.il \
     ../scripts/rwl.il \
     ../scripts/tabsim.il \
-    README.md \
     ../scripts/length.il
