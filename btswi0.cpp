@@ -89,23 +89,38 @@ struct between_range : public BltinData
 };
 between_range::~between_range() {}
 
+// test
+// ?- between(1,3,X).
 BtFImpl_R(between, t, p, r) {
     between_range *pd;
-    if (!r)
-	{
+    if (!r) {
         auto
             a = p->eval_term(t.getarg(0)),
-            b = p->eval_term(t.getarg(1)),
-            c = p->eval_term(t.getarg(2));
+            b = p->eval_term(t.getarg(1));
         if (a.type(f_INT) && b.type(f_INT)) {
-            pd = new between_range;
-            pd->a = a;
-            pd->b = b;
-            return p->unify(c, c);
+            Int A = Int(a), B = Int(b);
+            auto c = t.getarg(2);
+            if (c.type(f_VAR)) {
+                pd = new between_range;
+                pd->a = A;
+                pd->b = B;
+                p->set_btdata(p->save(pd));
+                return p->unify(c, a);
+            }
+            if (c.type(f_INT)) {
+                Int C = Int(c);
+                return C >= A && C <= B;
+            }
         }
         p->BtErr(BTERR_INVALID_ARG_TYPE, "between");
         return 0;
 	}
+    else {
+        auto c = t.getarg(2);
+        pd = dynamic_cast<between_range*>(p->get_btdata());
+        if (++pd->a <= pd->b)
+            return p->unify(Int(pd->a), c);
+    }
     return 0;
 }
 
