@@ -84,6 +84,7 @@ BtFImpl_P1(pwd, p) {
 
 struct between_range : public BltinData
 {
+    between_range(int a, int b) : a(a), b(b) {}
     int a, b;
     ~between_range() override;
 };
@@ -91,21 +92,18 @@ between_range::~between_range() {}
 
 // test
 // ?- between(1,3,X).
+// ?- findall(a(X,Y), (between(1,3,X), between(1,X,Y)), L).
 BtFImpl_R(between, t, p, r) {
-    between_range *pd;
     if (!r) {
         auto
             a = p->eval_term(t.getarg(0)),
             b = p->eval_term(t.getarg(1));
         if (a.type(f_INT) && b.type(f_INT)) {
             Int A = Int(a), B = Int(b);
-            auto c = t.getarg(2);
-            if (c.type(f_VAR)) {
-                pd = new between_range;
-                pd->a = A;
-                pd->b = B;
-                p->set_btdata(p->save(pd));
-                return p->unify(c, a);
+            auto c = p->eval_term(t.getarg(2));
+            if (c.type(f_NOTERM)) {
+                p->set_btdata(p->save(new between_range(A, B)));
+                return p->unify(t.getarg(2), a);
             }
             if (c.type(f_INT)) {
                 Int C = Int(c);
@@ -116,20 +114,62 @@ BtFImpl_R(between, t, p, r) {
         return 0;
 	}
     else {
-        auto c = t.getarg(2);
-        pd = dynamic_cast<between_range*>(p->get_btdata());
+        auto pd = dynamic_cast<between_range*>(p->get_btdata());
         if (++pd->a <= pd->b)
-            return p->unify(Int(pd->a), c);
+            return p->unify(Int(pd->a), t.getarg(2));
     }
+
     return 0;
 }
 
 BtFTBD(nth1)
 BtFTBD(nth0)
 
+struct length_gen : public BltinData
+{
+    length_gen(int length) : length(length) {}
+    long length;
+    int list(IntlogExec *p, Term inStack, Term tLen) const {
+        auto lvar = Term(ListNULL);
+        for (auto clen = length; clen > 0; clen--)
+            lvar = Term(Term(ANONYM_IX), lvar);
+        return p->unify(tLen, Int(length)) && p->unify_gen(inStack, lvar);
+    }
+    ~length_gen() override;
+};
+length_gen::~length_gen() {}
+
+// ?- length([1,2,3],X).
+// ?- length(L,3).
+// ?- length(X,Y).
 BtFImpl_R(length, t, p, r) {
-    auto list = p->eval_term(t.getarg(0)), len = p->eval_term(t.getarg(1));
-    return p->eval_term(t.getarg(0)).type(f_ATOM|f_INT|f_DOUBLE);
-    //if (list.type())
-    //auto v = list.operator Var();
+    auto A1 = t.getarg(0), A2 = t.getarg(1);
+    if (!r) {
+        auto list = p->eval_term(A1);
+        if (list.type(f_LIST)) {
+            int len = 0;
+            while (!list.LNULL()) {
+                ++len;
+                list = p->eval_term(list.getarg(1));
+            }
+            return p->unify(Int(len), A2);
+        }
+        if (list.type(f_NOTERM)) {
+            auto len = p->eval_term(A2);
+            if (len.type(f_INT)) {
+                return length_gen(len).list(p, A1, A2);
+            }
+        }
+        if (A2.type(f_VAR)) {
+            auto g = new length_gen(0);
+            p->set_btdata(p->save(g));
+            return g->list(p, A1, A2);
+        }
+        p->BtErr(BTERR_INVALID_ARG_TYPE, "length");
+        return 0;
+    }
+
+    auto g = dynamic_cast<length_gen*>(p->get_btdata());
+    g->length++;
+    return g->list(p, A1, A2);
 }

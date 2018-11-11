@@ -35,6 +35,8 @@
 		gen_list_elements,
 
 		transpose_col_row
+        
+        %list_length
 	]).
 
 %%%%%%%%%%%%%%/
@@ -247,5 +249,8 @@ iptoa(V, [C|S], Y) :-
 	iptoa(M, S, X),
 	Y is  X * 10,
 	C is  V - M * 10 + 48.
+
+%list_length([], 0).
+%list_length([_|L], M) :- list_length(L, N), M is N+1.
 
 :-	i_end(list_processing).
