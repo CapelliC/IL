@@ -42,7 +42,7 @@ void IntlogExec::use_file()
 
     // catch input file Data
     IntlogIStream *is = ips();
-    Clause *c = 0;
+    Clause *c = nullptr;
 
     while (is->ateof() == 0) {
 
@@ -57,7 +57,7 @@ void IntlogExec::use_file()
                 stq.restore();
             }
 
-            if ((c = build_clause(is)) == 0) {	// semantic error
+            if ((c = build_clause(is)) == nullptr) {	// semantic error
                 stq.save();
                 break;
             }
@@ -69,7 +69,7 @@ void IntlogExec::use_file()
                 else {
                     no_solution();
                     delete c;
-                    c = 0;
+                    c = nullptr;
                     stq.restore();
                 }
             } else if (c->is_command()) {
@@ -77,7 +77,7 @@ void IntlogExec::use_file()
                 query(c);
             } else {
                 db->Add(c);
-                c = 0;
+                c = nullptr;
             }
             break;
 
@@ -88,7 +88,7 @@ void IntlogExec::use_file()
                 else {
                     no_solution();
                     delete c;
-                    c = 0;
+                    c = nullptr;
                     stq.restore();
                 }
             } else
@@ -116,7 +116,7 @@ Clause *IntlogExec::build_clause(IntlogIStream *is)
     if (!c->is_ok())
     {
         delete c;
-        return 0;
+        return nullptr;
     }
     return c;
 }
@@ -307,7 +307,7 @@ Clause *IntlogExec::make_clause(Term t)
     Clause *nc = new Clause(t, &vnames, db, c->get_source());
     if (nc->get_image().type(f_NOTERM)) {
         delete nc;
-        return 0;
+        return nullptr;
     }
 
     return nc;

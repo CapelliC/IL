@@ -43,7 +43,7 @@ IntlogExec::IntlogExec(DbIntlog *dbp)
     ps = new ProofStack;
     vs = new BindStack;
     ts = new TrailStack;
-    tr = 0;
+    tr = nullptr;
 
     ncycle = 100;
 }
@@ -83,7 +83,7 @@ int IntlogExec::runquery(const char *src)
 {
     int rc = -1;
 
-    Term *var_val = 0;
+    Term *var_val = nullptr;
     kstr_list var_ids;
 
     // prepare input source stream
@@ -97,11 +97,11 @@ int IntlogExec::runquery(const char *src)
     if (parser->getinput() == IntlogParser::NewClause) {
         Term tparsed = parser->parsed;
 
-        int nv = var_ids.numel();
+        auto nv = var_ids.numel();
         if (nv > 0)
             var_val = new Term[nv];
 
-        rc = query(tparsed, &var_ids, var_val, var_ids.numel());
+        rc = query(tparsed, &var_ids, var_val, int(var_ids.numel()));
 
         delete [] var_val;
         tparsed.Destroy();
@@ -126,16 +126,14 @@ int IntlogExec::query(const Clause *q)
 
     UnifyStack us(vs, ts);
 
-//qDebug() << q;
-
     if (!q)
         goto C;
 
     fn = ps->push(STKNULL);
     PFN->vspos = vs->reserve(q->get_nvars());
     pfn->trail = ts->curr_dim();
-    pfn->dbpos = 0;
-    pfn->call = 0;
+    pfn->dbpos = nullptr;
+    pfn->call = nullptr;
 
     // current query is empty?
 A:	if (!q->get_body()) {
@@ -169,7 +167,7 @@ A1:		ASSERT(cn != STKNULL);
     }
 
 A2:	PFN;
-    pcn->dbpos = 0;
+    pcn->dbpos = nullptr;
     cc = pcn->call;
 
     if (nc++ == ncycle) {
@@ -191,15 +189,6 @@ A2:	PFN;
 
         // if evaluate OK
         if (btp->eval(cc->args(), this, 0)) {
-
-            //			if (tr && tr->exit(cn, cc))
-            //				return -1;
-
-            //			if (btp->retry || pcn->call->last())
-            //				goto A1;
-
-            //			pcn->call = pcn->call->next();
-            //			goto A2;
             goto A1;
         }
 
@@ -225,7 +214,7 @@ A2:	PFN;
 
             slist_iter s(tmpt);
             ElemTmp *t;
-            while ((t = (ElemTmp*)s.next()) != 0 && t->spos > fn)
+            while ((t = dynamic_cast<ElemTmp*>(s.next())) != nullptr && t->spos > fn)
                 t->spos = fn;
 
             CallData *cproc = pcn->call;
@@ -254,7 +243,7 @@ A2:	PFN;
         pcn->dbpos = db->StartProc(cc->get_dbe());
 
         // DB matching & unification
-B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != 0) {
+B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
 
             unsigned nvars = q->get_nvars();
             pcn->vspos = vs->reserve(nvars);
@@ -314,7 +303,7 @@ C:	cn = ps->curr_dim() - 1;
 C2:	if ((fn = pcn->father) == STKNULL)
         return 0;
 
-    if ((cc = pcn->call) == 0)
+    if ((cc = pcn->call) == nullptr)
         goto C1;
 
     switch (cc->get_type()) {
@@ -389,10 +378,10 @@ int IntlogExec::call(Term tc)
     OffVars rix(tc);
 
     DbIntlog *dbc = e->call->get_clause()->get_db();
-    if (dbc == 0)
+    if (dbc == nullptr)
         dbc = db;
 
-    Clause *c = new Clause(tc, 0, dbc);
+    Clause *c = new Clause(tc, nullptr, dbc);
     if (c->get_image().type(f_NOTERM)) {
         delete c;
         return 0;
@@ -446,7 +435,7 @@ public:
     unsigned nnv, offv;
 };
 callSave::callSave(Term t, IntlogExec *p)
-:   c(t, 0, p->get_db()),
+:   c(t, nullptr, p->get_db()),
     rix(t),
     stat(p)
 {
@@ -463,13 +452,13 @@ int IntlogExec::gcall(Term pcall, IntlogExec *eng)
 {
     // find top call clause to get variable names
     callSave *cs;
-    Clause *pc = 0;
+    Clause *pc = nullptr;
 
     if (!eng) {
         ASSERT(pcall.type(f_NOTERM));
 
         // retry last
-        cs = (callSave*)get_btdata();
+        cs = dynamic_cast<callSave*>(get_btdata());
         eng = cs->stat.eng();
 
     } else {
@@ -520,7 +509,7 @@ int IntlogExec::call(Term pcall, IntlogExec *eng)
 
     OffVars rix(pcall);
 
-    Clause c(pcall, 0, eng->db);
+    Clause c(pcall, nullptr, eng->db);
     if (c.get_image().type(f_NOTERM))
         return 0;
     c.set_nvars(rix.nvars());
@@ -556,20 +545,20 @@ int IntlogExec::call(Term pcall, IntlogExec *eng)
 int	IntlogExec::find_match(Term t, DbEntryIter &i, DbIntlog *dbs)
 {
     Clause *c;
-    int tpos = ts->curr_dim(), found = 0;
+    int tpos = int(ts->curr_dim()), found = 0;
     Term k2 = t.is_rule()? t.getarg(0) : t;
 
     if (dbs)	// first call: search
         dbs->Search(k2, i, db);
 
-    while (!found && (c = i.next()) != 0) {
+    while (!found && (c = i.next()) != nullptr) {
         Term k1 = c->get_head();
         if (c->is_rule() && t.is_rule() && unify_abs(k1, k2))
             found = 1;
         else if (!c->is_rule() && !t.is_rule() && unify_abs(k1, k2))
             found = 1;
         else
-            unbind(tpos);
+            unbind(stkpos(tpos));
     }
 
     return found;
@@ -618,7 +607,7 @@ void IntlogExec::query_fail(stkpos n)
 
     slist_scan s(tmpt);
     ElemTmp *t;
-    while ((t = (ElemTmp*)s.next()) != 0 && t->spos >= limit)
+    while ((t = dynamic_cast<ElemTmp*>(s.next())) != nullptr && t->spos >= limit)
         s.delitem();
 }
 
@@ -636,6 +625,6 @@ ostream& operator<<(ostream& s, teWrite& data)
 }
 ostream& operator<<(ostream& s, Term t)
 {
-    teWrite w(t, 0);
+    teWrite w(t, nullptr);
     return s << w;
 }
