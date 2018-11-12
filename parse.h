@@ -65,7 +65,7 @@ public:
 	OperTable* get_ops() const;
 
 	// display message on parsing error with infos on source location
-	void err_msg(int, const char * = 0) const;
+    void err_msg(int, const char * = nullptr) const;
 
 private:
 
@@ -77,7 +77,8 @@ private:
 	kstr_list* var_ids;
 	struct iDesc : public e_slist
 	{
-		istream *pStream;
+        ~iDesc() override;
+        istream *pStream;
 		kstring kFileid;
 		kstr_list *pVars;
 		int nRow, nCol, lhChar;

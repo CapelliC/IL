@@ -35,7 +35,7 @@ public:
 
 	SourcePos(streampos ipos, unsigned clen);
 	SourcePos(unsigned row, unsigned col, unsigned clen);
-	SourcePos(long = -1);
+    SourcePos(long = -1);
 
 	unsigned row() const;
 	unsigned col() const;

@@ -93,7 +93,7 @@ void IntlogParser::PopSource(istream *pStream)
 	if (scan->i == pStream)
 	{
 		// resume last scanner status
-		iDesc *pDesc = (iDesc *)activeScan.get_first();
+        iDesc *pDesc = dynamic_cast<iDesc *>(activeScan.get_first());
 		ASSERT(pDesc);
 
 		var_ids = pDesc->pVars;
@@ -356,12 +356,12 @@ int IntlogParser::Symbol()
         }
 
 		Term e(f_NOTERM);
-		RedEl *r;
+        RedEl *r = nullptr;
         if (!rc && (r = rs->Reduce(TRUE)) != nullptr)
 		{
-			e = Term(kf, rs->m_nArgs);
+            e = Term(kf, int(rs->m_nArgs));
 			for (unsigned i = 0; i < rs->m_nArgs; i++)
-				e.setarg(i, rs->m_Args[i]);
+                e.setarg(int(i), rs->m_Args[i]);
 		}
 
 		rs->End();
@@ -401,7 +401,7 @@ int IntlogParser::Listd()
 		int rc;
 
         RedEl *rh, *rt = nullptr;
-		NodeIndex ih, it = -1;
+        NodeIndex ih = INVALID_NODE, it = INVALID_NODE;
 
 		rs->Begin();
 
@@ -483,7 +483,7 @@ int IntlogParser::Listd()
 			if (ib != INVALID_NODE)
 			{
 				fb = ft.AllocNode();
-				ft[fb].m_data = SourcePos(-1);
+                ft[fb].m_data = SourcePos();
 				ft.SetBrother(ih, fb);
 
 				irh = fb;
@@ -565,3 +565,5 @@ SrcPosTree& IntlogParser::GetSrcPosTree()
 {
 	return rs->m_ft;
 }
+
+IntlogParser::iDesc::~iDesc() {}

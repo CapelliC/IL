@@ -203,7 +203,9 @@ Term IntlogExec::copy_term(Term t, stkpos e) const
     case f_LIST:
         if (!t.LNULL()) {	// not empty list
             const List& l = t;
-            t1 = Term(copy_term(l.head(), e), copy_term(l.tail(), e));
+            auto H = copy_term(l.head(), e);
+            auto T = copy_term(l.tail(), e);
+            t1 = Term(H, T);
         } else
             t1 = t;
         break;

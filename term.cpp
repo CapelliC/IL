@@ -107,14 +107,14 @@ Term::Term(CCP yytext, int yyleng)
 {
 	if (yyleng > 0) {	// not empty
 
-		MemStoreRef f = m_lists.EmptyStore();
+        MemStoreRef f = m_lists.Reserve();
 		m_data = f_LIST|f;
 		List *l = m_lists[f];
 
 		int cc = 0;
 		for ( ; cc < yyleng - 1; cc++) {
 			l->h = Term(Int(yytext[cc]));
-			l->t = f_LIST|(f = m_lists.EmptyStore());
+            l->t = f_LIST|(f = m_lists.Reserve());
 			l = m_lists[f];
 		}
 		l->h = Term(static_cast<Int>(yytext[cc]));

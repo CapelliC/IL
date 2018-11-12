@@ -49,13 +49,13 @@ unsigned e_slist::offlast() const
 //
 void slist::clear()
 {
-	e_slist *e = first, *n = 0;
+    e_slist *e = first, *n = nullptr;
 	while (e) {
 		n = e->next;
 		delete e;
 		e = n;
 	}
-	first = 0;
+    first = nullptr;
 }
 
 //----------------------------
@@ -89,7 +89,7 @@ void slist::insert(e_slist *e, unsigned pos)
 	if (!first)
 		first = e;
 	else {
-		e_slist *l = first, *prev = 0;
+        e_slist *l = first, *prev = nullptr;
 		while (l->next && pos--) {
 			prev = l;
 			l = l->next;
@@ -119,7 +119,7 @@ void slist::insert(e_slist *e, unsigned pos)
 void slist::remove(unsigned ix)
 {
 	ASSERT(ix < numel());
-	e_slist *e = first, *p = 0;
+    e_slist *e = first, *p = nullptr;
 
 	while (ix > 0) {
 		e = (p = e)->next;
@@ -138,8 +138,8 @@ void slist::remove(unsigned ix)
 //
 unsigned slist::seek(void *e) const
 {
-	register e_slist *s = first;
-	register unsigned ix = 0;
+    e_slist *s = first;
+    unsigned ix = 0;
 
 	while (s) {
 		if (match(s, e))
@@ -151,13 +151,15 @@ unsigned slist::seek(void *e) const
 	return SLIST_INVPOS;
 }
 
+e_slist::~e_slist() {}
+
 //----------------------------
 // search required element
 //	return pointer to element
 //
 e_slist* slist::seekptr(void* e) const
 {
-	register e_slist *s = first;
+    e_slist *s = first;
 
 	while (s) {
 		if (match(s, e))
@@ -165,8 +167,10 @@ e_slist* slist::seekptr(void* e) const
 		s = s->next;
 	}
 
-	return 0;
+    return nullptr;
 }
+
+slist::~slist() { clear(); }
 
 //---------------------------
 // count numbers of elements
@@ -187,7 +191,7 @@ unsigned slist::numel() const
 //
 e_slist* slist::get(unsigned index) const
 {
-	register e_slist* e = first;
+    e_slist* e = first;
 
 	while (e && index--)
 		e = e->next;
@@ -199,7 +203,7 @@ e_slist* slist::get(unsigned index) const
 //
 void slist_scan::delitem()
 {
-	e_slist *n = lref.first, *p = 0;
+    e_slist *n = lref.first, *p = nullptr;
 
 	// seek current, fixing previous
 	while (n) {

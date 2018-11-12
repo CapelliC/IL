@@ -42,23 +42,23 @@ class slistvptr_iter;
 class e_slist
 {
 public:
-	e_slist() { next = 0; }
-	virtual	~e_slist() {}
+    e_slist() { next = nullptr; }
+    virtual	~e_slist();
 	unsigned offlast() const;
 
 protected:
 	e_slist* next;
 
-        friend class slist;
-        friend class slist_iter;
-        friend class slist_scan;
+    friend class slist;
+    friend class slist_iter;
+    friend class slist_scan;
 };
 
 class IAFX_API slist
 {
 public:
 	slist() { first = 0; }
-	virtual ~slist() { clear(); }
+    virtual ~slist();
 
 	unsigned append(e_slist *);
 	void insert(e_slist *, unsigned);

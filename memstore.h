@@ -40,12 +40,9 @@ class MemStorage : vect<T>
 {
 public:
 
-    // insert element at free location (grow if needed)
-    MemStoreRef EmptyStore() { return this->dim(); }
-
 	// insert consecutive uninitialized
     MemStoreRef Reserve(unsigned n = 1) {
-        MemStoreRef p = EmptyStore();
+        MemStoreRef p = this->dim();
         this->grow(n);
         return p;
     }
