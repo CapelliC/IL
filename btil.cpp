@@ -88,7 +88,7 @@ BuiltIn interface_obj[13*2-1] = {
 ///////////////////////////////////////
 
 static SysData* mkEngObj() { return new EngineObj(EH_NULL); }
-SysData::rtinfo EngineObj::rti = { "EngObj", mkEngObj, 0 };
+SysData::rtinfo EngineObj::rti = { "EngObj", mkEngObj, nullptr };
 
 EngineObj::EngineObj(EngHandle h)
 : SysData(rti)
@@ -110,7 +110,7 @@ void EngineObj::show(ostream &s) const
 
 		s << ':';
 		DbInherIter ii(db);
-		while ((db = ii.next()) != 0) {
+        while ((db = ii.next()) != nullptr) {
 			dbid = db->GetId();
 			if (unsigned(dbid) != MSR_NULL)
 				s << CCP(dbid);
@@ -145,7 +145,7 @@ EngineObj* EngineObj::get_eng(Term t)
 		if (sp->istype(rti.id))
 			return (EngineObj*)sp;
 	}
-	return 0;
+    return nullptr;
 }
 
 /**************************
@@ -170,7 +170,7 @@ BtFImpl(i_begin, a, p)
 
 	DbIntlog *db = p->get_db();
 	kstring idi = t.kstr();
-	if ((db = db->BeginInterface(idi)) == 0) {
+    if ((db = db->BeginInterface(idi)) == nullptr) {
 		p->BtErr(BTERR_CANT_BEGINTERF, CCP(idi));
 		return 0;
 	}
@@ -193,7 +193,7 @@ BtFImpl(i_end, a, p)
 
 	DbIntlog *db = p->get_db();
 	kstring dbid = db->GetId(), idi = t.kstr();
-	if (dbid != idi || (db = db->EndInterface()) == 0) {
+    if (dbid != idi || (db = db->EndInterface()) == nullptr) {
 		CCP sdb = MemStoreRef(dbid) != MSR_NULL ? dbid : "";
 		p->BtErr(BTERR_CANT_ENDINTERF, CCP(idi), sdb);
 		return 0;
@@ -293,7 +293,7 @@ BtFImpl(i_create, t, p)
 	while (i.next()) {
 
 		// search for declared interface (from current to root)
-		if ((dbi = findint(p->get_db(), i.funct)) == 0)
+        if ((dbi = findint(p->get_db(), i.funct)) == nullptr)
 			errc = BTERR_CANT_FIND_DB;
 		else if (!engdb->InheritInterface(dbi))
 			errc = BTERR_CANT_INHERIT;
@@ -337,7 +337,7 @@ static int make_call(TermArgs t, IntlogExec *p, int mode)
 	ASSERT(all_engines);
 
 	if (mode == 1)
-		return p->gcall(Term(f_NOTERM), 0);
+        return p->gcall(Term(f_NOTERM), nullptr);
 
 	Term te = p->eval_term(t.getarg(0)),
 		 tq = p->copy(t.getarg(1));
@@ -346,7 +346,7 @@ static int make_call(TermArgs t, IntlogExec *p, int mode)
 	IntlogExec *d;
 	if (	!e ||
 			tq.type(f_NOTERM) ||
-			(d = all_engines->HtoD(e->get_handler())) == 0) {
+            (d = all_engines->HtoD(e->get_handler())) == nullptr) {
 		p->BtErr(BTERR_INVALID_ARG_TYPE);
 		tq.Destroy();
 		return 0;
@@ -406,7 +406,7 @@ BtFImpl(i_proplist, t, p)
 
 	if (	!NameInt.type(f_ATOM) ||
 			!Prop.type(f_ATOM) ||
-			(db = findint(p->get_db(), NameInt.kstr())) == 0)
+            (db = findint(p->get_db(), NameInt.kstr())) == nullptr)
 	{ err:
 		p->BtErr(BTERR_INVALID_ARG_TYPE);
 		return 0;
@@ -465,11 +465,11 @@ static DbIntlog *findint(DbIntlog *base, kstring id)
 {
 	DbIntlog *dbi;
 	while (base) {
-		if ((dbi = base->IsLocalInterface(id)) != 0)
+        if ((dbi = base->IsLocalInterface(id)) != nullptr)
 			return dbi;
 		base = base->GetFather();
 	}
-	return 0;
+    return nullptr;
 }
 static int chgprop(Term t, IntlogExec* p, DbEntry::scopemode sc, CCP idbt)
 {

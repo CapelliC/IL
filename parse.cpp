@@ -47,7 +47,7 @@ IntlogParser::IntlogParser(OperTable* opt)
 	OpTbl	= opt;
 	rs		= new ReduceStack;
 	scan	= new IntlogScanner(256);
-	var_ids	= 0;
+    var_ids	= nullptr;
 }
 IntlogParser::~IntlogParser()
 {
@@ -60,9 +60,9 @@ IntlogParser::~IntlogParser()
 //
 void IntlogParser::SetSource(istream *pStream, kstring kFileid, kstr_list *pVars)
 {
-	ASSERT(pStream != 0);
+    ASSERT(pStream != nullptr);
 	ASSERT(MemStoreRef(kFileid) != MSR_NULL);
-	ASSERT(pVars != 0);
+    ASSERT(pVars != nullptr);
 
 	iDesc *pDesc = new iDesc;
 
@@ -89,7 +89,7 @@ void IntlogParser::SetSource(istream *pStream, kstring kFileid, kstr_list *pVars
 //
 void IntlogParser::PopSource(istream *pStream)
 {
-	ASSERT(pStream != 0);
+    ASSERT(pStream != nullptr);
 	if (scan->i == pStream)
 	{
 		// resume last scanner status
@@ -157,7 +157,7 @@ Term IntlogParser::term()
 		goto stop;
 	}
 
-	if ((r = rs->Reduce()) != 0)
+    if ((r = rs->Reduce()) != nullptr)
 	{
 		line = Term(r->term);
 		r->SetPos(rs->m_ft);
@@ -179,7 +179,7 @@ int IntlogParser::Expr(int maxLev)
 	if (curr_tok == '(')
 	{
 		int rc = 0;
-		RedEl *r = 0;
+        RedEl *r = nullptr;
 
 		advance();
 
@@ -225,7 +225,7 @@ int IntlogParser::Expr(int maxLev)
 				advance();
 				return Expr(maxLev) || Expr1(maxLev);
 			}
-		while ((op = GetOp(op)) != 0);
+        while ((op = GetOp(op)) != nullptr);
 
 		err_msg(UNEXPECT_OPER);
 		return 1;
@@ -332,7 +332,7 @@ int IntlogParser::Termp()
 //
 int IntlogParser::Symbol()
 {
-	ASSERT(GetOp() == 0);
+    ASSERT(GetOp() == nullptr);
 
 	SourcePos sp = *scan;
 	kstring kf = scan->GetAtom(curr_tok);
@@ -357,7 +357,7 @@ int IntlogParser::Symbol()
 
 		Term e(f_NOTERM);
 		RedEl *r;
-		if (!rc && (r = rs->Reduce(TRUE)) != 0)
+        if (!rc && (r = rs->Reduce(TRUE)) != nullptr)
 		{
 			e = Term(kf, rs->m_nArgs);
 			for (unsigned i = 0; i < rs->m_nArgs; i++)
@@ -400,7 +400,7 @@ int IntlogParser::Listd()
 		Term tln;
 		int rc;
 
-		RedEl *rh, *rt = 0;
+        RedEl *rh, *rt = nullptr;
 		NodeIndex ih, it = -1;
 
 		rs->Begin();
@@ -429,7 +429,7 @@ int IntlogParser::Listd()
 
 				if ((rc = Expr(MaxOpCdr)) == 0)
 				{
-					if ((rt = rs->Reduce()) == 0)
+                    if ((rt = rs->Reduce()) == nullptr)
 					{
 						err_msg(OPER_REDUCE);
 						rc = 1;
