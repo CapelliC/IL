@@ -27,7 +27,7 @@
 void FastTree::Assign(const FastTree& toCopy)
 {
 	m_nRoot = toCopy.m_nRoot;
-	grow(m_nTop = toCopy.m_nTop);
+    m_nTop = toCopy.m_nTop;
     ASSERT(false);
 	//memcpy(base, toCopy.base, sizeof(NodeDefinition) * m_nTop);
 }
@@ -140,12 +140,10 @@ void FastTree::CharConnections(unsigned char setc[5], selConn select)
 // reserve a slot to be filled later
 NodeIndex FastTree::AllocNode()
 {
-	if (m_nTop == dim())
-		grow(256);
-
-	getptr(m_nTop)->m_nFirstSon = INVALID_NODE;
+    if (m_nTop == dim())
+        grow(256);
+    getptr(m_nTop)->m_nFirstSon = INVALID_NODE;
 	getptr(m_nTop)->m_nBrother = INVALID_NODE;
-
 	return m_nTop++;
 }
 

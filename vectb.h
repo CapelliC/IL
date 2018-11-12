@@ -20,8 +20,8 @@
 */
 
 
-#ifndef _VECTB_H_
-#define _VECTB_H_
+#ifndef VECTB_H
+#define VECTB_H
 
 #include <vector>
 
