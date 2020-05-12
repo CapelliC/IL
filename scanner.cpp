@@ -32,7 +32,7 @@
 //
 IntlogScanner::IntlogScanner(int maxbuf)
 {
-	i = 0;
+    i = nullptr;
 	id = MSR_NULL;
 	rowcnt = colcnt = 0;
 	rowtok = coltok = -1;
@@ -299,7 +299,7 @@ void IntlogScanner::ErrMsg(int code, int numl) const
 void IntlogScanner::addchar()
 {
 	if (buflen < bufmax)
-		buftok[buflen++] = (char)clc;
+        buftok[buflen++] = static_cast<char>(clc);
 	else if (!overflow)
 	{
 		ErrMsg(TOKLEN_OVERFLOW, bufmax);

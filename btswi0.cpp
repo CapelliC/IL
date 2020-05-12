@@ -51,7 +51,7 @@ BuiltIn btswi0[7] = {
     {"between", 3|BuiltIn::retry, between},
     {"nth1",    3|BuiltIn::retry, nth1},
     {"nth0",    3|BuiltIn::retry, nth0},
-    {"length",  2|BuiltIn::retry, length},
+    {"length_",  2|BuiltIn::retry, length},
 };
 
 BtFImpl(cd, t, p) {

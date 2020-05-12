@@ -41,7 +41,7 @@ BtFDecl(melt);
 BuiltIn metalogical[7] = {
 	{"clause",	2|BuiltIn::retry,	clause},
 	{"functor",	3,	functor},
-	{"arg",		3,	arg},
+    {"arg",		3|BuiltIn::retry,	arg},
 	{"name",	2,	name},
 	{"=..",		2,	univ},
 	{"freeze",	2,	freeze},
@@ -152,23 +152,49 @@ BtFImpl(functor, t, p)
 
 //////////////////////////////////////
 // find nth argument of compound term
-//	first two args MUST be instanced
+//	behaves like SWI-Prolog arg
+//  second arg MUST be instanced
 //
-BtFImpl(arg, t, p)
+struct arg_pos : public BltinData
 {
-	Term n = p->eval_term(t.getarg(0)),
-		 a = p->eval_term(t.getarg(1));
+    arg_pos() : pos(0) {}
+    int pos;
+    ~arg_pos() override;
+};
+arg_pos::~arg_pos() {}
 
-	if (!n.type(f_INT) || !a.type(f_STRUCT|f_LIST)) {
-		p->BtErr(BTERR_INVALID_ARG_TYPE);
-		return 0;
-	}
+BtFImpl_R(arg, t, p, r)
+{
+    Term a = p->eval_term(t.getarg(1));
+    if (!r) {
 
-	Int nn = Int(n);
-	if (nn > 0 && nn <= a.get_arity())
-		return p->unify(a.getarg(nn - 1), t.getarg(2));
+        if (!a.type(f_STRUCT|f_LIST))
+            return p->BtErr(BTERR_INVALID_ARG_TYPE);
 
-	return 0;
+        Term n = p->eval_term(t.getarg(0));
+        if (n.type(f_INT)) {
+            Int nn = Int(n);
+            if (nn > 0 && nn <= a.get_arity())
+                return p->unify(a.getarg(nn - 1), t.getarg(2));
+            return 0;
+        }
+
+        if (!n.type(f_NOTERM))
+            return p->BtErr(BTERR_INVALID_ARG_TYPE);
+
+        p->set_btdata(new arg_pos);
+    }
+
+    auto g = dynamic_cast<arg_pos*>(p->get_btdata());
+
+    int rc = g->pos < a.get_arity();
+    if (rc) {
+        rc = p->unify(t.getarg(0), Int(g->pos + 1));
+        if (rc)
+            rc = p->unify(a.getarg(g->pos), t.getarg(2));
+        g->pos++;
+    }
+    return rc;
 }
 
 ///////////////////////////////////////////////
