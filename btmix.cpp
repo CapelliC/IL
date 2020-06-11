@@ -64,7 +64,9 @@ BtFDecl(timecurr);
 BtFDecl(timeform);
 BtFDecl(timediff);
 
-BuiltIn mixing[15] = {
+BtFDecl(time_);
+
+BuiltIn mixing[16] = {
 	{"random",		3,	genrand},
 
 	{"listfiles",	3,	listfiles},
@@ -83,7 +85,9 @@ BuiltIn mixing[15] = {
 
 	{"timecurr",	1,	timecurr},
 	{"timeform",	3,	timeform},
-	{"timediff",	3,	timediff}
+    {"timediff",	3,	timediff},
+
+    {"time",        1,  time_}
 };
 
 ///////////////////////////////////////////////
@@ -497,4 +501,24 @@ char *mtime::format(char *buf, int maxbuf, const char *fmt) const
 	if (strftime(buf, maxbuf, fmt, &t) == 0)
 		buf[0] = 0;
 	return buf;
+}
+
+/* time(+G)
+ * wall time of goal G execution
+ * simple test
+ * ?-time((between(1,1000,V),write(V),nl,fail;true)).
+ */
+BtFImpl(time_, t, p) {
+    Term arg = p->copy(t.getarg(0));
+    if (arg.type(f_NOTERM|f_VAR))
+    {
+        p->BtErr(BTERR_INVALID_ARG_TYPE);
+        return 0;
+    }
+
+    clock_t tval0 = clock();
+    int ret = p->call(arg);
+    clock_t tval1 = clock();
+    p->out() << "CPU time:" << double(tval1 - tval0) / CLOCKS_PER_SEC << " sec" << endl;
+    return ret;
 }

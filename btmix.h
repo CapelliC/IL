@@ -23,7 +23,7 @@
 #ifndef _BTMIX_H_
 #define _BTMIX_H_
 
-extern BuiltIn mixing[15];
+extern BuiltIn mixing[16];
 
 //---------------------------------------
 // time representation as user data test
