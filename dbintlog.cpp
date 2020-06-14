@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 class DbListSeek
 {
 public:
-    DbListSeek(e_DbList::eType t, void *d = 0)
+    DbListSeek(e_DbList::eType t, void *d = nullptr)
     {
         type = t;
         dptr = d;
@@ -43,6 +43,7 @@ public:
 
 private:
     e_DbList::eType type;
+    char _[4]; // avoid warning: padding class 'DbListSeek' with 4 bytes to align 'dptr'
     void *dptr;
     friend class DbList;
 };
@@ -52,7 +53,7 @@ private:
 DbIntlog::DbIntlog() : hashtable(DIMBASE)
 {
     m_name = kstring(MSR_NULL);
-    m_father = 0;
+    m_father = nullptr;
 }
 DbIntlog::DbIntlog(DbIntlog *father) : hashtable(DIMBASE)
 {
@@ -72,7 +73,7 @@ DbEntry *DbIntlog::GetEntryRef(Term t)
 {
     DbEntry *e = make_entry(t.get_funct(), t.get_arity());
 
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP tstring = t.get_funct();
 #endif
 
@@ -85,7 +86,7 @@ DbEntry *DbIntlog::GetEntryRef(Term t)
 //
 DbIntlog *DbIntlog::FixPathName(Term *t) const
 {
-    DbIntlog *db = (DbIntlog*)this;
+    DbIntlog *db = const_cast<DbIntlog*>(this); //DbIntlog *db = (DbIntlog*)this;
     Term r = *t;
 
     while (db && r.is_expr(Operator::PATHNAME) && r.getarg(0).type(f_ATOM))
@@ -97,7 +98,7 @@ DbIntlog *DbIntlog::FixPathName(Term *t) const
         else
         {
             DbInherIter itdb(db);
-            while ((db = itdb.next()) != 0)
+            while ((db = itdb.next()) != nullptr)
                 if (db->GetId() == dbid)
                     break;
         }
@@ -117,7 +118,7 @@ void DbIntlog::Add(Clause *c, int first, DbIntlog *owner)
 {
     Term h = c->get_head();
     ASSERT(!h.type(f_NOTERM));
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP tstring = h.get_funct();
 #endif
 
@@ -129,7 +130,7 @@ void DbIntlog::Add(Clause *c, int first, DbIntlog *owner)
     DbEntry e(funct, arity), *dbe = isin(e);
 
     // verify location on create
-    if (dbe == 0 && owner && owner != this)
+    if (dbe == nullptr && owner && owner != this)
         dbe = owner->isin(e);
     if (!dbe)
     {
@@ -181,7 +182,7 @@ void DbIntlog::Add(Clause *c, int first, DbIntlog *owner)
 //
 int DbIntlog::Search(Term t, DbEntryIter &iter, DbIntlog *dbs)
 {
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP tstring = t.get_funct();
 #endif
 
@@ -190,12 +191,12 @@ int DbIntlog::Search(Term t, DbEntryIter &iter, DbIntlog *dbs)
 
     if (!dbe)
     {
-        if (dbs == 0 ||
-                (dbe = dbs->isin(e)) == 0 ||
+        if (dbs == nullptr ||
+                (dbe = dbs->isin(e)) == nullptr ||
                 dbe->vProp != DbEntry::dynamic)
         {
-            iter.pcc = 0;
-            iter.own = iter.mod = 0;
+            iter.pcc = nullptr;
+            iter.own = iter.mod = nullptr;
             return 0;
         }
         iter.mod =
@@ -208,8 +209,8 @@ int DbIntlog::Search(Term t, DbEntryIter &iter, DbIntlog *dbs)
     }
 
     // initialize for later search
-    iter.pcc = (e_DbList*)dbe->get_first()->fix_clause(dbs);
-    iter.pcp = 0;
+    iter.pcc = const_cast<e_DbList*>(dbe->get_first()->fix_clause(dbs));
+    iter.pcp = nullptr;
 
     return 1;
 }
@@ -229,7 +230,7 @@ int	DbIntlog::Del(DbEntryIter& i)
         i.mod->m_deleted.insert(eNew, 0);
 
         // disable in DB access
-        e->clause = 0;
+        e->clause = nullptr;
         return 1;
     }
 
@@ -245,10 +246,10 @@ void DbIntlog::ClearStatus(DbIntlog *owner)
     slist_scan ld(m_deleted);
     e_DbList *edbd;
 
-    while ((edbd = (e_DbList*)ld.next()) != 0)
+    while ((edbd = static_cast<e_DbList*>(ld.next())) != nullptr)
     {
         Term tk = edbd->clause->get_head();
-#ifdef _DEBUG
+#if 0 //def _DEBUG
         CCP tstring = tk.get_funct();
 #endif
 
@@ -259,8 +260,8 @@ void DbIntlog::ClearStatus(DbIntlog *owner)
         slist_scan tla(dbe->entries);
         e_DbList *edbl;
 
-        while ((edbl = (e_DbList*)tla.next()) != 0)
-            if (edbl->clause == 0)
+        while ((edbl = static_cast<e_DbList*>(tla.next())) != nullptr)
+            if (edbl->clause == nullptr)
             {
                 tla.delitem();
                 break;
@@ -274,7 +275,7 @@ void DbIntlog::ClearStatus(DbIntlog *owner)
     // clear all inherited DBs
     DbInherIter it(this);
     DbIntlog *db;
-    while ((db = (DbIntlog *)it.next()) != 0)
+    while ((db = static_cast<DbIntlog *>(it.next())) != nullptr)
         db->ClearStatus(this);
 }
 
@@ -286,23 +287,23 @@ DbIntlog *DbIntlog::RemoveFileClauses(kstring fileId, slistvptr &updated)
 {
     // if already updated, skip
     if (updated.seek(this) != SLIST_INVPOS)
-        return 0;
+        return nullptr;
 
     hashtable_iter hit(this);
     DbEntry *he;
-    DbIntlog *found = 0;
+    DbIntlog *found = nullptr;
 
-    while ((he = (DbEntry *)hit.next()) != 0)
+    while ((he = static_cast<DbEntry *>(hit.next())) != nullptr)
     {
         slist_iter lit(he->entries);
         e_DbList *e;
-        while ((e = (e_DbList*)lit.next()) != 0)
+        while ((e = static_cast<e_DbList*>(lit.next())) != nullptr)
             if (e->type == e_DbList::tClause && e->clause && e->clause->get_source() == fileId)
             {
                 e_DbList *eNew = new e_DbList(e->clause);
                 eNew->type = e->type;
                 m_deleted.insert(eNew, 0);
-                e->clause = 0;
+                e->clause = nullptr;
 
                 found = this;
             }
@@ -312,8 +313,8 @@ DbIntlog *DbIntlog::RemoveFileClauses(kstring fileId, slistvptr &updated)
     {
         slist_iter dbit(m_types);
         DbIntlog *dbt;
-        while ((dbt = (DbIntlog *)dbit.next()) != 0)
-            if ((found = dbt->RemoveFileClauses(fileId, updated)) != 0)
+        while ((dbt = static_cast<DbIntlog *>(dbit.next())) != nullptr)
+            if ((found = dbt->RemoveFileClauses(fileId, updated)) != nullptr)
                 break;
     }
     else
@@ -327,7 +328,7 @@ DbIntlog *DbIntlog::RemoveFileClauses(kstring fileId, slistvptr &updated)
 //
 bool DbIntlog::RestoreClause(Clause *pClause)
 {
-    Add(pClause, 0, 0);
+    Add(pClause, 0, nullptr);
     return TRUE;
 }
 
@@ -336,8 +337,8 @@ bool DbIntlog::RestoreClause(Clause *pClause)
 //
 int DbIntlog::keymatch(e_hashtable *e1, e_hashtable *e2) const
 {
-    DbEntry *d1 = (DbEntry*)e1,
-            *d2 = (DbEntry*)e2;
+    DbEntry *d1 = static_cast<DbEntry*>(e1),
+            *d2 = static_cast<DbEntry*>(e2);
     return	d1->funct == d2->funct &&
             (d1->arity == d2->arity || d1->arity == -1 || d2->arity == -1);
 }
@@ -358,13 +359,13 @@ void DbIntlog::SetId(kstring id)
 //
 DbIntlog *DbIntlog::BeginInterface(kstring id)
 {
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP tstring = id;
 #endif
 
     // check redefinition
     if (IsLocalInterface(id))
-        return 0;
+        return nullptr;
 
     // insert as local type
     DbIntlog *db = GetEngines()->makeDb(id, this);
@@ -377,14 +378,13 @@ DbIntlog *DbIntlog::BeginInterface(kstring id)
 //
 DbIntlog *DbIntlog::IsLocalInterface(kstring id) const
 {
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP tstring = id;
 #endif
 
     slist_iter i(m_types);
     DbIntlog *db;
-
-    while ((db = (DbIntlog*)i.next()) != 0)
+    while ((db = static_cast<DbIntlog*>(i.next())) != nullptr) //while ((db = (DbIntlog*)i.next()) != nullptr)
         if (db->GetId() == id)
             break;
 
@@ -396,14 +396,14 @@ DbIntlog *DbIntlog::IsLocalInterface(kstring id) const
 //
 DbIntlog *DbIntlog::EndInterface()
 {
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP ids = m_name;
 #endif
 
     hashtable_iter i(this);
 
     DbEntry *dbe;
-    while ((dbe = (DbEntry*)i.next()) != 0)
+    while ((dbe = static_cast<DbEntry*>(i.next())) != nullptr)
         check_inherited_entries(dbe);
 
     return m_father;
@@ -422,7 +422,7 @@ int DbIntlog::InheritInterface(DbIntlog *db)
     // check dynamic data
     hashtable_iter id(db);
     DbEntry *dbe;
-    while ((dbe = (DbEntry*)id.next()) != 0)
+    while ((dbe = static_cast<DbEntry*>(id.next())) != nullptr)
         if (dbe->vProp == DbEntry::dynamic)
         {
             // make a local copy of data
@@ -464,7 +464,7 @@ int DbIntlog::IsA(const DbIntlog *dbt) const
     // make a recursive check
     DbInherIter i(this);
     const DbIntlog *db;
-    while ((db = i.next()) != 0)
+    while ((db = i.next()) != nullptr)
         if (db->IsA(dbt))
             return 1;
 
@@ -479,11 +479,11 @@ DbEntry* DbIntlog::find_inherited_entry(DbEntry *e, DbInherIter &l) const
     DbEntry *dbe;
     DbIntlog *db;
 
-    while ((db = l.next()) != 0)
-        if ((dbe = db->isin(e)) != 0)
+    while ((db = l.next()) != nullptr)
+        if ((dbe = db->isin(e)) != nullptr)
             return dbe;
 
-    return 0;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////
@@ -491,10 +491,10 @@ DbEntry* DbIntlog::find_inherited_entry(DbEntry *e, DbInherIter &l) const
 //
 void DbIntlog::check_inherited_entries(DbEntry *dbe)
 {
-    DbEntry *ei, *elink = 0;
+    DbEntry *ei, *elink = nullptr;
     DbInherIter l(this);
 
-    while ((ei = find_inherited_entry(dbe, l)) != 0)
+    while ((ei = find_inherited_entry(dbe, l)) != nullptr)
     {
         switch (ei->vProp)
         {
@@ -507,7 +507,7 @@ void DbIntlog::check_inherited_entries(DbEntry *dbe)
             break;
 
         case DbEntry::exported:
-            if (elink == 0)
+            if (elink == nullptr)
                 dbe->addExtRef(ei);
             else
                 elink->addVTbl()->add(this, ei);
@@ -564,10 +564,9 @@ void DbIntlog::EntriesWithProperty(DbEntry::scopemode vProp, slist &l) const
     {
         slist_iter i(m_types);
         DbIntlog *db;
-
-        while ((db = (DbIntlog*)i.next()) != 0)
+        while ((db = static_cast<DbIntlog*>(i.next())) != nullptr)
         {
-            EntryWithProp *ewp = new EntryWithProp;
+            auto ewp = new EntryWithProp;
             ewp->id = db->GetId();
             ewp->arity = -1;
             l.append(ewp);
@@ -578,10 +577,10 @@ void DbIntlog::EntriesWithProperty(DbEntry::scopemode vProp, slist &l) const
         hashtable_iter it(this);
         DbEntry *dbe;
 
-        while ((dbe = (DbEntry*)it.next()) != 0)
+        while ((dbe = static_cast<DbEntry*>(it.next())) != nullptr)
             if (dbe->vProp == vProp)
             {
-                EntryWithProp *ewp = new EntryWithProp;
+                auto ewp = new EntryWithProp;
                 ewp->id = dbe->funct;
                 ewp->arity = dbe->arity;
                 l.append(ewp);
@@ -597,7 +596,7 @@ void DbIntlog::EntriesWithProperty(DbEntry::scopemode vProp, slist &l) const
 DbVTable* DbEntry::addVTbl(unsigned atpos)
 {
     DbListSeek ts(e_DbList::tVTable);
-    e_DbList *etbl = (e_DbList *)entries.seekptr(&ts);
+    e_DbList *etbl = static_cast<e_DbList *>(entries.seekptr(&ts)); //e_DbList *etbl = (e_DbList *)entries.seekptr(&ts);
 
     DbVTable *tbl;
     if (!etbl)
@@ -617,7 +616,7 @@ DbVTable* DbEntry::addVTbl(unsigned atpos)
 void DbEntry::addExtRef(DbEntry* dbe)
 {
     DbListSeek tse(e_DbList::tExtRef, dbe);
-    if (entries.seekptr(&tse) == 0)
+    if (entries.seekptr(&tse) == nullptr)
         entries.append(new e_DbList(dbe));
 }
 
@@ -627,11 +626,10 @@ void DbEntry::addExtRef(DbEntry* dbe)
 //
 int DbList::match(e_slist *e, void *a) const
 {
-    DbListSeek *ts = (DbListSeek*)a;
-    e_DbList *ebd = (e_DbList*)e;
-
+    auto ebd = static_cast<e_DbList*>(e);
+    auto ts = static_cast<DbListSeek*>(a);
     return	ts->type == ebd->type &&
-            (ts->dptr == 0 || (void*)ebd->extref == ts->dptr);
+            (ts->dptr == nullptr || reinterpret_cast<const void*>(ebd->extref) == ts->dptr);
 }
 
 ////////////////////////////////////
@@ -643,7 +641,7 @@ void DbVTable::add(DbIntlog *db, DbEntry *ref)
     slist_iter i(this);
 
     // check to avoid duplicates
-    while ((e = (e_VTable *)i.next()) != 0)
+    while ((e = static_cast<e_VTable *>(i.next())) != nullptr)
         if (e->db == db && e->first == ref)
             return;
 
@@ -683,7 +681,7 @@ const e_DbList* e_DbList::fix_clause(const DbIntlog *dbs) const
             r = r->next();
         }
 
-    return 0;
+    return nullptr;
 }
 
 ////////////////////////
@@ -696,7 +694,7 @@ const e_DbList* e_DbList::searchVTbl(const DbIntlog *dbs) const
     slist_iter i(table);
     DbVTable::e_VTable *et;
 
-    while ((et = (DbVTable::e_VTable *)i.next()) != 0)
+    while ((et = static_cast<DbVTable::e_VTable *>(i.next())) != nullptr)
         if (dbs->IsA(et->db))
             return et->first->get_first();
 
@@ -723,11 +721,11 @@ Clause* DbEntryIter::next()
     if (pcc)
     {
         Clause *c = (pcp = pcc)->clause;
-        pcc = (e_DbList*)pcc->next()->fix_clause(own);
+        pcc = const_cast<e_DbList*>(pcc->next()->fix_clause(own));
         return c;
     }
 
-    return 0;
+    return nullptr;
 }
 
 DbIdArityIter::DbIdArityIter(DbIntlog *db, kstring funct, int a)
@@ -735,18 +733,18 @@ DbIdArityIter::DbIdArityIter(DbIntlog *db, kstring funct, int a)
 {
     DbEntry x(funct, arity = a);
     dbe = db->isin(x);
-    pcp = dbe? (e_DbList*)dbe->get_first()->fix_clause(own = db) : 0;
+    pcp = dbe? const_cast<e_DbList*>(dbe->get_first()->fix_clause(own = db)) : nullptr;
 }
 
 Clause* DbIdArityIter::next()
 {
-    Clause *c = 0;
+    Clause *c = nullptr;
     if (dbe)
     {
         if (pcp)
         {
             c = pcp->clause;
-            pcp = (e_DbList*)pcp->next()->fix_clause(own);
+            pcp = const_cast<e_DbList*>(pcp->next()->fix_clause(own));
         }
         else
             if (arity == -1)

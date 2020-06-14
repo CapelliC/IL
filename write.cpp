@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -86,44 +86,39 @@ ostream& IntlogExec::writeVar(Var v, ostream &s, stkpos p) const
 {
 	if (v != ANONYM_IX)
 	{
-		if (this)
-		{
-			if (p == STKNULL)
-				p = ps->topget()->vspos;
+        if (p == STKNULL)
+            p = ps->topget()->vspos;
 
-			stkpos p1;
-			Term tv = vs->getvar(v + p, &p1, &p1);
+        stkpos p1;
+        Term tv = vs->getvar(v + p, &p1, &p1);
 
-			if (!tv.type(f_NOTERM))
-				write(tv, s, p1);
-			else
-			{
-				// look for var in stack with clauses
-				if (writeMode & NameVars)
-				{
-					const Env *e = ps->findVarEnv(p);
-					if (e)
-					{
-						kstring id;
+        if (!tv.type(f_NOTERM))
+            write(tv, s, p1);
+        else
+        {
+            // look for var in stack with clauses
+            if (writeMode & NameVars)
+            {
+                const Env *e = ps->findVarEnv(p);
+                if (e)
+                {
+                    kstring id;
 
-						if (e->call->get_type() == CallData::DBPRED)
-						{
-							if (e->dbpos)
-								id = e->dbpos->get()->get_varid(v);
-						}
-						else
-							id = e->call->get_clause()->get_varid(v);
+                    if (e->call->get_type() == CallData::DBPRED)
+                    {
+                        if (e->dbpos)
+                            id = e->dbpos->get()->get_varid(v);
+                    }
+                    else
+                        id = e->call->get_clause()->get_varid(v);
 
-						if (unsigned(id) != MSR_NULL)
-							s << CCP(id);
-					}
-				}
-				if (writeMode & NumberVars)
-					s << '_' << p1;
-			}
-		}
-		else
-			s << '_' << v;
+                    if (unsigned(id) != MSR_NULL)
+                        s << CCP(id);
+                }
+            }
+            if (writeMode & NumberVars)
+                s << '_' << p1;
+        }
 	}
 	else
 		s << '_';
@@ -192,7 +187,7 @@ ostream& IntlogExec::writeList(Term t, ostream &s, stkpos p) const
 			// use tail
 			t = t.getarg(1);
 
-			if (t.type(f_VAR) && this && Var(t) != ANONYM_IX && p != STKNULL)
+            if (t.type(f_VAR) && Var(t) != ANONYM_IX && p != STKNULL)
 			{
 				stkpos p1;
 				Term tv = vs->getvar(Var(t) + p, &p1, &p1);

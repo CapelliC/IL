@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -56,12 +56,13 @@ BuiltIn metalogical[7] = {
 class trackClause : public BltinData
 {
 public:
-	~trackClause() {
-		v.Destroy();
-	}
+    ~trackClause();
 	DbEntryIter i;
 	Term v;
 };
+trackClause::~trackClause() {
+    v.Destroy();
+}
 
 BtFImpl_R(clause, t, p, retry)
 {
@@ -77,7 +78,7 @@ BtFImpl_R(clause, t, p, retry)
 		p->set_btdata(p->save(pd));
 		p->get_db()->Search(pd->v, pd->i, p->on_call()->get_clause()->get_db());
 	} else
-		pd = (trackClause*)p->get_btdata();
+        pd = static_cast<trackClause*>(p->get_btdata());
 
 	// scan searching for a head match
 	Term factbody = Term(kstring("true"));

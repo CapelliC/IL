@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@
 SourceBinaryLib::SourceBinaryLib(kstring id, openMode mode)
 {
     idfile = id;
-    kstrv = 0;
-    inp = 0;
+    kstrv = nullptr;
+    inp = nullptr;
 
     if (mode == toRead)
     {
@@ -118,7 +118,7 @@ int SourceBinaryLib::chkerr(int errcode, ios *s, CCP info) const
 //
 int SourceBinaryLib::match(e_slist *e, void *p) const
 {
-    BinFile *f = (BinFile *)e;
+    BinFile *f = static_cast<BinFile *>(e);
     return CCP(f->get_id()) == CCP(p);
 }
 
@@ -145,12 +145,12 @@ BinFile *SourceBinaryLib::is_name(kstring id) const
 //
 void SourceBinaryLib::check_done_out()
 {
-    ASSERT(inp == 0);
+    ASSERT(inp == nullptr);
 
     // search if some has more to do
     slist_iter i(this);
     BinOFile *of;
-    while ((of = (BinOFile *)i.next()) != 0)
+    while ((of = (BinOFile *)i.next()) != nullptr)
         if (of->status != BinOFile::done)
             return;
 
@@ -163,7 +163,7 @@ void SourceBinaryLib::check_done_out()
     bswrite(libfile, kstrl.numel());
     kstr_list_iter strl(kstrl);
     kstring cs;
-    while (CCP(cs = strl.next()) != 0)
+    while (CCP(cs = strl.next()) != nullptr)
         bswrite(libfile, CCP(cs));
 
     // save files directory
@@ -224,7 +224,7 @@ BinIFile::BinIFile(SourceBinaryLib *l)
     // read directory data
     id = readkstr();
 
-#ifdef _DEBUG
+#if 0 //def _DEBUG
     CCP ids = id;
 #endif
 
@@ -476,7 +476,7 @@ int BinOFile::echo_term(Term t)
 
     case f_STRUCT: {
         writekstr(t.get_funct());
-        Int arity = t.get_arity();
+        Int arity = static_cast<Int>(t.get_arity());
         bswrite(*out, arity);
         for (int i = 0; i < arity; i++)
             echo_term(t.getarg(i));

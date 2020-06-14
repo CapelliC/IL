@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -221,3 +221,5 @@ void slist_scan::delitem()
 
 	delete n;
 }
+
+e_slistvptr::e_slistvptr(void *p) { vptr = p; }

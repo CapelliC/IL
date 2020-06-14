@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,20 +30,7 @@
 
 #include "btswi0.h"
 
-/////////////////////////////////////////
-// standard Edinburgh builtin predicates
-/////////////////////////////////////////
-extern BuiltIn IO_oriented[22];
-extern BuiltIn execution_control[8];
-extern BuiltIn tracing_control[7];
-extern BuiltIn database_control[7];
-extern BuiltIn metalogical[7];
-extern BuiltIn comparison[4];
-extern BuiltIn arithmetic[6];
-extern BuiltIn classification[7];
-extern BuiltIn mathfunctions[20];
-
-DbIntlog* DbIntlog::_pGlobalBuiltins = 0;
+DbIntlog* DbIntlog::_pGlobalBuiltins = nullptr;
 
 ///////////////////////////////
 // scan vector adding to table

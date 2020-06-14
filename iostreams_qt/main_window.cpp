@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,11 +20,14 @@
 
 #include "main_window.h"
 #include <QDebug>
+#include "CenterWidgets.h"
 
 main_window::main_window(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(ed = new iostream_widget);
     in = new cin_to_qt(std::cin, ed);
     out = new cout_to_qt(std::cout, ed);
+
+    CenterWidgets(this);
 }
 main_window::~main_window() {
     delete in;

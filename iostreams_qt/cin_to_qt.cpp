@@ -1,7 +1,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ cin_to_qt::cin_to_qt(std::istream &stream, iostream_widget* text_edit)
 
     QObject::connect(text_edit, &iostream_widget::destroyed, [this]() {
         qDebug() << "cin_to_qt:destroyed";
-        con_window = 0;
+        con_window = nullptr;
     });
 }
 
@@ -49,12 +49,11 @@ cin_to_qt::~cin_to_qt() {
 }
 
 cin_to_qt::int_type cin_to_qt::underflow() {
-    if (gptr() == NULL || gptr() >= egptr()) {
+    if (gptr() == nullptr || gptr() >= egptr()) {
         int c = next_char();
         if (c == EOF)
             return traits_type::eof();
-
-        *one_char = c;
+        *one_char = static_cast<char>(c);
         setg(one_char, one_char, one_char + 1);
         return traits_type::to_int_type(*one_char);
     }

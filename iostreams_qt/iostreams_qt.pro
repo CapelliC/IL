@@ -1,7 +1,7 @@
 #
 #    IL : Intlog Language
 #    Object Oriented Prolog Project
-#    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+#    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,10 @@ TARGET = iostreams_qt
 TEMPLATE = app
 
 INCLUDEPATH += ..
+
+CONFIG(debug, debug|release) {
+    DEFINES += "_DEBUG=1"
+}
 
 SOURCES += \
     main.cpp \
@@ -82,6 +86,7 @@ OTHER_FILES += \
     ../README.md
 
 HEADERS += \
+    CenterWidgets.h \
     cin_to_qt.h \
     cout_to_qt.h \
     main_window.h \

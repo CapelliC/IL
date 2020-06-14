@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 */
 
 
-#ifndef _ARGALI_H_
-#define _ARGALI_H_
+#ifndef ARGALI_H_
+#define ARGALI_H_
 
 #include "term.h"
 #include "query.h"
@@ -37,7 +37,8 @@ public:
 		unsigned long tval;
 	};
 
-	ArgALIter(Term, aDesc * = 0, unsigned = 0);
+    ArgALIter(Term, aDesc* = nullptr, unsigned = 0);
+    virtual ~ArgALIter() {}
 
 	enum aType {
 		Key,
@@ -48,11 +49,12 @@ public:
 		EndArgs
 	};
 
-	aType nextarg(unsigned * = 0, Term* = 0);
+    aType nextarg(unsigned* = nullptr, Term* = nullptr);
 
-	virtual int match(CCP key, CCP arg) const {
-		return strcmp(key, arg) == 0;
-	}
+    virtual int match(CCP key, CCP arg) const;
+
+protected:
+    Term get_root() const;
 
 private:
 	Term curr;
@@ -77,13 +79,13 @@ public:
 	ArgIdArityList(Term, IntlogExec *, CCP);
 
 	// delete copied term
-	~ArgIdArityList();
+    virtual ~ArgIdArityList();
 
 	// access next arg (0 on fail/EndArgs)
 	int next();
 
 	// display error message with some other info
-	void errmsg(int = 0, CCP = 0, CCP = 0);
+    void errmsg(int = 0, CCP = nullptr, CCP = nullptr);
 
 	// nth-argument functor
 	kstring funct;

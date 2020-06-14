@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 */
 
 
-#ifndef _SLIST_H_
-#define _SLIST_H_
+#ifndef SLIST_H_
+#define SLIST_H_
 
 //--------------------
 // single linked list
@@ -57,7 +57,7 @@ protected:
 class IAFX_API slist
 {
 public:
-	slist() { first = 0; }
+    slist() { first = nullptr; }
     virtual ~slist();
 
 	unsigned append(e_slist *);
@@ -80,8 +80,8 @@ public:
 	}
 
 private:
-        friend class slist_iter;
-        friend class slist_scan;
+    friend class slist_iter;
+    friend class slist_scan;
 	e_slist* first;
 };
 
@@ -91,12 +91,12 @@ private:
 class IAFX_API slist_iter
 {
 public:
-	slist_iter() { e = 0; }
+    slist_iter() { e = nullptr; }
 	slist_iter(const slist& sl) { set(sl); }
 	slist_iter(const slist* sl) { set(*sl); }
 
 	void set(const slist& sl) { e = sl.first;	}
-	void set(const slist* sl) { e = sl? sl->first : 0; }
+    void set(const slist* sl) { e = sl? sl->first : nullptr; }
 
 	e_slist* curr() const { return e; }
 	e_slist* next() {
@@ -105,7 +105,7 @@ public:
 			e = e->next;
 			return n;
 		}
-		return 0;
+        return nullptr;
 	}
 
 protected:
@@ -133,9 +133,9 @@ private:
 class e_slistvptr : public e_slist
 {
 	void *vptr;
-	e_slistvptr(void *p) { vptr = p; }
-        friend class slistvptr;
-        friend class slistvptr_iter;
+    e_slistvptr(void *p);
+    friend class slistvptr;
+    friend class slistvptr_iter;
 };
 
 class IAFX_API slistvptr : public slist
@@ -154,7 +154,7 @@ public:
 	// return indexed pointer
 	void* get(unsigned index) const {
 		e_slistvptr* e = (e_slistvptr*)slist::get(index);
-		return e? e->vptr : 0;
+        return e? e->vptr : nullptr;
 	}
 
 	// matching condition
@@ -166,7 +166,7 @@ public:
 class slistvptr_iter
 {
 public:
-	slistvptr_iter() { e = 0; }
+    slistvptr_iter() { e = nullptr; }
 	slistvptr_iter(const slistvptr& sl) {
 		set(sl);
 	}
@@ -175,11 +175,11 @@ public:
 		e = (e_slistvptr*)sl.get_first();
 	}
 	void set(const slistvptr* sl) {
-		e = sl? (e_slistvptr*)sl->get_first() : 0;
+        e = sl? (e_slistvptr*)sl->get_first() : nullptr;
 	}
 
 	void* curr() const {
-		return e? e->vptr : 0;
+        return e? e->vptr : nullptr;
 	}
 	void* next() {
 		if (e) {
@@ -187,7 +187,7 @@ public:
 			e = (e_slistvptr*)e->next;
 			return n->vptr;
 		}
-		return 0;
+        return nullptr;
 	}
 
 protected:

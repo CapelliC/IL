@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ void Term::FreeMem()
 	m_sysd		.FreeMem();
 }
 
-#ifdef _DEBUG
+#if 0 //def _DEBUG
 void Term::DumpMem(ostream& s, int el)
 {
 	if (el & 0x01) { s << "double "; m_doubles.Dump(s); }

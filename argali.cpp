@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,6 +45,9 @@ ArgALIter::ArgALIter(Term arg, aDesc *keys, unsigned nks)
 		curr = arg;
 	}
 }
+int ArgALIter::match(CCP key, CCP arg) const {
+    return strcmp(key, arg) == 0;
+}
 
 //---------------------------------------------------
 // get current argument and advance to next (if any)
@@ -61,14 +64,15 @@ ArgALIter::aType ArgALIter::nextarg(unsigned *ixkey, Term* argp)
 
 	if (curr.is_expr(Operator::DIV)) {
 
-		if (	(tk = curr.getarg(0)).type(f_ATOM) &&
-				(ik = search(tk)) != unsigned(-1)) {
+        if ((tk = curr.getarg(0)).type(f_ATOM)) {
+            if ((ik = search(tk)) != unsigned(-1)) {
 
-			TermData tt = vectkeys[ik].tval;
-			if (tt == f_NOTERM || (tk = curr.getarg(1)).type(tt))
-				return ret(KeyValue, ixkey, ik, argp, curr.getarg(1));
+                TermData tt = vectkeys[ik].tval;
+                if (tt == f_NOTERM || (tk = curr.getarg(1)).type(tt))
+                    return ret(KeyValue, ixkey, ik, argp, curr.getarg(1));
 
-			return ret(KeyErr, ixkey, ik, argp, curr.getarg(1));
+                return ret(KeyErr, ixkey, ik, argp, curr.getarg(1));
+             }
 		}
 
 		return ret(Pair, ixkey, unsigned(-1), argp, curr);
@@ -114,16 +118,23 @@ unsigned ArgALIter::search(CCP arg) const
 	return unsigned(-1);
 }
 
+Term ArgALIter::get_root() const {
+    if (lptr.type(f_LIST))
+        return lptr;
+    return curr;
+}
+
 //---------------------
 // copy term on create
 //
 ArgIdArityList::ArgIdArityList(Term t, IntlogExec *p, CCP id)
-: ArgALIter(root = p->copy(t))
+    : ArgALIter(p->copy(t))
 {
 	caller = id;
 	status = 1;
 	counter = 0;
 
+    root = get_root();
 	if (root.type(f_NOTERM))
 		errmsg();
 }
@@ -143,7 +154,7 @@ int ArgIdArityList::next()
 {
 	Term a;
 
-	switch (nextarg(0, &a)) {
+    switch (nextarg(nullptr, &a)) {
 
     case Key:
     case KeyValue:

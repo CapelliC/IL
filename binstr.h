@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 */
 
 
-#ifndef _BINSTR_H_
-#define _BINSTR_H_
+#ifndef BINSTR_H_
+#define BINSTR_H_
 
 void bswrite(ostream &, unsigned);
 void bswrite(ostream &, short);

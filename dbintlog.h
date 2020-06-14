@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2016 - Ing. Capelli Carlo
+    Copyright (C) 1992-2020 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 */
 
 
-#ifndef _DBINTLOG_H_
-#define _DBINTLOG_H_
+#ifndef DBINTLOG_H_
+#define DBINTLOG_H_
 
 ///////////////////////////////////////////////////////////////////
 // IntLog database
@@ -245,7 +245,7 @@ public:
 
     // get first clause in procedure list entry
     const e_DbList* StartProc(const DbEntry *dbe) const {
-    #ifdef _DEBUG
+    #if 0 //def _DEBUG
         CCP tstring = dbe->funct;
     #endif
 
