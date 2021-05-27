@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,11 @@
 // IntlogExec query engine
 //-------------------------
 
-#include "stdafx.h"
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+#include "eng.h"
 #include "qdata.h"
 #include "builtin.h"
 #include "defsys.h"
@@ -37,8 +41,7 @@
 //----------------------
 // initialize/terminate
 //
-IntlogExec::IntlogExec(DbIntlog *dbp)
-{
+IntlogExec::IntlogExec(DbIntlog *dbp) {
     db = dbp;
     ps = new ProofStack;
     vs = new BindStack;
@@ -47,8 +50,7 @@ IntlogExec::IntlogExec(DbIntlog *dbp)
 
     ncycle = 100;
 }
-IntlogExec::~IntlogExec()
-{
+IntlogExec::~IntlogExec() {
     delete ps;
     delete vs;
     delete ts;
@@ -58,8 +60,7 @@ IntlogExec::~IntlogExec()
 //---------------------------------------------
 // from main.cpp, factored commodity interface
 //
-int IntlogExec::query(Term tquery, kstr_list *var_ids, Term *v, int nv)
-{
+int IntlogExec::query(Term tquery, kstr_list *var_ids, Term *v, int nv) {
     for (int j = 0; j < nv; j++)
         v[j] = Term(f_NOTERM);
 
@@ -79,8 +80,7 @@ int IntlogExec::query(Term tquery, kstr_list *var_ids, Term *v, int nv)
 
     return rc;
 }
-int IntlogExec::runquery(const char *src)
-{
+int IntlogExec::runquery(const char *src) {
     int rc = -1;
 
     Term *var_val = nullptr;
@@ -113,10 +113,10 @@ int IntlogExec::runquery(const char *src)
 
 //--------------------------
 // evaluation core of query
-//	use algorithm ABC
+//  use algorithm ABC
 //
-int IntlogExec::query(const Clause *q)
-{
+int IntlogExec::query(const Clause *q) {
+
     unsigned nc = 0;
 
     Env *pcn, *pfn;
@@ -136,10 +136,10 @@ int IntlogExec::query(const Clause *q)
     pfn->call = nullptr;
 
     // current query is empty?
-A:	if (!q->get_body()) {
+A:  if (!q->get_body()) {
 
         // search untried calls
-A1:		ASSERT(cn != STKNULL);
+    A1: assert(cn != STKNULL);
         fn = cn;
 
         Env *e = ps->get(fn);
@@ -168,7 +168,7 @@ static int cnt = 0;
         PCN->call = q->get_body();
     }
 
-A2:	PFN;
+A2: PFN;
     pcn->dbpos = nullptr;
     cc = pcn->call;
 
@@ -201,22 +201,22 @@ A2:	PFN;
 
         unbind(pcn->trail);
     }
-    goto C1;
+        goto C1;
 
     case CallData::CUT: {
         stkpos gf = PFN->father;
-        if (	gf != STKNULL &&
+        if (gf != STKNULL &&
                 pfn->call->is_last() &&
                 pfn->call == pcn->call->next()) {
             // tail recursion optimization
             Env *pgf = ps->get(gf);
             pgf->vspos = pfn->vspos;
 
-            ASSERT(!pcn->call->is_last());
+            assert(!pcn->call->is_last());
 
             slist_iter s(tmpt);
             ElemTmp *t;
-            while ((t = dynamic_cast<ElemTmp*>(s.next())) != nullptr && t->spos > fn)
+            while ((t = static_cast<ElemTmp*>(s.next())) != nullptr && t->spos > fn)
                 t->spos = fn;
 
             CallData *cproc = pcn->call;
@@ -232,11 +232,11 @@ A2:	PFN;
     }
     goto A1;
 
-    case CallData::DISJUNCT:			// replace with catenated try
+    case CallData::DISJUNCT:            // replace with catenated try
         pcn->vspos = pfn->vspos;
         pcn->trail = ts->curr_dim();
         cn = ps->push(fn);
-        PCN->call = cc->next();			// left side
+        PCN->call = cc->next();         // left side
         goto A2;
 
     case CallData::DBPRED:
@@ -245,14 +245,14 @@ A2:	PFN;
         pcn->dbpos = db->StartProc(cc->get_dbe());
 
         // DB matching & unification
-B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
+    B:  if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
 
             unsigned nvars = q->get_nvars();
             pcn->vspos = vs->reserve(nvars);
             pcn->trail = ts->curr_dim();
-
+//q->show();
             /*
-            if (!unify(	pfn->vspos, cc->args(),
+            if (!unify( pfn->vspos, cc->args(),
                 pcn->vspos, q->h_args(), q->h_arity()))
             */
             if (q->h_arity() > 0) {
@@ -270,9 +270,8 @@ B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
                 }
                 us.check_overflow();
 
-                if (!us.work(	pa1.getarg(0), pfn->vspos,
-                                pa2.getarg(0), pcn->vspos))
-                {
+                if (!us.work(   pa1.getarg(0), pfn->vspos,
+                                pa2.getarg(0), pcn->vspos)) {
                     // undo changes
                     unbind(pcn->trail);
                     vs->pop(nvars);
@@ -289,20 +288,20 @@ B:      if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
         break;
 
     default:
-        ASSERT(0);
+        assert(0);
     }
 
     if (tr && PCN->call && tr->fail(cn, cc))
         return -1;
 
     // backtracking
-C1:	query_fail(ps->curr_dim() - cn);
+C1: query_fail(ps->curr_dim() - cn);
 
     // resume top query
-C:	cn = ps->curr_dim() - 1;
+C:  cn = ps->curr_dim() - 1;
     unbind(PCN->trail);
 
-C2:	if ((fn = pcn->father) == STKNULL)
+C2: if ((fn = pcn->father) == STKNULL)
         return 0;
 
     if ((cc = pcn->call) == nullptr)
@@ -310,7 +309,7 @@ C2:	if ((fn = pcn->father) == STKNULL)
 
     switch (cc->get_type()) {
 
-    case CallData::CUT:  {		// change satisfaction path up to father
+    case CallData::CUT:  {      // change satisfaction path up to father
         stkpos fvp = PFN->vspos;
         query_fail(cn - fn + 1);
         if ((cn = ps->curr_dim() - 1) != STKNULL) {
@@ -321,7 +320,7 @@ C2:	if ((fn = pcn->father) == STKNULL)
         return 0;
     }
 
-    case CallData::BUILTIN: {	// check builtins retry
+    case CallData::BUILTIN: {   // check builtins retry
         BuiltIn *btp = cc->get_builtin();
 
         if (btp->args & BuiltIn::retry) {
@@ -342,15 +341,15 @@ C2:	if ((fn = pcn->father) == STKNULL)
         goto C1;
     }
 
-    case CallData::DISJUNCT:	// evaluate right side
+    case CallData::DISJUNCT:    // evaluate right side
         if (tr && tr->redo(cn, cc))
             return -1;
 
         pcn->call = cc->get_orelse();
         goto A2;
 
-    case CallData::DBPRED:		// a DB query node to retry
-        if (tr) {	// display REDOs (TBD)
+    case CallData::DBPRED:      // a DB query node to retry
+        if (tr) {   // display REDOs (TBD)
             if (pcn->dbpos && pcn->dbpos->succ(db) && tr->redo(cn, cc))
                 return -1;
         }
@@ -360,7 +359,7 @@ C2:	if ((fn = pcn->father) == STKNULL)
         goto B;
 
     default:
-        ASSERT(0);
+        assert(0);
     }
 
     return -1;
@@ -368,13 +367,12 @@ C2:	if ((fn = pcn->father) == STKNULL)
 
 //------------------------------------------------------------
 // attempt a local call in engine
-//	expand top node with a query() instance
+//  expand top node with a query() instance
 //
-//	on return ok adjust stack(s) contents, binding local vars
-//	and saving in trail
+//  on return ok adjust stack(s) contents, binding local vars
+//  and saving in trail
 //
-int IntlogExec::call(Term tc)
-{
+int IntlogExec::call(Term tc) {
     // get top call clause (for variables...)
     Env *e = ps->topget();
     OffVars rix(tc);
@@ -392,7 +390,7 @@ int IntlogExec::call(Term tc)
     save(c);
 
     // fix env/vars binding bases
-    stkpos	psc = ps->curr_dim(),
+    stkpos  psc = ps->curr_dim(),
             tsc = ts->curr_dim();
 
     unsigned ixv = 0;
@@ -408,9 +406,9 @@ int IntlogExec::call(Term tc)
 
         // share variables from caller env to solved query env
         for (ixv = 0; ixv < rix.nvars(); ixv++, tsc++, sqv++) {
-            Var vcsp = rix.new2old(Var(ixv));	// absolute pos
+            Var vcsp = rix.new2old(Var(ixv));   // absolute pos
             ts->set(tsc, vcsp);
-            vs->setshare(vcsp, sqv);			// hold instances
+            vs->setshare(vcsp, sqv);            // hold instances
         }
 
     } else {
@@ -425,8 +423,7 @@ int IntlogExec::call(Term tc)
 //----------------------------------------
 // external call: copy terms at interface
 //
-class callSave : public BltinData
-{
+class callSave : public BltinData {
 public:
     callSave(Term, IntlogExec*);
     ~callSave();
@@ -439,28 +436,25 @@ public:
 callSave::callSave(Term t, IntlogExec *p)
 :   c(t, nullptr, p->get_db()),
     rix(t),
-    stat(p)
-{
+    stat(p) {
     c.set_nvars(rix.nvars());
     nnv = 0;
     offv = unsigned(-1);
 }
-callSave::~callSave()
-{
+callSave::~callSave() {
     stat.restore();
 }
 
-int IntlogExec::gcall(Term pcall, IntlogExec *eng)
-{
+int IntlogExec::gcall(Term pcall, IntlogExec *eng) {
     // find top call clause to get variable names
     callSave *cs;
     Clause *pc = nullptr;
 
     if (!eng) {
-        ASSERT(pcall.type(f_NOTERM));
+        assert(pcall.type(f_NOTERM));
 
         // retry last
-        cs = dynamic_cast<callSave*>(get_btdata());
+        cs = static_cast<callSave*>(get_btdata());
         eng = cs->stat.eng();
 
     } else {
@@ -501,8 +495,7 @@ int IntlogExec::gcall(Term pcall, IntlogExec *eng)
 //----------------------------------------
 // external call: copy terms at interface
 //
-int IntlogExec::call(Term pcall, IntlogExec *eng)
-{
+int IntlogExec::call(Term pcall, IntlogExec *eng) {
     // count new variables required
     unsigned nnv = 0, offv = vs->curr_dim() - ps->topget()->vspos;
 
@@ -544,13 +537,12 @@ int IntlogExec::call(Term pcall, IntlogExec *eng)
 //-----------------------
 // search matching terms
 //
-int	IntlogExec::find_match(Term t, DbEntryIter &i, DbIntlog *dbs)
-{
+int IntlogExec::find_match(Term t, DbEntryIter &i, DbIntlog *dbs) {
     Clause *c;
     int tpos = int(ts->curr_dim()), found = 0;
     Term k2 = t.is_rule()? t.getarg(0) : t;
 
-    if (dbs)	// first call: search
+    if (dbs)    // first call: search
         dbs->Search(k2, i, db);
 
     while (!found && (c = i.next()) != nullptr) {
@@ -569,8 +561,7 @@ int	IntlogExec::find_match(Term t, DbEntryIter &i, DbIntlog *dbs)
 //------------------------------
 // if not already exist, create
 //
-ProofTracer* IntlogExec::tracer(int mk)
-{
+ProofTracer* IntlogExec::tracer(int mk) {
     if (!tr && mk)
         tr = make_tracer();
     return tr;
@@ -579,10 +570,9 @@ ProofTracer* IntlogExec::tracer(int mk)
 //-------------------------------
 // display current engine status
 //
-void IntlogExec::showstatus(ostream &s, statusmode mode) const
-{
+void IntlogExec::showstatus(ostream &s, statusmode mode) const {
     if (mode & Base) {
-        s   << "proof tree:"    << ps->curr_dim() << ' '
+        s << "proof tree:"    << ps->curr_dim() << ' '
             << "variables:"     << vs->curr_dim() << ' '
             << "trail:"         << ts->curr_dim() << ' '
             << "temporary:"     << tmpt.numel() << ' '
@@ -603,30 +593,26 @@ void IntlogExec::showstatus(ostream &s, statusmode mode) const
 //----------------------------------------------------------------
 // release current proof segment with related temporary variables
 //
-void IntlogExec::query_fail(stkpos n)
-{
+void IntlogExec::query_fail(stkpos n) {
     stkpos limit = ps->pop(n);
 
     slist_scan s(tmpt);
     ElemTmp *t;
-    while ((t = dynamic_cast<ElemTmp*>(s.next())) != nullptr && t->spos >= limit)
+    while ((t = static_cast<ElemTmp*>(s.next())) != nullptr && t->spos >= limit)
         s.delitem();
 }
 
 ////////////////////////////
 // build a tracer at request
 //
-ProofTracer *IntlogExec::make_tracer()
-{
+ProofTracer *IntlogExec::make_tracer() {
     return new ProofTracer(this);
 }
 
-ostream& operator<<(ostream& s, teWrite& data)
-{
+ostream& operator<<(ostream& s, teWrite& data) {
     return data.m_pExec->write(data.m_toWrite, s, data.m_stkPos);
 }
-ostream& operator<<(ostream& s, Term t)
-{
+ostream& operator<<(ostream& s, Term t) {
     teWrite w(t, nullptr);
     return s << w;
 }

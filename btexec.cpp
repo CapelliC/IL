@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 // execution control
 //-------------------
 
-#include "stdafx.h"
 #include "defsys.h"
 #include "qdata.h"
 #include "builtin.h"
@@ -39,34 +38,30 @@ BtFDecl(setof);
 BtFDecl(bagof);
 
 BuiltIn execution_control[8] = {
-    {"repeat",	0|BuiltIn::retry,	true_rep},
-    {"true",	0,					true_rep},
-    {"fail",	0,					fail},
-    {"call",	1,					call},
-    {"not",		1,					not_},
-    {"findall",	3,					findall},
-    {"setof",	3,					setof},
-    {"bagof",	3,					bagof}
+    {"repeat",  0|BuiltIn::retry,   true_rep},
+    {"true",    0,                  true_rep},
+    {"fail",    0,                  fail},
+    {"call",    1,                  call},
+    {"not",     1,                  not_},
+    {"findall", 3,                  findall},
+    {"setof",   3,                  setof},
+    {"bagof",   3,                  bagof}
 };
 
-BtFImpl_NP(true_rep)
-{
+BtFImpl_NP(true_rep) {
     return 1;
 }
 
-BtFImpl_NP(fail)
-{
+BtFImpl_NP(fail) {
     return 0;
 }
 
 /////////////////////////////////////
 // make a call of argument predicate
 //
-BtFImpl(call, t, p)
-{
+BtFImpl(call, t, p) {
     Term arg = p->copy(t.getarg(0));
-    if (arg.type(f_NOTERM|f_VAR))
-    {
+    if (arg.type(f_NOTERM|f_VAR)) {
         p->BtErr(BTERR_INVALID_ARG_TYPE);
         return 0;
     }
@@ -76,11 +71,9 @@ BtFImpl(call, t, p)
 /////////////////////////
 // check for failed call
 //
-BtFImpl(not_, t, p)
-{
+BtFImpl(not_, t, p) {
     Term arg = p->copy(t.getarg(0));
-    if (arg.type(f_NOTERM|f_VAR))
-    {
+    if (arg.type(f_NOTERM|f_VAR)) {
         p->BtErr(BTERR_INVALID_ARG_TYPE);
         return 0;
     }
@@ -90,19 +83,16 @@ BtFImpl(not_, t, p)
 ////////////////////////////
 // route request to engine
 //
-BtFImpl(findall, t, p)
-{
+BtFImpl(findall, t, p) {
     return p->findall(t.getarg(0), t.getarg(1), t.getarg(2));
 }
 BtFTBD(setof)
 BtFTBD(bagof)
 #if 0
-BtFImpl(setof, t, p)
-{
+BtFImpl(setof, t, p) {
     return p->setof(t.getarg(0), t.getarg(1), t.getarg(2));
 }
-BtFImpl(bagof, t, p)
-{
+BtFImpl(bagof, t, p) {
     return p->bagof(t.getarg(0), t.getarg(1), t.getarg(2));
 }
 #endif

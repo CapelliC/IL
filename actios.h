@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,20 +24,15 @@
 #define ACTIOS_H_
 
 #include "iafx.h"
-
-class IntlogSourceStream;	// source file input
-class Scanner;				// source binded
-class IntlogBinStream;		// library binary input
-class BinOFile;				// binary file to echo while reading
-class BinIFile;				// binary input file from library
+#include "proios.h"
+#include "binlib.h"
 
 //------------------------
 // a source stream reader
 //
-class IAFX_API IntlogSourceStream : public IntlogIStream
-{
+class IAFX_API IntlogSourceStream : public IntlogIStream {
 public:
-    IntlogSourceStream(kstring, istream*, BinOFile * = 0);
+    IntlogSourceStream(kstring k, istream *s, BinOFile *b = nullptr);
     ~IntlogSourceStream();
 
     int ateof() const;
@@ -53,10 +48,9 @@ private:
 //-------------------
 // binary lib reader
 //
-class IntlogBinStream : public IntlogIStream
-{
+class IntlogBinStream : public IntlogIStream {
 public:
-    IntlogBinStream(BinIFile *);
+    IntlogBinStream(BinIFile *s);
 
     int ateof() const;
     readResult read();

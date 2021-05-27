@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,31 +20,33 @@
 */
 
 
-#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstring>
+using namespace std;
+
 #include "binstr.h"
 
-void bswrite(ostream &s, const char *sz)
-{
-	unsigned ls = strlen(sz);
-	bswrite(s, ls);
-	s.write(sz, ls);
+void bswrite(ostream &s, const char *sz) {
+    unsigned ls = static_cast<unsigned>(strlen(sz));
+    bswrite(s, ls);
+    s.write(sz, ls);
 }
 
-void bsread(istream &s, char *sz, unsigned *lmax)
-{
-	unsigned ls;
-	bsread(s, &ls);
-	if (ls < *lmax) {
-		s.read(sz, ls);
-		sz[*lmax = ls] = 0;
-	} else
-		s.clear(ios::failbit);
+void bsread(istream &s, char *sz, unsigned *lmax) {
+    unsigned ls;
+    bsread(s, &ls);
+    if (ls < *lmax) {
+        s.read(sz, ls);
+        sz[*lmax = ls] = 0;
+    } else
+        s.clear(ios::failbit);
 }
-void bsread(istream &s, char **sz)
-{
-	unsigned ls;
-	bsread(s, &ls);
-	*sz = new char[ls + 1];
-	s.read(*sz, ls);
-	(*sz)[ls] = 0;
+void bsread(istream &s, char **sz) {
+    unsigned ls;
+    bsread(s, &ls);
+    *sz = new char[ls + 1];
+    s.read(*sz, ls);
+    (*sz)[ls] = 0;
 }

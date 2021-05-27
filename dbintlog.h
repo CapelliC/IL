@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,25 +27,25 @@
 // IntLog database
 //
 // an object oriented approach, that implement
-//	encapsulation,
-//	multiple inheritance,
-//	polimorphism
+//  encapsulation,
+//  multiple inheritance,
+//  polymorphism
 //
 // contains
-//	type names (other databases)
-//		from which inherit
-//	procedures (clauses with matched functor/arity)
-//		that can be declared exported/imported
+//  type names (other databases)
+//      from which inherit
+//  procedures (clauses with matched functor/arity)
+//      that can be declared exported/imported
 //
 // links between procedures, used at evaluation time,
-//	are resolved when clauses are added to database
-//	contains Clauses, VTables or ExtRef (external references)
+//  are resolved when clauses are added to database
+//  contains Clauses, VTables or ExtRef (external references)
 //
 // a VTable is a set of pair DbTag/EntryPtr
-//	(as DbTag use the data pointer)
+//  (as DbTag use the data pointer)
 //
 // an exported/imported procedure add a VTable at declaration point
-//	while references are added when no ambiguity arise
+//  while references are added when no ambiguity arise
 ///////////////////////////////////////////////////////////////////
 
 #include "iafx.h"
@@ -71,43 +71,41 @@ class DbDisplayer;
 
 //////////////////////////////////////
 // linked entries for procedure(s)
-//	navigate virtual tables on succ()
+//  navigate virtual tables on succ()
 //
-class IAFX_API e_DbList : public e_slist
-{
+class IAFX_API e_DbList : public e_slist {
 public:
 
     // get current procedure clause
-    const Clause*	get() const {
-        ASSERT(type == tClause || type == tLocData || type == tShared || type == tBuiltin);
+    const Clause* get() const {
+        assert(type == tClause || type == tLocData || type == tShared || type == tBuiltin);
         return clause;
     }
 
     // fetch next element in procedure list
-    const e_DbList*	succ(const DbIntlog *dbs) const {
-        ASSERT(this);
+    const e_DbList* succ(const DbIntlog *dbs) const {
+        assert(this);
         return next()->fix_clause(dbs);
     }
-
 
     ostream& Display(ostream& s, int mode) const;
 
 private:
 
     enum eType {
-        tClause,	// local clause definition
-        tVTable,	// virtual table
-        tExtRef,	// external chaining
-        tLocData,	// asserted (local data)
-        tShared,	// shared dynamic data
-        tBuiltin	// builtin pointer
+        tClause,    // local clause definition
+        tVTable,    // virtual table
+        tExtRef,    // external chaining
+        tLocData,   // asserted (local data)
+        tShared,    // shared dynamic data
+        tBuiltin    // builtin pointer
     } type;
 
     union {
-        Clause*			clause;	// instance data
-        DbVTable*		table;	// virtual links
-        const DbEntry*	extref;	// unambiguos link
-        BuiltIn*		bltin;	// system defined builtin
+        Clause*         clause; // instance data
+        DbVTable*       table;  // virtual links
+        const DbEntry*  extref; // unambiguos link
+        BuiltIn*        bltin;  // system defined builtin
     };
 
     e_DbList(Clause *c) {
@@ -136,7 +134,7 @@ private:
     const e_DbList *fix_clause(const DbIntlog *) const;
     const e_DbList* searchVTbl(const DbIntlog *) const;
     const e_DbList *next() const {
-        return (const e_DbList *)e_slist::next;
+        return static_cast<const e_DbList *>(e_slist::next);
     }
 
 
@@ -152,12 +150,11 @@ private:
 //////////////////////////////////////
 // a list of Clauses, VTables, ExtRef
 //
-class IAFX_API DbList : slist
-{
+class IAFX_API DbList : slist {
     int match(e_slist *, void *) const;
 
     e_DbList *seekptr(void* e) const {
-        return (e_DbList *)slist::seekptr(e);
+        return static_cast<e_DbList *>(slist::seekptr(e));
     }
 
     unsigned seek(void *e) const {
@@ -174,8 +171,7 @@ class IAFX_API DbList : slist
 ///////////////////////////
 // a procedure entry point
 //
-class DbEntry : e_hashtable
-{
+class DbEntry : e_hashtable {
 public:
 
     DbEntry(kstring f, int a) {
@@ -183,30 +179,31 @@ public:
         arity = a;
         vProp = local;
     }
+    ~DbEntry() override;
 
     e_DbList *get_first() const {
-        return (e_DbList*)entries.get_first();
+        return static_cast<e_DbList*>(entries.get_first());
     }
 
     // inter DB entries scope properties
     enum scopemode {
-        local	= 0x01,
-        exported	= 0x02,
-        import	= 0x04,
-        dynamic	= 0x08
+        local       = 0x01,
+        exported    = 0x02,
+        import      = 0x04,
+        dynamic     = 0x08
     };
 
     ostream& Display(ostream& s, int mode) const;
 
 private:
 
-    const char*	getstr() const {
+    const char* getstr() const override {
         return funct;
     }
 
     // proc identification
     kstring funct;
-    int	arity;
+    int arity;
 
     // actual scope tag for procedure
     scopemode vProp;
@@ -225,20 +222,19 @@ private:
 /////////////////////
 // a database object
 //
-class IAFX_API DbIntlog : protected hashtable, protected e_slist
-{
+class IAFX_API DbIntlog : protected hashtable, protected e_slist {
 public:
 
     // construct/destroy a database
     DbIntlog();
     DbIntlog(DbIntlog *);
     DbIntlog(kstring, DbIntlog *);
-    virtual ~DbIntlog() {}
+    ~DbIntlog() override {}
 
     ///////// LOCAL STORE CONTROL ///////
 
     // create entry for clause
-    virtual void Add(Clause *c, int first = 0, DbIntlog * = 0);
+    virtual void Add(Clause *c, int first = 0, DbIntlog * = nullptr);
 
     // return matching entry point, inserting if needed
     DbEntry *GetEntryRef(Term);
@@ -260,7 +256,7 @@ public:
     int Search(Term, DbEntryIter &, DbIntlog *);
 
     // release temporary invalidated clauses
-    virtual void ClearStatus(DbIntlog* = 0);
+    virtual void ClearStatus(DbIntlog* = nullptr);
 
     // remove entries indexed by file id
     DbIntlog *RemoveFileClauses(kstring fileId, slistvptr &updated);
@@ -288,17 +284,10 @@ protected:
     slist m_deleted;
 
     // override: compare kstring and arity
-    int keymatch(e_hashtable *, e_hashtable *) const;
+    int keymatch(const e_hashtable *, const e_hashtable *) const override;
 
-    // apply type casting to contained elements
-    DbEntry* isin(DbEntry *e) const {
-        return (DbEntry*)hashtable::isin((e_hashtable*)e);
-    }
-
-    DbEntry* isin(DbEntry &e) const {
-        return (DbEntry*)hashtable::isin((e_hashtable*)&e);
-    }
-
+    DbEntry* isin(DbEntry *e) const;
+    DbEntry* isin(DbEntry &e) const;
 
     ///////// INTERFACE CONTROL //////////
 
@@ -348,16 +337,16 @@ public:
 
     // display with some option
     enum {
-        Recurs	= 0x01,
-        Header	= 0x02,
-        Entries	= 0x04,
-        PropInt	= 0x08,
-        Arity	= 0x10,
-        Clauses	= 0x20,
-        Indent	= 0x40,
+        Recurs  = 0x01,
+        Header  = 0x02,
+        Entries = 0x04,
+        PropInt = 0x08,
+        Arity   = 0x10,
+        Clauses = 0x20,
+        Indent  = 0x40,
 
-        Base	= Recurs|Header|Entries|PropInt|Arity,
-        All		= Base|Clauses
+        Base    = Recurs|Header|Entries|PropInt|Arity,
+        All     = Base|Clauses
     };
     virtual ostream& Display(ostream& s, int mode = All) const;
 
@@ -389,21 +378,19 @@ protected:
     friend class DbDisplayer;
 };
 
-inline BuiltIn* DbIntlog::is_builtin(Term t) const
-{
+inline BuiltIn* DbIntlog::is_builtin(Term t) const {
     return is_builtin(t.get_funct(), t.get_arity());
 }
 
 //////////////////////////////
 // a virtual table
-//	keep DB tag and pointers
+//  keep DB tag and pointers
 //
-class DbVTable : public slist
-{
+class DbVTable : public slist {
 public:
     struct e_VTable : public e_slist {
-        DbIntlog*	db;		// tag owner DB
-        DbEntry*	first;	// pointer to first entry
+        DbIntlog*   db;     // tag owner DB
+        DbEntry*    first;  // pointer to first entry
     };
     void add(DbIntlog *, DbEntry *);
     ostream& Display(ostream& s, int mode) const;
@@ -411,14 +398,13 @@ public:
 
 /////////////////////////////////////////////////////////////////
 // iterators to gain access to subsequent matching clauses in DB
-//	initialize by call DbIntlog::Search()
+//  initialize by call DbIntlog::Search()
 //
-class DbEntryIter
-{
+class DbEntryIter {
 public:
     Clause* next();
     Clause* curr() const {
-        return pcp? pcp->clause : 0;
+        return pcp? pcp->clause : nullptr;
     }
 
     DbIntlog* owner() const {
@@ -435,8 +421,7 @@ private:
     friend class DbIntlog;
 };
 
-class DbIdArityIter : hashtable_iter
-{
+class DbIdArityIter : hashtable_iter {
 public:
     DbIdArityIter(DbIntlog *, kstring, int);
     Clause *next();
@@ -453,14 +438,13 @@ private:
 /////////////////////////////
 // iterate inherited members
 //
-class IAFX_API DbInherIter : slistvptr_iter
-{
+class IAFX_API DbInherIter : slistvptr_iter {
 public:
-    DbInherIter(const DbIntlog *db) : slistvptr_iter(db->m_inherited)
-    {}
+    DbInherIter(const DbIntlog *db) : slistvptr_iter(db->m_inherited) {
+    }
 
     DbIntlog* next() {
-        return (DbIntlog*)slistvptr_iter::next();
+        return reinterpret_cast<DbIntlog*>(slistvptr_iter::next());
     }
 
 private:

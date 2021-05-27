@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,109 +32,104 @@ class SrcPosTree;
 
 //-------------------------------------------------
 // top-down recursive parser
-//	fetch next clause from stream (0 at EOF or error)
-//	use a precedence algorithm to handle operators
+//  fetch next clause from stream (0 at EOF or error)
+//  use a precedence algorithm to handle operators
 //
-class IAFX_API IntlogParser
-{
+class IAFX_API IntlogParser {
 public:
-	IntlogParser(OperTable*);
-	~IntlogParser();
+    IntlogParser(OperTable*);
+    ~IntlogParser();
 
-	// set current scanner for current stream
-	void SetSource(istream *pStream, kstring kFileid, kstr_list *varList);
-	void PopSource(istream *pStream);
+    // set current scanner for current stream
+    void SetSource(istream *pStream, kstring kFileid, kstr_list *varList);
+    void PopSource(istream *pStream);
 
-	istream *GetSourceStream() const;
-	kstring GetSourceName() const;
+    istream *GetSourceStream() const;
+    kstring GetSourceName() const;
 
-	// type of input found
-	enum objType {
-		NewClause,
-		RedoCommand,
-		EndFile,
-		Error
-	};
-	objType getinput();
+    // type of input found
+    enum objType {
+        NewClause,
+        RedoCommand,
+        EndFile,
+        Error
+    };
+    objType getinput();
 
-	// valorized if getinput() returned NewClause
-	Term parsed;
-	SrcPosTree& GetSrcPosTree();
+    // valorized if getinput() returned NewClause
+    Term parsed;
+    SrcPosTree& GetSrcPosTree();
 
-	// return operator table
-	OperTable* get_ops() const;
+    // return operator table
+    OperTable* get_ops() const;
 
-	// display message on parsing error with infos on source location
+    // display message on parsing error with infos on source location
     void err_msg(int, const char * = nullptr) const;
 
 private:
 
-	static const int MaxOpPrec;
-	static const int MaxOpCdr;
+    static const int MaxOpPrec;
+    static const int MaxOpCdr;
 
-	// keep active scanner stream
-	IntlogScanner* scan;
-	kstr_list* var_ids;
-	struct iDesc : public e_slist
-	{
+    // keep active scanner stream
+    IntlogScanner* scan;
+    kstr_list* var_ids;
+    struct iDesc : public e_slist {
         ~iDesc() override;
         istream *pStream;
-		kstring kFileid;
-		kstr_list *pVars;
-		int nRow, nCol, lhChar;
-	};
-	slist activeScan;
+        kstring kFileid;
+        kstr_list *pVars;
+        int nRow, nCol, lhChar;
+    };
+    slist activeScan;
 
-	// hold operators
-	OperTable* OpTbl;
+    // hold operators
+    OperTable* OpTbl;
 
-	// term reduction stack
-	ReduceStack* rs;
+    // term reduction stack
+    ReduceStack* rs;
 
-	// hold last token code read
-	IntlogScanner::Codes curr_tok;
+    // hold last token code read
+    IntlogScanner::Codes curr_tok;
 
-	// read next token
-	void advance();
+    // read next token
+    void advance();
 
-	// return next term read (0 at EOF or error)
-	Term term();
+    // return next term read (0 at EOF or error)
+    Term term();
 
-	// Term Expr1 | '(' Expr ')' Expr1 | Opre Expr Expr1
-	int	Expr(int maxLev = MaxOpPrec);
+    // Term Expr1 | '(' Expr ')' Expr1 | Opre Expr Expr1
+    int Expr(int maxLev = MaxOpPrec);
 
-	// Oinf Expr Expr1 | Opos Expr1
-	int	Expr1(int maxLev = MaxOpPrec);
+    // Oinf Expr Expr1 | Opos Expr1
+    int Expr1(int maxLev = MaxOpPrec);
 
-	// atom '(' Expr ')' | int | var | '[' Expr ']'
-	int	Termp();
+    // atom '(' Expr ')' | int | var | '[' Expr ']'
+    int Termp();
 
-	// check backtracking command
-	int checkCmdRedo();
+    // check backtracking command
+    int checkCmdRedo();
 
-	// parse list data
-	int Listd();
+    // parse list data
+    int Listd();
 
-	// parse a symbol
-	int Symbol();
+    // parse a symbol
+    int Symbol();
 
-	// scan operators definition
-	Operator* lastOp;
-	Operator* GetOp(Operator* = 0);
+    // scan operators definition
+    Operator* lastOp;
+    Operator* GetOp(Operator* = nullptr);
 };
 
-inline OperTable* IntlogParser::get_ops() const
-{
-	return OpTbl;
+inline OperTable* IntlogParser::get_ops() const {
+    return OpTbl;
 }
 
-inline istream *IntlogParser::GetSourceStream() const
-{
-	return scan->i;
+inline istream *IntlogParser::GetSourceStream() const {
+    return scan->i;
 }
-inline kstring IntlogParser::GetSourceName() const
-{
-	return scan->id;
+inline kstring IntlogParser::GetSourceName() const {
+    return scan->id;
 }
 
 #endif

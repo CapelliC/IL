@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 // arithmetic builtins
 //---------------------
 
-#include "stdafx.h"
 #include "defsys.h"
 #include "builtin.h"
 #include "bterr.h"
@@ -38,33 +37,28 @@ BtFDecl(lessequ);
 BtFDecl(greatequ);
 
 BuiltIn arithmetic[6] = {
-    {"is",		2,	is},
-    {":=",		2,	is},
-    {"<",		2,	less_},
-    {">",		2,	great},
-    {"=<",		2,	lessequ},
-    {">=",		2,	greatequ}
+    {"is",      2,  is},
+    {":=",      2,  is},
+    {"<",       2,  less_},
+    {">",       2,  great},
+    {"=<",      2,  lessequ},
+    {">=",      2,  greatequ}
 };
 
 ////////////////////////////////
 // normalize types by promotion
 //
-int AritValue::compatible(AritValue &r)
-{
-    if (t == IVAL)
-    {
-        if (r.t == DBL)
-        {
+int AritValue::compatible(AritValue &r) {
+    if (t == IVAL) {
+        if (r.t == DBL) {
             d = Double(i);
             t = DBL;
         }
         else if (r.t != IVAL)
             return 0;
     }
-    else if (r.t == IVAL)
-    {
-        if (t == DBL)
-        {
+    else if (r.t == IVAL) {
+        if (t == DBL) {
             r.d = Double(r.i);
             r.t = DBL;
         }
@@ -78,12 +72,10 @@ int AritValue::compatible(AritValue &r)
 ////////////////////////////////////
 // evaluate the argument as integer
 //
-int AritValue::strlist_int(Term v, Int &i)
-{
+int AritValue::strlist_int(Term v, Int &i) {
     const List &l = v;
 
-    if (l.head().type(f_INT) && l.tail().LNULL())
-    {
+    if (l.head().type(f_INT) && l.tail().LNULL()) {
         i = Int(l.head());
         return 1;
     }
@@ -91,12 +83,10 @@ int AritValue::strlist_int(Term v, Int &i)
     return 0;
 }
 
-void AritValue::evalexpr(Term e, IntlogExec *p)
-{
+void AritValue::evalexpr(Term e, IntlogExec *p) {
     t = ERR;
 
-    switch (e.type())
-    {
+    switch (e.type()) {
     case f_INT:
         i = Int(e);
         t = IVAL;
@@ -114,26 +104,22 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
 
     case f_VAR: {
         Term v = p->tval(Var(e));
-        if (v.type(f_INT))
-        {
+        if (v.type(f_INT)) {
             i = Int(v);
             t = IVAL;
             break;
         }
-        if (v.type(f_DOUBLE))
-        {
+        if (v.type(f_DOUBLE)) {
             d = Double(v);
             t = DBL;
             break;
         }
-        if (v.type(f_ATOM))
-        {
+        if (v.type(f_ATOM)) {
             a = v;
             t = ATOM;
             break;
         }
-        if (v.type(f_VAR|f_STRUCT))
-        {
+        if (v.type(f_VAR|f_STRUCT)) {
             // try to accept expressions
             evalexpr(v = p->copy(e), p);
             v.Destroy();
@@ -147,8 +133,7 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
     case f_STRUCT: {
         AritValue l, r;
 
-        if (e.is_expr(Operator::SUBUNARY, 1))
-        {
+        if (e.is_expr(Operator::SUBUNARY, 1)) {
             evalexpr(e.getarg(0), p);
             if (t == ERR)
                 break;
@@ -157,16 +142,14 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
                 i = -i;
             else if (t == DBL)
                 d = -d;
-            else
-            {
+            else {
                 p->BtErr(BTERR_INVALID_ARG_TYPE);
                 t = ERR;
             }
             break;
         }
 
-        if (e.is_expr(Operator::ADDUNARY, 1))
-        {
+        if (e.is_expr(Operator::ADDUNARY, 1)) {
             evalexpr(e.getarg(0), p);
             break;
         }
@@ -180,8 +163,7 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
             break;
 
         // normalize types by promotion
-        if (!l.compatible(r))
-        {
+        if (!l.compatible(r)) {
             p->BtErr(BTERR_INVALID_ARG_TYPE);
             break;
         }
@@ -190,8 +172,7 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
         CCP ops = e.get_funct();
 
         if (l.t == IVAL)
-            switch (opc)
-            {
+            switch (opc) {
             case Operator::ADD:
                 i = l.i + r.i;
                 break;
@@ -202,16 +183,14 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
                 i = l.i * r.i;
                 break;
             case Operator::DIV:
-                if (r.i == 0)
-                {
+                if (r.i == 0) {
                     p->BtErr(BTERR_DIVIDE_BY_ZERO, ops);
                     return;
                 }
                 i = l.i / r.i;
                 break;
             case Operator::MOD:
-                if (r.i == 0)
-                {
+                if (r.i == 0) {
                     p->BtErr(BTERR_MODULUS_BY_ZERO, ops);
                     return;
                 }
@@ -222,8 +201,7 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
                 break;
             }
         else if (l.t == DBL)
-            switch (opc)
-            {
+            switch (opc) {
             case Operator::ADD:
                 d = l.d + r.d;
                 break;
@@ -234,8 +212,7 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
                 d = l.d * r.d;
                 break;
             case Operator::DIV:
-                if (r.d == 0.0)
-                {
+                if (r.d == 0.0) {
                     p->BtErr(BTERR_DIVIDE_BY_ZERO, ops);
                     return;
                 }
@@ -261,13 +238,11 @@ void AritValue::evalexpr(Term e, IntlogExec *p)
 }
 
 // evaluate right argument expression and 'assign' to left argument
-BtFImpl(is, t, p)
-{
+BtFImpl(is, t, p) {
     AritValue res;
     res.evalexpr(t.getarg(1), p);
 
-    switch (res.t)
-    {
+    switch (res.t) {
     case AritValue::ATOM:
     case AritValue::ERR:
         break;
@@ -281,14 +256,12 @@ BtFImpl(is, t, p)
 }
 
 // compare arguments (integers, double or atoms)
-//	types must be compatible
-static int getargs(TermArgs t, IntlogExec *p, AritValue &l, AritValue &r)
-{
+//  types must be compatible
+static int getargs(TermArgs t, IntlogExec *p, AritValue &l, AritValue &r) {
     l.evalexpr(t.getarg(0), p);
     r.evalexpr(t.getarg(1), p);
 
-    if (!l.compatible(r))
-    {
+    if (!l.compatible(r)) {
         p->BtErr(BTERR_DIFF_ARGS);
         return 0;
     }
@@ -297,7 +270,7 @@ static int getargs(TermArgs t, IntlogExec *p, AritValue &l, AritValue &r)
 }
 
 // functions differ only for operator
-#define	CmpF(op)\
+#define CmpF(op)\
 {   AritValue l, r;\
     if (getargs(t, p, l, r)) {\
         if (l.t == AritValue::IVAL)\

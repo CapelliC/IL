@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,54 +26,53 @@
 #include "vectb.h"
 #include "iafx.h"
 
-typedef unsigned	MemStoreRef;
-#define MSR_NULL	MemStoreRef(-1)
+typedef unsigned    MemStoreRef;
+#define MSR_NULL    MemStoreRef(-1)
 
 ////////////////////////////////////////////////////////////
 // allocation schema for frequently allocated items
-//	dimensions must be power of 2, for fast address compute
+//  dimensions must be power of 2, for fast address compute
 //
 //  now simplified to vector...
 //
 template <typename T>
-class MemStorage : vect<T>
-{
+class MemStorage : vect<T> {
 public:
 
-	// insert consecutive uninitialized
+    // insert consecutive uninitialized
     MemStoreRef Reserve(unsigned n = 1) {
         MemStoreRef p = this->dim();
         this->grow(n);
         return p;
     }
 
-	// release used cell
+    // release used cell
     void Delete(MemStoreRef) {
     }
 
-	// release all memory
+    // release all memory
     void FreeMem() {
         this->resize(0);
     }
 
     MemStoreRef Store(const T& v) {
-		MemStoreRef r = Reserve();
-		*cell(r) = v;
-		return r;
-	}
+        MemStoreRef r = Reserve();
+        *cell(r) = v;
+        return r;
+    }
 
-	T* operator[](MemStoreRef c) const {
-		return cell(c);
-	}
+    T* operator[](MemStoreRef c) const {
+        return cell(c);
+    }
 
 protected:
 
-	// get pointer to cell as index
+    // get pointer to cell as index
     T* cell(MemStoreRef p) const {
         return this->getptr(p);
     }
 
-	// true if cell is used
+    // true if cell is used
     int used(MemStoreRef r) const {
         return r >= 0 && r < this->dim();
     }

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,26 +30,24 @@
 #include "eng.h"
 #include "query.h"
 
-class ConsoleEngines : public EngineHandlers
-{
+class ConsoleEngines : public EngineHandlers {
 public:
-	ConsoleEngines();
+    ConsoleEngines();
 protected:
-	virtual IntlogExec *build(DbIntlog* pDb);
+    virtual IntlogExec *build(DbIntlog* pDb);
 };
 
-class ConsoleExec : public IntlogExec
-{
+class ConsoleExec : public IntlogExec {
 public:
-	ConsoleExec(DbIntlog *pDb);
+    ConsoleExec(DbIntlog *pDb);
 
 protected:
 
-	virtual ostream *openout(kstring id, int flags);
-	virtual void close(ostream* s, kstring id);
+    virtual ostream *openout(kstring id, int flags);
+    virtual void close(ostream* s, kstring id);
 
-	virtual istream *openinp(kstring *, int flags);
-	virtual void close(istream*, kstring id);
+    virtual istream *openinp(kstring *, int flags);
+    virtual void close(istream*, kstring id);
 };
 
 #endif

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,9 @@
 
 #include "iafx.h"
 
+#include <iostream>
+using namespace std;
+
 // forward classes
 class IntlogExec;
 class DbIntlog;
@@ -36,72 +39,68 @@ class OperTable;
 class IntlogParser;
 class MsgTable;
 
-typedef unsigned	EngHandle;
-#define EH_NULL		unsigned(-1)
+typedef unsigned    EngHandle;
+#define EH_NULL     unsigned(-1)
 
 #include "kstr.h"
 
-class IAFX_API EngineHandlers : protected slist
-{
+class IAFX_API EngineHandlers : protected slist {
 public:
-	EngineHandlers(ostream *msgStream);
-	virtual ~EngineHandlers();
+    EngineHandlers(ostream *msgStream);
+    virtual ~EngineHandlers();
 
-	virtual EngHandle create(DbIntlog* = 0);
-	virtual int destroy(EngHandle);
+    virtual EngHandle create(DbIntlog* = nullptr);
+    virtual int destroy(EngHandle);
 
-	IntlogExec* HtoD(EngHandle) const;
-	EngHandle DtoH(const IntlogExec*) const;
+    IntlogExec* HtoD(EngHandle) const;
+    EngHandle DtoH(const IntlogExec*) const;
 
-	virtual DbIntlog *makeDb(kstring, DbIntlog *);
-	virtual DbIntlog *makeDb(DbIntlog *);
+    virtual DbIntlog *makeDb(kstring, DbIntlog *);
+    virtual DbIntlog *makeDb(DbIntlog *);
 
-	OperTable* get_optbl() const;
-	IntlogParser* get_parser() const;
-	MsgTable* get_msgtbl() const;
+    OperTable* get_optbl() const;
+    IntlogParser* get_parser() const;
+    MsgTable* get_msgtbl() const;
 
-	// display global error messages
-	virtual void ErrMsg(int code, ...);
+    // display global error messages
+    virtual void ErrMsg(int code, ...);
 
 protected:
 
-	virtual IntlogExec* build(DbIntlog*) = 0;
+    virtual IntlogExec* build(DbIntlog*) = 0;
 
-	struct eh : public e_slist {
-		IntlogExec*	eng;
-		EngHandle	handle;
-		~eh();
-	};
+    struct eh : e_slist {
+        IntlogExec* eng;
+        EngHandle handle;
+        ~eh();
+    };
 
-	eh *getH(EngHandle) const;
+    eh *getH(EngHandle) const;
 
-	OperTable* OpTbl;
-	IntlogParser* ParseG;
-	DbIntlog* DbRoot;
-	MsgTable* MsgTbl;
+    OperTable* OpTbl;
+    IntlogParser* ParseG;
+    DbIntlog* DbRoot;
+    MsgTable* MsgTbl;
 };
 
-inline IntlogParser* EngineHandlers::get_parser() const
-{
-	return ParseG;
+inline IntlogParser* EngineHandlers::get_parser() const {
+    return ParseG;
 }
-inline OperTable* EngineHandlers::get_optbl() const
-{
-	return OpTbl;
+inline OperTable* EngineHandlers::get_optbl() const {
+    return OpTbl;
 }
-inline MsgTable* EngineHandlers::get_msgtbl() const
-{
-	return MsgTbl;
+inline MsgTable* EngineHandlers::get_msgtbl() const {
+    return MsgTbl;
 }
 
 // system control
 #ifndef _AFXDLL
-	extern EngineHandlers* all_engines;
-	inline EngineHandlers* GetEngines()	{ return all_engines; }
-	inline void SetEngines(EngineHandlers* pEngines) { all_engines = pEngines; }
+    extern EngineHandlers* all_engines;
+    inline EngineHandlers* GetEngines() { return all_engines; }
+    inline void SetEngines(EngineHandlers* pEngines) { all_engines = pEngines; }
 #else
-	extern IAFX_API EngineHandlers* GetEngines();
-	extern IAFX_API void SetEngines(EngineHandlers* pEngines);
+    extern IAFX_API EngineHandlers* GetEngines();
+    extern IAFX_API void SetEngines(EngineHandlers* pEngines);
 #endif
 
 #endif

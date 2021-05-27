@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,13 +23,17 @@
 #ifndef MEMBUF_H_
 #define MEMBUF_H_
 
+#include "iafx.h"
+#include "slist.h"
+#include "kstr.h"
+
 // in-memory files support
 //
 struct IAFX_API membuf : public e_slist {
     kstring id;
     char *mem;
 
-    membuf() { mem = 0; }
+    membuf() { mem = nullptr; }
     ~membuf() { delete mem; }
 };
 

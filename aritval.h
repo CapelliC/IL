@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,22 +28,21 @@
 class IntlogExec;
 
 // recursive visit of expression tree
-//	return type of subexpression or ERR if some error found
+//  return type of subexpression or ERR if some error found
 //
-struct AritValue
-{
-	union {
-		Int		i;
-		Double	d;
-		CCP		a;
-	};
-	enum {
-		IVAL, DBL, ATOM, ERR
-	} t;
+struct AritValue {
+    union {
+        Int     i;
+        Double  d;
+        CCP     a;
+    };
+    enum {
+        IVAL, DBL, ATOM, ERR
+    } t;
 
-	void evalexpr(Term e, IntlogExec *p);
-	int compatible(AritValue &r);
-	static int strlist_int(Term v, Int &i);
+    void evalexpr(Term e, IntlogExec *p);
+    int compatible(AritValue &r);
+    static int strlist_int(Term v, Int &i);
 };
 
 #endif

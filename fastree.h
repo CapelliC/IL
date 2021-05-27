@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,12 +25,16 @@
 
 //////////////////////////////////
 // fast tree construction,
-//	to be used when parsing terms
-//	to store source positions
+//  to be used when parsing terms
+//  to store source positions
 //
 
 #include "stack.h"
 #include "iafx.h"
+
+#include <cassert>
+#include <iostream>
+using namespace std;
 
 // forward decl
 class FastTree;
@@ -43,8 +47,7 @@ typedef unsigned NodeIndex;
 #define INVALID_NODE NodeIndex(-1)
 
 // vector elements
-class NodeDefinition
-{
+class NodeDefinition {
 public:
 
     // store your data (term...)
@@ -58,8 +61,7 @@ private:
     friend class FastTree;
 };
 
-class IAFX_API FastTree : vect<NodeDefinition>
-{
+class IAFX_API FastTree : vect<NodeDefinition> {
 public:
 
     FastTree() {
@@ -99,20 +101,20 @@ public:
     }
 
     NodeDefinition *GetAt(NodeIndex allocated) const {
-        ASSERT(/*allocated >= 0 && */allocated < m_nTop);
+        assert(/*allocated >= 0 && */allocated < m_nTop);
         return getptr(allocated);
     }
 
     // tree construction
     void SetSon(NodeIndex father, NodeIndex firstSon) {
-        ASSERT(GetAt(father)->m_nFirstSon == INVALID_NODE);
-        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        assert(GetAt(father)->m_nFirstSon == INVALID_NODE);
+        assert(GetAt(firstSon)->m_nBrother == INVALID_NODE);
         GetAt(father)->m_nFirstSon = firstSon;
     }
 
     void CatSon(NodeIndex father, NodeIndex firstSon) {
-        ASSERT(GetAt(father)->m_nFirstSon == INVALID_NODE);
-        ASSERT(GetAt(firstSon) != 0);
+        assert(GetAt(father)->m_nFirstSon == INVALID_NODE);
+        assert(GetAt(firstSon) != nullptr);
         GetAt(father)->m_nFirstSon = firstSon;
     }
 
@@ -125,20 +127,20 @@ public:
     }
 
     void SetBrother(NodeIndex firstSon, NodeIndex secSon) {
-        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
-        ASSERT(GetAt(secSon)->m_nBrother == INVALID_NODE);
+        assert(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        assert(GetAt(secSon)->m_nBrother == INVALID_NODE);
         GetAt(firstSon)->m_nBrother = secSon;
     }
 
     void CatBrother(NodeIndex firstSon, NodeIndex secSon) {
-        ASSERT(GetAt(firstSon)->m_nBrother == INVALID_NODE);
-        ASSERT(GetAt(secSon) != 0);
+        assert(GetAt(firstSon)->m_nBrother == INVALID_NODE);
+        assert(GetAt(secSon) != nullptr);
         GetAt(firstSon)->m_nBrother = secSon;
     }
 
     void SetRoot(NodeIndex root) {
-        ASSERT(m_nRoot == INVALID_NODE);
-        ASSERT(GetAt(root) != 0);
+        assert(m_nRoot == INVALID_NODE);
+        assert(GetAt(root) != nullptr);
         m_nRoot = root;
     }
 
@@ -163,8 +165,7 @@ public:
     NodeIndex LastSon(NodeIndex father) const {
         NodeIndex s = FirstSon(father), l = INVALID_NODE;
 
-        while (s != INVALID_NODE)
-        {
+        while (s != INVALID_NODE) {
             l = s;
             s = GetAt(s)->m_nBrother;
         }
@@ -196,8 +197,7 @@ protected:
 };
 
 // used to fast visit term
-struct NodeLevel
-{
+struct NodeLevel {
     NodeIndex n;
     unsigned l;
 };

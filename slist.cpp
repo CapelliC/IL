@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,148 +24,143 @@
 // single linked list
 //--------------------
 
-#include "stdafx.h"
+#include <cassert>
+using namespace std;
+
 #include "iafx.h"
 #include "slist.h"
 
 //-------------------------------
 // count elements to end of list
 //
-unsigned e_slist::offlast() const
-{
-	unsigned c = 0;
-	e_slist *n = next;
+unsigned e_slist::offlast() const {
+    unsigned c = 0;
+    e_slist *n = next;
 
-	while (n) {
-		c++;
-		n = n->next;
-	}
+    while (n) {
+        c++;
+        n = n->next;
+    }
 
-	return c;
+    return c;
 }
 
 //-------------------------
 // release all list memory
 //
-void slist::clear()
-{
+void slist::clear() {
     e_slist *e = first, *n = nullptr;
-	while (e) {
-		n = e->next;
-		delete e;
-		e = n;
-	}
+    while (e) {
+        n = e->next;
+        delete e;
+        e = n;
+    }
     first = nullptr;
 }
 
 //----------------------------
 // append element to end list
 //
-unsigned slist::append(e_slist *e)
-{
-	unsigned ix = 0;
+unsigned slist::append(e_slist *e) {
+    unsigned ix = 0;
 
-	if (!first)
-		first = e;
-	else {
-		e_slist *l = first;
-		ix++;
-		while (l->next) {
-			ix++;
-			l = l->next;
-		}
-		l->next = e;
-	}
+    if (!first)
+        first = e;
+    else {
+        e_slist *l = first;
+        ix++;
+        while (l->next) {
+            ix++;
+            l = l->next;
+        }
+        l->next = e;
+    }
 
-	return ix;
+    return ix;
 }
 
 //-------------------------------------
 // insert at required position
-//	if out of bounds insert to nearest
+//  if out of bounds insert to nearest
 //
-void slist::insert(e_slist *e, unsigned pos)
-{
-	if (!first)
-		first = e;
-	else {
+void slist::insert(e_slist *e, unsigned pos) {
+    if (!first)
+        first = e;
+    else {
         e_slist *l = first, *prev = nullptr;
-		while (l->next && pos--) {
-			prev = l;
-			l = l->next;
-		}
-		e->next = l;
-		if (!prev)
-			first = e;
-		else
-			prev->next = e;
-	}
-/*	if (!first)
-		first = e;
-	else {
-		e_slist *l = first;
-		while (l->next && pos--)
-			l = l->next;
-		e->next = l;
-		if (l == first)
-			first = e;
-	}
+        while (l->next && pos--) {
+            prev = l;
+            l = l->next;
+        }
+        e->next = l;
+        if (!prev)
+            first = e;
+        else
+            prev->next = e;
+    }
+/*  if (!first)
+        first = e;
+    else {
+        e_slist *l = first;
+        while (l->next && pos--)
+            l = l->next;
+        e->next = l;
+        if (l == first)
+            first = e;
+    }
 */
 }
 
 //-------------------------
 // remove required element
 //
-void slist::remove(unsigned ix)
-{
-	ASSERT(ix < numel());
+void slist::remove(unsigned ix) {
+    assert(ix < numel());
     e_slist *e = first, *p = nullptr;
 
-	while (ix > 0) {
-		e = (p = e)->next;
-		ix--;
-	}
-	if (p)
-		p->next = e->next;
-	else
-		first = e->next;
-	delete e;
+    while (ix > 0) {
+        e = (p = e)->next;
+        ix--;
+    }
+    if (p)
+        p->next = e->next;
+    else
+        first = e->next;
+    delete e;
 }
 
 //-------------------------------
 // search required element
-//	return index or SLIST_INVPOS
+//  return index or SLIST_INVPOS
 //
-unsigned slist::seek(void *e) const
-{
+unsigned slist::seek(void *e) const {
     e_slist *s = first;
     unsigned ix = 0;
 
-	while (s) {
-		if (match(s, e))
-			return ix;
-		s = s->next;
-		ix++;
-	}
+    while (s) {
+        if (match(s, e))
+            return ix;
+        s = s->next;
+        ix++;
+    }
 
-	return SLIST_INVPOS;
+    return SLIST_INVPOS;
 }
 
 e_slist::~e_slist() {}
 
 //----------------------------
 // search required element
-//	return pointer to element
+//  return pointer to element
 //
-e_slist* slist::seekptr(void* e) const
-{
+e_slist* slist::seekptr(void* e) const {
     e_slist *s = first;
 
-	while (s) {
-		if (match(s, e))
-			return s;
-		s = s->next;
-	}
+    while (s) {
+        if (match(s, e))
+            return s;
+        s = s->next;
+    }
 
     return nullptr;
 }
@@ -175,51 +170,48 @@ slist::~slist() { clear(); }
 //---------------------------
 // count numbers of elements
 //
-unsigned slist::numel() const
-{
-	unsigned count = 0;
-	e_slist *l = first;
-	while (l) {
-		count++;
-		l = l->next;
-	}
-	return count;
+unsigned slist::numel() const {
+    unsigned count = 0;
+    e_slist *l = first;
+    while (l) {
+        count++;
+        l = l->next;
+    }
+    return count;
 }
 
 //-----------------------------
 // return indexed element or 0
 //
-e_slist* slist::get(unsigned index) const
-{
+e_slist* slist::get(unsigned index) const {
     e_slist* e = first;
 
-	while (e && index--)
-		e = e->next;
-	return e;
+    while (e && index--)
+        e = e->next;
+    return e;
 }
 
 //-------------------------------
 // release the item under cursor
 //
-void slist_scan::delitem()
-{
+void slist_scan::delitem() {
     e_slist *n = lref.first, *p = nullptr;
 
-	// seek current, fixing previous
-	while (n) {
-		if (n->next == e)
-			break;
-		n = (p = n)->next;
-	}
+    // seek current, fixing previous
+    while (n) {
+        if (n->next == e)
+            break;
+        n = (p = n)->next;
+    }
 
-	ASSERT(n);
+    assert(n);
 
-	if (!p)
-		lref.first = n->next;
-	else
-		p->next = n->next;
+    if (!p)
+        lref.first = n->next;
+    else
+        p->next = n->next;
 
-	delete n;
+    delete n;
 }
 
 e_slistvptr::e_slistvptr(void *p) { vptr = p; }

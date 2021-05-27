@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,56 +23,57 @@
 ////////////////////////////
 // operator table handling
 //
-#include "stdafx.h"
+
 #include "iafx.h"
 #include "operator.h"
+#include <QDebug>
 
 ////////////////////////////////
 // append a definition
-//	dont' check for duplicates
+//  dont' check for duplicates
 //
 void OperTable::Add(kstring name,
-	short prec, Operator::assocTag assoc, Operator::opCodeTag opc)
-{
-	ASSERT(opc == int(name) || opc == Operator::UserDef);
+    short prec, Operator::assocTag assoc, Operator::opCodeTag opc) {
+    assert(opc == int(name) || opc == Operator::UserDef);
     push_back(Operator {name, opc, prec, assoc});
 }
 
 ////////////////////////////////
 // search first insertion point
 //
-Operator* OperTable::IsOp(kstring name) const
-{
-	if (unsigned(name) < Operator::UserDef)
-		return getptr(name);
+Operator* OperTable::IsOp(kstring name) const {
+#if 0
+qDebug() << __FUNCTION__ << __FILE__ << __LINE__ << unsigned(name);
+#endif
+    if (unsigned(name) < Operator::UserDef)
+        return getptr(name);
 
-	// now search in user defined space
-	for (unsigned ix = Operator::UserDef; ix < size(); ix++)
-		if (getptr(ix)->name == name)
-			return getptr(ix);
+    // now search in user defined space
+    for (unsigned ix = Operator::UserDef; ix < size(); ix++)
+        if (getptr(ix)->name == name)
+            return getptr(ix);
 
-	return 0;
+    return nullptr;
 }
 
 ///////////////////////////////////
 // search for next insertion point
 //
-Operator* OperTable::GetNext(Operator* op) const
-{
-	ASSERT(op && unsigned(op->opCode) < size());
+Operator* OperTable::GetNext(Operator* op) const {
+    assert(op && unsigned(op->opCode) < size());
 
-	Operator *opnext = 0;
-	if (op->opCode != Operator::UserDef) {
-		unsigned ix = op->opCode + 1;
+    Operator *opnext = nullptr;
+    if (op->opCode != Operator::UserDef) {
+        unsigned ix = op->opCode + 1;
 
-		while (ix < size()) {
-			if (CCP(getptr(ix)->name) == CCP(op->name)) {
-				opnext = getptr(ix);
-				break;
-			}
-			ix++;
-		}
-	}
+        while (ix < size()) {
+            if (CCP(getptr(ix)->name) == CCP(op->name)) {
+                opnext = getptr(ix);
+                break;
+            }
+            ix++;
+        }
+    }
 
-	return opnext;
+    return opnext;
 }

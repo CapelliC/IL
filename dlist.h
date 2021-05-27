@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,33 +39,33 @@ class e_dlist {
     e_dlist* prev;
 
 public:
-    e_dlist() { next = prev = 0; }
+    e_dlist() { next = prev = nullptr; }
     virtual ~e_dlist() {}
 };
 
 class dlist {
 
-    friend	class dlist_iter;
-    e_dlist*	first;
-    e_dlist*	last;
+    friend  class dlist_iter;
+    e_dlist*    first;
+    e_dlist*    last;
 
 public:
 
-    void	insert(e_dlist *e, int pos = -1);
-    void	remove(int pos);
-    void	clear();
-    e_dlist*	get(int pos);
+    void    insert(e_dlist *e, int pos = -1);
+    void    remove(int pos);
+    void    clear();
+    e_dlist*    get(int pos);
 
-    unsigned	numel() const;
+    unsigned    numel() const;
 
-    dlist() { first = last = 0; }
+    dlist() { first = last = nullptr; }
     ~dlist() { clear(); }
 };
 
 class dlist_iter {
 
-    dlist*	l;
-    e_dlist*	e;
+    dlist*  l;
+    e_dlist*    e;
 
 public:
     dlist_iter(dlist& dl) {
@@ -84,7 +84,7 @@ public:
             e = e->next;
             return n;
         }
-        return 0;
+        return nullptr;
     }
     e_dlist* prev() {
         if (e) {
@@ -92,7 +92,7 @@ public:
             e = e->prev;
             return n;
         }
-        return 0;
+        return nullptr;
     }
 };
 

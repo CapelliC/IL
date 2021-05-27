@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 
 /////////////////////////////////////////////////////////////
 // constant strings storage:
-//	note that this data can only grow, during program usage
-//	strings are represented by their 'nominal index'
+//  note that this data can only grow, during program usage
+//  strings are represented by their 'nominal index'
 //
 
 #include "iafx.h"
@@ -42,8 +42,7 @@ class kstr_list;
 class kstr_list_iter;
 class e_kstrtable;
 
-class IAFX_API kstring
-{
+class IAFX_API kstring {
 public:
     kstring(MemStoreRef = MSR_NULL);
     kstring(CCP, int = 0);
@@ -67,8 +66,7 @@ private:
 /////////////////////////
 // constant strings list
 //
-class IAFX_API kstr_list : public slist
-{
+class IAFX_API kstr_list : public slist {
 public:
 
     // no duplicates
@@ -86,6 +84,7 @@ public:
 private:
     struct kstr_el : public e_slist {
         kstr_el(kstring p) { s = p; }
+        ~kstr_el() override;
         kstring s;
     };
     friend class kstr_list_iter;
@@ -94,8 +93,7 @@ private:
 ///////////////////////////////////////
 // iterator for strings stored in list
 //
-class kstr_list_iter : slist_iter
-{
+class kstr_list_iter : slist_iter {
 public:
     kstr_list_iter(const kstr_list &);
     kstring next();
@@ -105,24 +103,19 @@ public:
  INLINES
 ***************/
 
-inline kstring::kstring(MemStoreRef u)
-{
+inline kstring::kstring(MemStoreRef u) {
     m_nameIndex = u;
 }
-inline kstring::operator CCP() const
-{
-    return m_nameIndex != MSR_NULL? *nameSpace[m_nameIndex] : 0;
+inline kstring::operator CCP() const {
+    return m_nameIndex != MSR_NULL? *nameSpace[m_nameIndex] : nullptr;
 }
-inline kstring::operator unsigned() const
-{
+inline kstring::operator unsigned() const {
     return m_nameIndex;
 }
-inline int kstring::operator==(kstring s) const
-{
+inline int kstring::operator==(kstring s) const {
     return m_nameIndex == s.m_nameIndex;
 }
-inline int kstring::operator!=(kstring s) const
-{
+inline int kstring::operator!=(kstring s) const {
     return m_nameIndex != s.m_nameIndex;
 }
 

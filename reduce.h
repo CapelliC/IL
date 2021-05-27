@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 
 //--------------------------------
 // operators reduction 'stack'
-//	carry on operations as needed
-//	to parse prolog expressions
+//  carry on operations as needed
+//  to parse prolog expressions
 //--------------------------------
 
 #include "iafx.h"
@@ -34,10 +34,9 @@
 #include "fastree.h"
 #include "srcpos.h"
 
-class IAFX_API SrcPosTree : public FastTree
-{
+class IAFX_API SrcPosTree : public FastTree {
 public:
-	virtual int DisplayNode(ostream &s, int, const NodeLevel & nd) const;
+    virtual int DisplayNode(ostream &s, int, const NodeLevel & nd) const;
 };
 
 class IntlogParser;
@@ -45,165 +44,151 @@ class ReduceStack;
 
 //------------------------------
 // a reduction element:
-//	can be a term or expression
+//  can be a term or expression
 //
-class RedEl
-{
+class RedEl {
 public:
 
-	enum etype
-	{
-		aTerm,	// term reference
-		aOper,	// operator *
-		aMark	// begin reduction save args placeholder
-	}
-		type;
+    enum etype {
+        aTerm,  // term reference
+        aOper,  // operator *
+        aMark   // begin reduction save args placeholder
+    }
+        type;
 
-	union
-	{
-		TermData	term;	// reduced term tree
-		Operator*	op;		// pointer to subsequent tree 'node'
-		unsigned	mark;	// keep saved arguments
-	};
+    union {
+        TermData    term;   // reduced term tree
+        Operator*   op;     // pointer to subsequent tree 'node'
+        unsigned    mark;   // keep saved arguments
+    };
 
-	// source position in mapping tree
-	NodeIndex idx;	// keep tree node 'pointer'
-	SourcePos sp;	// save parsed pos
-	void SetPos(FastTree&);
+    // source position in mapping tree
+    NodeIndex idx;  // keep tree node 'pointer'
+    SourcePos sp;   // save parsed pos
+    void SetPos(FastTree&);
 
-	int is_term() const;
+    int is_term() const;
 };
 
 //---------------------------------------
 // shift/reduction operation
-//	parsing operations must be bracketed
-//	with Begin()... End()
+//  parsing operations must be bracketed
+//  with Begin()... End()
 //
-class ReduceStack : stack<RedEl>
-{
+class ReduceStack : stack<RedEl> {
 friend class IntlogParser;
 
 public:
 
-	// only a parser utility
-	ReduceStack();
+    // only a parser utility
+    ReduceStack();
     virtual ~ReduceStack();
 
-	// begin a section
-	void Begin();
+    // begin a section
+    void Begin();
 
-	RedEl* AddOper(Operator *op, SourcePos sp);
-	RedEl* AddTerm(Term t, SourcePos sp);
-	RedEl* Reduce(bool bUsePar = FALSE);
+    RedEl* AddOper(Operator *op, SourcePos sp);
+    RedEl* AddTerm(Term t, SourcePos sp);
+    RedEl* Reduce(bool bUsePar = false);
 
-	// terminate a section
-	void End();
+    // terminate a section
+    void End();
 
-	// reset state
-	void Clear();
+    // reset state
+    void Clear();
 
-	// keep ',' separed arguments count (structs' arity and lists' heads)
-	unsigned m_nArgs;
-	Term *m_Args;
+    // keep ',' separed arguments count (structs' arity and lists' heads)
+    unsigned m_nArgs;
+    Term *m_Args;
 
-	// build tree contextually to parsing
-	SrcPosTree m_ft;
+    // build tree contextually to parsing
+    SrcPosTree m_ft;
 
 private:
 
-	RedEl* push(Term td, SourcePos sp);
-	void push(unsigned nArgs);
-	void push(Operator* op, SourcePos sp);
+    RedEl* push(Term td, SourcePos sp);
+    void push(unsigned nArgs);
+    void push(Operator* op, SourcePos sp);
 
-	Operator* canreduce(Operator *);
-	void reduce(Operator *);
+    Operator* canreduce(Operator *);
+    void reduce(Operator *);
 
-	RedEl* get(unsigned = 0) const;
-	RedEl* getchk(unsigned = 0) const;
+    RedEl* get(unsigned = 0) const;
+    RedEl* getchk(unsigned = 0) const;
 
-	// actual arguments (m_Args will point to its elements)
-	vect<Term> m_vArgs;
-	unsigned CountArgs() const;
+    // actual arguments (m_Args will point to its elements)
+    vect<Term> m_vArgs;
+    unsigned CountArgs() const;
 };
 
-inline void ReduceStack::Clear()
-{
-	// empty arguments vector
-	m_nArgs = 0;
-	m_Args = m_vArgs.getptr(0);
+inline void ReduceStack::Clear() {
+    // empty arguments vector
+    m_nArgs = 0;
+    m_Args = m_vArgs.getptr(0);
 
-	pop(size());
-	m_ft.RemoveAll();
+    pop(size());
+    m_ft.RemoveAll();
 }
-inline void ReduceStack::Begin()
-{
-	push(m_nArgs);
+inline void ReduceStack::Begin() {
+    push(m_nArgs);
 
-	// fix to start of available space
-	m_Args += m_nArgs;
-	m_nArgs = 0;
+    // fix to start of available space
+    m_Args += m_nArgs;
+    m_nArgs = 0;
 }
 
 // insert a term (can only follow an operator)
-inline RedEl* ReduceStack::AddTerm(Term t, SourcePos sp)
-{
-	push(t, sp);
-	return get();
+inline RedEl* ReduceStack::AddTerm(Term t, SourcePos sp) {
+    push(t, sp);
+    return get();
 }
 
-inline unsigned ReduceStack::CountArgs() const
-{
-	return m_Args - m_vArgs.getptr(0);
+inline unsigned ReduceStack::CountArgs() const {
+    return m_Args - m_vArgs.getptr(0);
 }
-inline int RedEl::is_term() const
-{
-	return type == aTerm;
+inline int RedEl::is_term() const {
+    return type == aTerm;
 }
 
-inline RedEl* ReduceStack::get(unsigned off) const
-{
-	return getptr(off);
+inline RedEl* ReduceStack::get(unsigned off) const {
+    return getptr(off);
 }
 
-inline void ReduceStack::push(unsigned cArgs)
-{
-	RedEl* e = reserve();
+inline void ReduceStack::push(unsigned cArgs) {
+    RedEl* e = reserve();
 
-	e->type = RedEl::aMark;
-	e->mark = cArgs;
+    e->type = RedEl::aMark;
+    e->mark = cArgs;
 
 #ifdef _DEBUG
-	e->sp = SourcePos(-1);
+    e->sp = SourcePos(-1);
 #endif
-	e->idx = INVALID_NODE;
+    e->idx = INVALID_NODE;
 }
-inline RedEl* ReduceStack::push(Term t, SourcePos sp)
-{
-	RedEl* e = reserve();
+inline RedEl* ReduceStack::push(Term t, SourcePos sp) {
+    RedEl* e = reserve();
 
-	e->type = RedEl::aTerm;
-	e->term = t;
+    e->type = RedEl::aTerm;
+    e->term = t;
 
-	e->sp = sp;
-	e->idx = INVALID_NODE;
+    e->sp = sp;
+    e->idx = INVALID_NODE;
 
-	return e;
+    return e;
 }
-inline void ReduceStack::push(Operator* op, SourcePos sp)
-{
-	RedEl* e = reserve();
+inline void ReduceStack::push(Operator* op, SourcePos sp) {
+    RedEl* e = reserve();
 
-	e->type = RedEl::aOper;
-	e->op = op;
+    e->type = RedEl::aOper;
+    e->op = op;
 
-	e->sp = sp;
-	e->idx = INVALID_NODE;
+    e->sp = sp;
+    e->idx = INVALID_NODE;
 }
 
-inline void RedEl::SetPos(FastTree& ft)
-{
-	if (idx == INVALID_NODE)
-		ft[idx = ft.AllocNode()].m_data = sp;
+inline void RedEl::SetPos(FastTree& ft) {
+    if (idx == INVALID_NODE)
+        ft[idx = ft.AllocNode()].m_data = sp;
 }
 
 #endif

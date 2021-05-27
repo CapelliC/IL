@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,12 @@
 // binary library data
 ///////////////////////
 
-#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstring>
+using namespace std;
+
 #include "iafx.h"
 #include "binlib.h"
 #include "defsys.h"
@@ -37,17 +42,14 @@
 // on read use already stored files
 // on write register each file to be stored
 //
-SourceBinaryLib::SourceBinaryLib(kstring id, openMode mode)
-{
+SourceBinaryLib::SourceBinaryLib(kstring id, openMode mode) {
     idfile = id;
     kstrv = nullptr;
     inp = nullptr;
 
-    if (mode == toRead)
-    {
+    if (mode == toRead) {
         filebuf *pbuf = IntlogIOStreams::openfile(id, ios::in|ios::binary);
-        if (!pbuf)
-        {
+        if (!pbuf) {
             GetEngines()->ErrMsg(BINL_NOT_FOUND, CCP(id));
             return;
         }
@@ -60,8 +62,7 @@ SourceBinaryLib::SourceBinaryLib(kstring id, openMode mode)
     }
 }
 
-SourceBinaryLib::~SourceBinaryLib()
-{
+SourceBinaryLib::~SourceBinaryLib() {
     delete [] kstrv;
     delete inp;
 }
@@ -69,16 +70,14 @@ SourceBinaryLib::~SourceBinaryLib()
 ////////////////////////////////////
 // load strings and names from file
 //
-void SourceBinaryLib::load_directory()
-{
+void SourceBinaryLib::load_directory() {
     // load strings in global table
-    //	and keep pointers in vector
+    //  and keep pointers in vector
     bsread(*inp, &maxks);
     kstrv = new kstring[maxks];
 
     char bufstr[1024];
-    for (unsigned ixs = 0; ixs < maxks; ixs++)
-    {
+    for (unsigned ixs = 0; ixs < maxks; ixs++) {
         unsigned maxbuf = sizeof(bufstr);
         bsread(*inp, bufstr, &maxbuf);
         if (chkerr(LOADING_STRINGS))
@@ -89,8 +88,7 @@ void SourceBinaryLib::load_directory()
     // read files directory
     unsigned nfiles;
     bsread(*inp, &nfiles);
-    while (nfiles-- > 0)
-    {
+    while (nfiles-- > 0) {
         BinIFile *f = new BinIFile(this);
         if (chkerr(LOADING_DIRECTORY))
             return;
@@ -101,12 +99,10 @@ void SourceBinaryLib::load_directory()
 //////////////////////////////////////////////
 // check stream status and show error message
 //
-int SourceBinaryLib::chkerr(int errcode, ios *s, CCP info) const
-{
+int SourceBinaryLib::chkerr(int errcode, ios *s, CCP info) const {
     if (!s)
         s = inp;
-    if (s && s->rdstate() != ios::goodbit)
-    {
+    if (s && s->rdstate() != ios::goodbit) {
         GetEngines()->ErrMsg(errcode, CCP(idfile), info);
         return 1;
     }
@@ -116,8 +112,7 @@ int SourceBinaryLib::chkerr(int errcode, ios *s, CCP info) const
 ///////////////////////////////////
 // method to match entries by name
 //
-int SourceBinaryLib::match(e_slist *e, void *p) const
-{
+int SourceBinaryLib::match(e_slist *e, void *p) const {
     BinFile *f = static_cast<BinFile *>(e);
     return CCP(f->get_id()) == CCP(p);
 }
@@ -125,32 +120,29 @@ int SourceBinaryLib::match(e_slist *e, void *p) const
 ///////////////////////////////////////////
 // register a file to be echoed in library
 //
-void SourceBinaryLib::add_name(kstring idf)
-{
-    if (!is_name(idf))
-    {
+void SourceBinaryLib::add_name(kstring idf) {
+    if (!is_name(idf)) {
         BinOFile *f = new BinOFile(idf, this);
         append(f);
-        kstrl.add(idf);	// will use short form in directory...
+        kstrl.add(idf); // will use short form in directory...
     }
 }
-BinFile *SourceBinaryLib::is_name(kstring id) const
-{
-    return (BinFile*)seekptr((void*)CCP(id));
+BinFile *SourceBinaryLib::is_name(kstring id) const {
+    auto ccp = CCP(id);
+    return static_cast<BinFile*>(seekptr(const_cast<void*>(reinterpret_cast<const void*>(ccp))));
 }
 
 ////////////////////////////////
 // see if all output files done
-//	if so, create the lib
+//  if so, create the lib
 //
-void SourceBinaryLib::check_done_out()
-{
-    ASSERT(inp == nullptr);
+void SourceBinaryLib::check_done_out() {
+    assert(inp == nullptr);
 
     // search if some has more to do
     slist_iter i(this);
     BinOFile *of;
-    while ((of = (BinOFile *)i.next()) != nullptr)
+    while ((of = static_cast<BinOFile *>(i.next())) != nullptr)
         if (of->status != BinOFile::done)
             return;
 
@@ -170,18 +162,18 @@ void SourceBinaryLib::check_done_out()
     bswrite(libfile, numel());
     streampos begdir = libfile.tellp();
     i.set(this);
-    while ((of = (BinOFile *)i.next()) != 0)
+    while ((of = static_cast<BinOFile *>(i.next())) != nullptr)
         of->write_dir(libfile);
 
     // cat all files data
     i.set(this);
-    while ((of = (BinOFile *)i.next()) != 0)
+    while ((of = static_cast<BinOFile *>(i.next())) != nullptr)
         of->cat_data(libfile);
 
     // rewrite directory with updated locations
     libfile.seekp(begdir);
     i.set(this);
-    while ((of = (BinOFile *)i.next()) != 0)
+    while ((of = static_cast<BinOFile *>(i.next())) != nullptr)
         of->write_dir(libfile);
 
     chkerr(WRITE_OUTPUT_FILE, &libfile);
@@ -193,47 +185,38 @@ void SourceBinaryLib::check_done_out()
 
 ///////////////////////////////
 // see if all input files used
-//	if so, release memory
+//  if so, release memory
 //
-void SourceBinaryLib::check_done_inp()
-{
-    if (inp)
-    {
+void SourceBinaryLib::check_done_inp() {
+    if (inp) {
         // search if some has more to do
         slist_iter i(this);
         BinIFile *f;
-        while ((f = (BinIFile *)i.next()) != 0)
+        while ((f = static_cast<BinIFile *>(i.next())) != nullptr)
             if (!f->ateof())
                 return;
 
         // all used: release memory
         delete inp;
-        inp = 0;
+        inp = nullptr;
         delete [] kstrv;
-        kstrv = 0;
+        kstrv = nullptr;
     }
 }
 
 ///////////////////////////
 // input file construction
 //
-BinIFile::BinIFile(SourceBinaryLib *l)
-{
+BinIFile::BinIFile(SourceBinaryLib *l) {
     plib = l;
 
     // read directory data
     id = readkstr();
 
-#if 0 //def _DEBUG
-    CCP ids = id;
-#endif
-
 #if 0
     bsread(*l->inp, &begdata);
     bsread(*l->inp, &enddata);
     bsread(*l->inp, &nobjects);
-#else
-    assert(false);
 #endif
 
     // set location of next term read
@@ -242,21 +225,18 @@ BinIFile::BinIFile(SourceBinaryLib *l)
 
 ///////////////////////////////////////
 // reload data of a clause
-//	term structure and variables names
+//  term structure and variables names
 //
-int BinIFile::read_term(Term *t, kstr_list *var_ids)
-{
+int BinIFile::read_term(Term *t, kstr_list *var_ids) {
     if (plib->inp->tellg() != fcursor)
         plib->inp->seekg(fcursor);
 
     istream &s = *plib->inp;
     var_ids->clear();
-    if (read_term(t))
-    {
+    if (read_term(t)) {
         unsigned nv;
         bsread(s, &nv);
-        while (nv-- > 0)
-        {
+        while (nv-- > 0) {
             kstring vid = readkstr();
             var_ids->addnc(vid);
         }
@@ -269,14 +249,12 @@ int BinIFile::read_term(Term *t, kstr_list *var_ids)
 ////////////////////////////////////
 // recursive read of term structure
 //
-int BinIFile::read_term(Term *t)
-{
+int BinIFile::read_term(Term *t) {
     istream &is = *plib->inp;
     char tc = char(is.get());
     TermData tt = TermData(tc) << 24;
 
-    switch (tt)
-    {
+    switch (tt) {
     case f_ATOM: {
         Atom a = readkstr();
         *t = Term(a);
@@ -313,12 +291,11 @@ int BinIFile::read_term(Term *t)
         // seek for operator strings (change before to construct)
         OperTable *pTbl = GetEngines()->get_optbl();
         Operator *op = pTbl->IsOp(funct);
-        if (op)
-        {
-            int nArgs =	op->assoc == Operator::XF ||
+        if (op) {
+            int nArgs = op->assoc == Operator::XF ||
                     op->assoc == Operator::FX ||
                     op->assoc == Operator::YF ||
-                    op->assoc == Operator::FY		? 1 : 2;
+                    op->assoc == Operator::FY       ? 1 : 2;
             if (nArgs != arity)
                 op = pTbl->GetNext(op);
         }
@@ -326,8 +303,7 @@ int BinIFile::read_term(Term *t)
             funct = op->name;
 
         *t = Term(funct, arity);
-        for (int ix = 0; ix < arity; ix++)
-        {
+        for (int ix = 0; ix < arity; ix++) {
             Term arg;
             if (!read_term(&arg))
                 return 0;
@@ -349,7 +325,7 @@ int BinIFile::read_term(Term *t)
         break;
 
     default:
-        ASSERT(0);
+        assert(0);
     }
 
     return plib->inp->rdstate() == ios::goodbit;
@@ -358,8 +334,7 @@ int BinIFile::read_term(Term *t)
 /////////////////////////
 // read a stored strings
 //
-kstring BinIFile::readkstr()
-{
+kstring BinIFile::readkstr() {
     unsigned ix;
     bsread(*plib->inp, &ix);
 
@@ -374,29 +349,25 @@ kstring BinIFile::readkstr()
 ///////////////////////
 // reset input pointer
 //
-void BinIFile::restart()
-{
+void BinIFile::restart() {
     fcursor = begdata;
 }
 
 ////////////////////////////////////////
 // output constructor
-//	keep in a temporary file the data,
-//	to be appended at library when done
+//  keep in a temporary file the data,
+//  to be appended at library when done
 //
-BinOFile::BinOFile(kstring id, SourceBinaryLib *l)
-    : BinFile(id, l)
-{
-    out = 0;
+BinOFile::BinOFile(kstring id_, SourceBinaryLib *l)
+    : BinFile(id_, l) {
+    out = nullptr;
     if (0 == mkstemp(strcpy(tfn, "ILXXXXXX")))
         status = created;
     else
         status = err;
 }
-BinOFile::~BinOFile()
-{
-    if (out)
-    {
+BinOFile::~BinOFile() {
+    if (out) {
         delete out;
         remove(tfn);
     }
@@ -405,10 +376,9 @@ BinOFile::~BinOFile()
 ////////////////
 // release file
 //
-void BinOFile::end_data()
-{
+void BinOFile::end_data() {
     delete out;
-    out = 0;
+    out = nullptr;
     status = done;
     plib->check_done_out();
 }
@@ -416,12 +386,9 @@ void BinOFile::end_data()
 ////////////////////////////////////////////////
 // save term data and following variables names
 //
-int BinOFile::echo_term(Term t, kstr_list& var_ids)
-{
-    if (!out)
-    {
-        if (status == created)
-        {
+int BinOFile::echo_term(Term t, kstr_list& var_ids) {
+    if (!out) {
+        if (status == created) {
             // create file only when needed
             out = new ofstream(tfn, ios::out|ios::binary);
             status = plib->chkerr(CANT_OPEN_TMPFILE, out, tfn)? err : dumping;
@@ -430,13 +397,12 @@ int BinOFile::echo_term(Term t, kstr_list& var_ids)
             return 0;
     }
 
-    if (status == dumping && echo_term(t))
-    {
+    if (status == dumping && echo_term(t)) {
         // save variables names
         bswrite(*out, var_ids.numel());
         kstr_list_iter i(var_ids);
         kstring s;
-        while (CCP(s = i.next()) != 0)
+        while (CCP(s = i.next()) != nullptr)
             writekstr(s);
 
         nobjects++;
@@ -448,16 +414,14 @@ int BinOFile::echo_term(Term t, kstr_list& var_ids)
 ////////////////////////////////////////////
 // recursive dumping of data to binary file
 //
-int BinOFile::echo_term(Term t)
-{
+int BinOFile::echo_term(Term t) {
     // save type tag
     TermData tt = t;
     if (tt == ListNULL)
         tt |= f_NOTERM;
     out->put(char(tt >> 24));
 
-    switch (t.type())
-    {
+    switch (t.type()) {
     case f_ATOM:
         writekstr(t.kstr());
         break;
@@ -484,15 +448,14 @@ int BinOFile::echo_term(Term t)
     break;
 
     case f_LIST:
-        if (!t.LNULL())
-        {
+        if (!t.LNULL()) {
             echo_term(t.getarg(0));
             echo_term(t.getarg(1));
         }
         break;
 
     default:
-        ASSERT(0);
+        assert(0);
     }
 
     return out->rdstate() == ios::goodbit;
@@ -501,18 +464,16 @@ int BinOFile::echo_term(Term t)
 ////////////////////////////
 // store a string reference
 //
-void BinOFile::writekstr(kstring s)
-{
+void BinOFile::writekstr(kstring s) {
     bswrite(*out, plib->kstrl.add(s));
 }
 
 ////////////////////////////////////
 // append temporary file to library
-//	save data start position
+//  save data start position
 //
-void BinOFile::cat_data(ostream &slib)
-{
-    ASSERT(out == 0);
+void BinOFile::cat_data(ostream &slib) {
+    assert(out == nullptr);
 
     begdata = slib.tellp();
 
@@ -522,8 +483,7 @@ void BinOFile::cat_data(ostream &slib)
 
     //unsigned char buf[256];
     char buf[256];
-    do
-    {
+    do {
         myf.read(buf, sizeof(buf));
         slib.write(buf, myf.gcount());
     }
@@ -533,7 +493,7 @@ void BinOFile::cat_data(ostream &slib)
     enddata = slib.tellp();
 
     if (remove(tfn))
-        GetEngines()->ErrMsg(CANT_DELETE_TMPFILE, plib->idfile, tfn);
+        GetEngines()->ErrMsg(CANT_DELETE_TMPFILE, CCP(plib->idfile), tfn);
 
     status = saved;
 }
@@ -541,15 +501,37 @@ void BinOFile::cat_data(ostream &slib)
 ///////////////////////////////////
 // write data to library directory
 //
-void BinOFile::write_dir(ostream &slib) const
-{
-    ASSERT(out == 0);
+void BinOFile::write_dir(ostream &slib) const {
+    assert(out == nullptr);
     bswrite(slib, plib->kstrl.add(id));
 #if 0
     bswrite(slib, begdata);
     bswrite(slib, enddata);
-#else
-    assert(false);
 #endif
     bswrite(slib, nobjects);
+}
+
+BinIFile *SourceBinaryLib::is_input(kstring f) const {
+    return inp? static_cast<BinIFile *>(is_name(f)) : nullptr;
+}
+BinOFile *SourceBinaryLib::is_output(kstring f) const {
+    return inp? nullptr : static_cast<BinOFile *>(is_name(f));
+}
+
+BinFile::BinFile() {
+}
+BinFile::BinFile(kstring i, SourceBinaryLib *pl) {
+    id = i;
+    plib = pl;
+    nobjects = 0;
+}
+kstring BinFile::get_id() const {
+    return id;
+}
+
+int BinIFile::ateof() const {
+    return fcursor >= enddata;
+}
+void BinIFile::end_data() {
+    plib->check_done_inp();
 }

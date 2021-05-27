@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 
 ////////////////////////////////////////////
 // internal query evaluator data structures
-//	stack: Proof Tree, Vars binding, Trail
-//	other data for variables and status
+//  stack: Proof Tree, Vars binding, Trail
+//  other data for variables and status
 ////////////////////////////////////////////
 
 #include "iafx.h"
@@ -35,11 +35,10 @@
 
 //////////////////////////////////
 // stack base behaviour
-//	a vector of allocation blocks
+//  a vector of allocation blocks
 //
 template<class T>
-class IAFX_API BaseStack : protected vect<T>
-{
+class IAFX_API BaseStack : protected vect<T> {
 public:
 
     // allocate top elements
@@ -52,7 +51,7 @@ public:
 
     // release top element(s)
     stkpos pop(unsigned n = 1) {
-        ASSERT(free >= n);
+        assert(free >= n);
         free -= n;
         return free;
     }
@@ -76,16 +75,15 @@ struct elbind {
 
     // shared or ground: check envp
     union {
-        stkpos		share;
-        TermData	value;
+        stkpos      share;
+        TermData    value;
     };
 };
 
 /////////////////////////////
 // keep unification bindings
 //
-class IAFX_API BindStack : public BaseStack<elbind>
-{
+class IAFX_API BindStack : public BaseStack<elbind> {
 public:
     BindStack() {
         init();
@@ -99,7 +97,7 @@ public:
 
     // change offset var from base
     void setvar(stkpos off, Term t, stkpos envp) {
-        ASSERT(envp != STKNULL);
+        assert(envp != STKNULL);
         elbind *vval = getptr(off);
         vval->value = t;
         vval->envp = envp;
@@ -107,8 +105,8 @@ public:
 
     // make a shared variable cell
     void setshare(stkpos cell, stkpos rpos) {
-        ASSERT(rpos != STKNULL);
-        ASSERT(cell != rpos);
+        assert(rpos != STKNULL);
+        assert(cell != rpos);
         elbind *e = getptr(cell);
         e->share = rpos;
         e->envp = STKNULL;
@@ -129,8 +127,7 @@ public:
 /////////////////////////////////////////////
 // register bindings to undo on backtracking
 //
-class IAFX_API TrailStack : public BaseStack<stkpos>
-{
+class IAFX_API TrailStack : public BaseStack<stkpos> {
 public:
 
     TrailStack() {
@@ -158,17 +155,16 @@ public:
 
 /////////////////////////////
 // Proof main data structure
-//	keep track of a try
+//  keep track of a try
 //
-struct Env
-{
+struct Env {
     // current RHB procedure
     CallData* call;
 
     // location in DB (if DBPRED) or other infos
     union {
-        const e_DbList*	dbpos;
-        BltinData*		ptr;
+        const e_DbList* dbpos;
+        BltinData*      ptr;
     };
 
     // father of this (-1 if none)
@@ -183,11 +179,10 @@ struct Env
 
 //////////////////////////////////////////////////////
 // encapsulate proof tree navigation
-//	not a full stack:
-//	access needed to elements with incomplete searchs
+//  not a full stack:
+//  access needed to elements with incomplete searchs
 //
-class IAFX_API ProofStack : public BaseStack<Env>
-{
+class IAFX_API ProofStack : public BaseStack<Env> {
 public:
     ProofStack() {
         init();
@@ -228,8 +223,7 @@ public:
 /////////////////////////////////
 // keep current execution status
 //
-class IAFX_API ProofStatus
-{
+class IAFX_API ProofStatus {
 public:
     ProofStatus(IntlogExec *pe) {
         p = pe;
@@ -239,7 +233,7 @@ public:
     void save();
     void restore();
 
-    int	ok() const {
+    int ok() const {
         return psdim != STKNULL;
     }
 
@@ -274,19 +268,17 @@ private:
 
 /////////////////////////////////////////////////////////////
 // enable storage of builtins context sensitive data
-//	data will be deleted when tried bltin become unreachable
+//  data will be deleted when tried bltin become unreachable
 //
-class BltinData
-{
+class BltinData {
 public:
-    virtual ~BltinData() {}
+    virtual ~BltinData();
 };
 
 /////////////////////////////////////////////////
 // temporary terms/clauses/builtins data storage
 //
-class ElemTmp : public e_slist
-{
+class ElemTmp : public e_slist {
     friend class IntlogExec;
 
     union {
@@ -315,26 +307,13 @@ class ElemTmp : public e_slist
         type = vD;
     }
 
-    ~ElemTmp() {
-        switch (type) {
-        case vT:
-            Term(t).Destroy();
-            break;
-        case vC:
-            delete c;
-            break;
-        case vD:
-            delete d;
-            break;
-        }
-    }
+    ~ElemTmp() override;
 };
 
 //////////////////////////////////////////////
 // visit reindexing on linear search position
 //
-class OffVars : vect<Var>
-{
+class OffVars : vect<Var> {
 public:
     OffVars(Term& t, unsigned off = 0) {
         SetTerm(t, off);

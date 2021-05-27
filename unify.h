@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #define UNIFY_H_
 
 #include <stdexcept>
+#include "qdata.h"
 
 //////////////////////////
 // Unification data stack
@@ -31,51 +32,47 @@
 
 #define MaxUnifyStack 128
 
-class UnifyStack
-{
+class UnifyStack {
 public:
 
-	// access to vars
-	UnifyStack(BindStack *, TrailStack *);
+    // access to vars
+    UnifyStack(BindStack *, TrailStack *);
 
-	// a unified pair
-	struct termPair {
-		Term	t1, t2;
-		stkpos	i1, i2;
-	};
+    // a unified pair
+    struct termPair {
+        Term    t1, t2;
+        stkpos  i1, i2;
+    };
 
-	// use this to initialize
-	termPair* push();
+    // use this to initialize
+    termPair* push();
 
-	// carry on evaluation (note: variables binded!)
-	int work(Term, stkpos, Term, stkpos);
+    // carry on evaluation (note: variables binded!)
+    int work(Term, stkpos, Term, stkpos);
 
-	// empty storage
-	void clear();
+    // empty storage
+    void clear();
 
-	// on overflow abort execution
-	void check_overflow() const;
+    // on overflow abort execution
+    void check_overflow() const;
 
 private:
-	termPair v[MaxUnifyStack];
-	int free;
+    termPair v[MaxUnifyStack];
+    int free;
 
-	BindStack *vs;
-	TrailStack *ts;
+    BindStack *vs;
+    TrailStack *ts;
 };
 
-inline UnifyStack::termPair *UnifyStack::push()
-{
-	return v + free++;
+inline UnifyStack::termPair *UnifyStack::push() {
+    return v + free++;
 }
 
-inline void UnifyStack::clear()
-{
-	free = 0;
+inline void UnifyStack::clear() {
+    free = 0;
 }
 
-inline void UnifyStack::check_overflow() const
-{
+inline void UnifyStack::check_overflow() const {
     if (free >= MaxUnifyStack)
         throw std::range_error("unification stack overflow");
 }

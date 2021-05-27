@@ -28,7 +28,6 @@ INCLUDEPATH += ..
 
 SOURCES += main.cpp \
     ../write.cpp \
-    ../waittask.cpp \
     ../unify.cpp \
     ../tracer.cpp \
     ../term.cpp \
@@ -77,13 +76,10 @@ OTHER_FILES += \
     ../README.md
 
 HEADERS += \
-    ../xtrace.h \
     ../vectb.h \
     ../unify.h \
     ../tracer.h \
     ../term.h \
-    ../syntaxcolor.h \
-    ../stdafx.h \
     ../stack.h \
     ../srcpos.h \
     ../slist.h \

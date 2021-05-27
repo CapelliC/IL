@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 // term classification builtins
 //------------------------------
 
-#include "stdafx.h"
 #include "builtin.h"
 #include "qdata.h"
 #include <math.h>
@@ -38,45 +37,38 @@ BtFDecl(var);
 BtFDecl(nonvar);
 
 BuiltIn classification[7] = {
-	{"atom",	1,	atom},
-	{"integer",	1,	integer},
-	{"real",	1,	real},
-	{"number",	1,	number},
-	{"atomic",	1,	atomic},
-	{"var",		1,	var},
-	{"nonvar",	1,	nonvar}
+    {"atom",    1,  atom},
+    {"integer", 1,  integer},
+    {"real",    1,  real},
+    {"number",  1,  number},
+    {"atomic",  1,  atomic},
+    {"var",     1,  var},
+    {"nonvar",  1,  nonvar}
 };
 
-BtFImpl(atom, t, p)
-{
-	return p->eval_term(t.getarg(0)).type(f_ATOM);
+BtFImpl(atom, t, p) {
+    return p->eval_term(t.getarg(0)).type(f_ATOM);
 }
 
-BtFImpl(integer, t, p)
-{
-	return p->eval_term(t.getarg(0)).type(f_INT);
+BtFImpl(integer, t, p) {
+    return p->eval_term(t.getarg(0)).type(f_INT);
 }
-BtFImpl(real, t, p)
-{
-	return p->eval_term(t.getarg(0)).type(f_DOUBLE);
+BtFImpl(real, t, p) {
+    return p->eval_term(t.getarg(0)).type(f_DOUBLE);
 }
-BtFImpl(number, t, p)
-{
-	return p->eval_term(t.getarg(0)).type(f_INT|f_DOUBLE);
+BtFImpl(number, t, p) {
+    return p->eval_term(t.getarg(0)).type(f_INT|f_DOUBLE);
 }
 
-BtFImpl(atomic, t, p)
-{
-	return p->eval_term(t.getarg(0)).type(f_ATOM|f_INT|f_DOUBLE);
+BtFImpl(atomic, t, p) {
+    return p->eval_term(t.getarg(0)).type(f_ATOM|f_INT|f_DOUBLE);
 }
 
-BtFImpl(var, a, p)
-{
-	Term t = a.getarg(0);
-	return t.type(f_VAR) && p->tval(Var(t)).type(f_NOTERM);
+BtFImpl(var, a, p) {
+    Term t = a.getarg(0);
+    return t.type(f_VAR) && p->tval(Var(t)).type(f_NOTERM);
 }
 
-BtFImpl(nonvar, a, p)
-{
-	return !var(a, p, 0);
+BtFImpl(nonvar, a, p) {
+    return !var(a, p, 0);
 }

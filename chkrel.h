@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,14 +20,12 @@
 */
 
 
-#define RELEASE_LEVEL	9
-#define DEMO_LEVEL		1
-#define EXPERT_LEVEL	2
+#define RELEASE_LEVEL   9
+#define DEMO_LEVEL      1
+#define EXPERT_LEVEL    2
 
-inline void LockRelease()
-{
+inline void LockRelease() {
 }
-inline bool OutOfReleaseTime()
-{
-	return false;
+inline bool OutOfReleaseTime() {
+    return false;
 }

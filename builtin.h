@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,42 +26,43 @@
 #include "iafx.h"
 #include "term.h"
 #include "message.h"
+#include "dbintlog.h"
 
 class IntlogExec;
 
 //----------------------
 // user defined entries
 //
-struct BuiltIn
-{
-	// matching functor/identifier string
-	CCP ident;
+struct BuiltIn {
+    // matching functor/identifier string
+    CCP ident;
 
-	// arity|retry
-	short args;
-	enum { retry = 0x80 };
+    // arity|retry
+    short args;
+    enum { retry = 0x80 };
 
-	// evaluator (need variable instance access)
-	int (*eval)(TermArgs, IntlogExec *, short);
+    // evaluator (need variable instance access)
+    int (*eval)(TermArgs, IntlogExec *, short);
 
-	static void Initialize(DbIntlog* pDB, MsgTable *pMsgTbl);
+    static void Initialize(DbIntlog* pDB, MsgTable *pMsgTbl);
 };
 
 // useful prototype declarator macro
-#define BtFDecl(f)	static	int f(TermArgs, IntlogExec *, short)
-#define BtFDeclP(f)			int f(TermArgs, IntlogExec *, short)
+#define BtFDecl(f)  static  int f(TermArgs, IntlogExec *, short)
+#define BtFDeclP(f)         int f(TermArgs, IntlogExec *, short)
 
 // useful implementation declarator macro
-#define BtFImpl(f,t,p)		static int f(TermArgs t, IntlogExec *p, short)
-#define BtFImpl_P1(f,p)		static int f(TermArgs,   IntlogExec *p, short)
-#define BtFImpl_R(f,t,p,r)	static int f(TermArgs t, IntlogExec *p, short r)
-#define BtFImpl_NP(f)		static int f(TermArgs,   IntlogExec *, short)
+#define BtFImpl(f,t,p)      static int f(TermArgs t, IntlogExec *p, short)
+#define BtFImpl_P1(f,p)     static int f(TermArgs,   IntlogExec *p, short)
+#define BtFImpl_R(f,t,p,r)  static int f(TermArgs t, IntlogExec *p, short r)
+#define BtFImpl_NP(f)       static int f(TermArgs,   IntlogExec *, short)
 
 // instance not yet implemented function
-#define BtFTBD(f)	static int f(TermArgs, IntlogExec *p, short) {	\
-						p->BtErr(BTERR_UNIMPLEMENTED);				\
-						return 0;									\
-					}
+#define BtFTBD(f) \
+static int f(TermArgs, IntlogExec *p, short) {  \
+        p->BtErr(BTERR_UNIMPLEMENTED);              \
+        return 0;                                   \
+    }
 
 //////////////////////
 // builtin predicates

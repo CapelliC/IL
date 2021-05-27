@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,27 +24,26 @@
 #define IAFX_H_
 
 #if defined(_IAFX_BUILD)
-	#define IAFX_API _declspec(dllexport)
+    #define IAFX_API _declspec(dllexport)
 #elif defined(_IAFX_USE)
-	#define IAFX_API _declspec(dllimport)
+    #define IAFX_API _declspec(dllimport)
 #else
-	#define IAFX_API
+    #define IAFX_API
 #endif
+
+#define IIFTYPE(type) extern "C" type IAFX_API
+
+/*/ run time interface access
 
 #include "term.h"
 #include "eng.h"
 
-#define IIFTYPE(type) extern "C" type IAFX_API
-
-// run time interface access
 IIFTYPE(void) IAFX_Initialize();
 IIFTYPE(void) IAFX_Terminate();
 
 // query interface utilities
 IIFTYPE(int) IAFX_QueryString(const char*, EngHandle, Term**, kstr_list*);
 IIFTYPE(int) IAFX_QueryTerm(Term, EngHandle, Term*, kstr_list*);
-
-// port to 64 bit: define pointer size adeguately
-#define BUILD_64 1
+*/
 
 #endif

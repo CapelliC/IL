@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 */
 
 
-#include "stdafx.h"
 #include "iafx.h"
 #include "proios.h"
 #include "parse.h"
@@ -30,90 +29,79 @@
 #include "clause.h"
 #include "actios.h"
 
-		//--------//
-		// source //
-		//--------//
+        //--------//
+        // source //
+        //--------//
 
 IntlogSourceStream::IntlogSourceStream(kstring k, istream *s, BinOFile *b)
-:	IntlogIStream(k)
-{
-	binfile = b;
-	i = s;
+:   IntlogIStream(k) {
+    binfile = b;
+    i = s;
 }
 
-IntlogIStream::readResult IntlogSourceStream::read()
-{
-	IntlogParser *p = GetEngines()->get_parser();
+IntlogIStream::readResult IntlogSourceStream::read() {
+    IntlogParser *p = GetEngines()->get_parser();
 
-	t_data = Term(f_NOTERM);
+    t_data = Term(f_NOTERM);
 
-	switch (p->getinput()) {
+    switch (p->getinput()) {
 
-	case IntlogParser::NewClause:
-		t_data = p->parsed;
-		if (binfile)
-			binfile->echo_term(t_data, t_vars);
-		return NewClause;
+    case IntlogParser::NewClause:
+        t_data = p->parsed;
+        if (binfile)
+            binfile->echo_term(t_data, t_vars);
+        return NewClause;
 
-	case IntlogParser::EndFile:
-		if (binfile)
-			binfile->end_data();
-		return EndFile;
+    case IntlogParser::EndFile:
+        if (binfile)
+            binfile->end_data();
+        return EndFile;
 
-	case IntlogParser::RedoCommand:
-		return RedoCommand;
+    case IntlogParser::RedoCommand:
+        return RedoCommand;
 
-	default:
-		return Error;
-	}
+    default:
+        return Error;
+    }
 }
 
-IntlogSourceStream::~IntlogSourceStream()
-{
+IntlogSourceStream::~IntlogSourceStream() {
 }
 
-int IntlogSourceStream::ateof() const
-{	// simply check for eof in source stream
-	return i->eof();
+int IntlogSourceStream::ateof() const {   // simply check for eof in source stream
+    return i->eof();
 }
 
-int IntlogSourceStream::get()
-{
-	return i->get();
+int IntlogSourceStream::get() {
+    return i->get();
 }
-void IntlogSourceStream::close()
-{
+void IntlogSourceStream::close() {
 }
 
-		//--------//
-		// binary //
-		//--------//
+        //--------//
+        // binary //
+        //--------//
 
 IntlogBinStream::IntlogBinStream(BinIFile *s)
-: IntlogIStream(s->get_id())
-{
-	bf = s;
+: IntlogIStream(s->get_id()) {
+    bf = s;
     i = nullptr;
 }
 
-int IntlogBinStream::ateof() const
-{
-	return bf->ateof();
+int IntlogBinStream::ateof() const {
+    return bf->ateof();
 }
 
-IntlogIStream::readResult IntlogBinStream::read()
-{
-	if (bf->read_term(&t_data, &t_vars))
-		return NewClause;
-	return Error;
+IntlogIStream::readResult IntlogBinStream::read() {
+    if (bf->read_term(&t_data, &t_vars))
+        return NewClause;
+    return Error;
 }
 
-int IntlogBinStream::get()
-{
-	return -1;
+int IntlogBinStream::get() {
+    return -1;
 }
 
-void IntlogBinStream::close()
-{
-	bf->end_data();
+void IntlogBinStream::close() {
+    bf->end_data();
 }

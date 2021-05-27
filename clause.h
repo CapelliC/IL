@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 
 //----------------------------------------------------------------
 // executable terms, ready for query
-//	resolve at compile time references to builtins and DB entries
-//	see DBINTLOG for details
+//  resolve at compile time references to builtins and DB entries
+//  see DBINTLOG for details
 //----------------------------------------------------------------
 
 #include "iafx.h"
@@ -44,12 +44,13 @@ class DbEntry;
 class SrcPosTree;
 struct BuiltIn;
 
-class IAFX_API Clause
-{
+#include <iostream>
+
+class IAFX_API Clause {
 public:
 
-    // init state and check semantic correctness
-    Clause(Term tData, kstr_list *vars, DbIntlog *dbOwn, kstring fileId = MSR_NULL, SrcPosTree * = 0);
+    // init state and check semantic correctness (anonym variables follow named)
+    Clause(Term tData, kstr_list *vars, DbIntlog *dbOwn, kstring fileId = MSR_NULL, SrcPosTree * = nullptr);
 
     // release allocated memory and term image
     ~Clause();
@@ -60,7 +61,7 @@ public:
     }
 
     // qualifiers
-    int	is_rule() const {
+    int is_rule() const {
         return image.is_rule();
     }
 
@@ -68,11 +69,11 @@ public:
         return !image.is_rule() && !image.is_query() && !image.is_command();
     }
 
-    int	is_query() const {
+    int is_query() const {
         return image.is_query();
     }
 
-    int	is_command() const {
+    int is_command() const {
         return image.is_command();
     }
 
@@ -83,7 +84,7 @@ public:
     }
 
     Term get_head() const {
-        ASSERT(!is_query());
+        assert(!is_query());
         return image.is_rule()? image.getarg(0) : image;
     }
 
@@ -96,12 +97,12 @@ public:
     }
 
     TermArgs h_args() const {
-        ASSERT(!is_query());
+        assert(!is_query());
         return argp;
     }
 
     int h_arity() const {
-        ASSERT(!is_query());
+        assert(!is_query());
         return arity;
     }
 
@@ -111,7 +112,7 @@ public:
     }
 
     unsigned get_nvars() const {
-        return nvars;
+        return n_vars + n_anon;
     }
 
     kstring get_varid(Var) const;
@@ -132,8 +133,8 @@ public:
 
     // if no variables names, set number
     void set_nvars(unsigned nv) {
-        ASSERT(varids == 0);
-        nvars = nv;
+        assert(varids == nullptr);
+        n_vars = nv;
     }
 
     // find term image from calldata pointer
@@ -144,31 +145,34 @@ public:
         return spt;
     }
 
+    void show() const;
 
 private:
-    Term		image;	// parsed term (semantically correct!)
+    Term        image;  // parsed term (semantically correct!)
 
-    unsigned	nvars;	// number of logical variables
-    kstring*	varids;	// keep variables names
+    unsigned    n_vars; // number of (named) logical variables
+    kstring*    varids; // keep variables names
 
-    TermArgs	argp;	// head arguments
-    int			arity;	// head arity
+    unsigned    n_anon; // number of anonym variables
 
-    CallData*	body;	// clause body (0 if fact)
+    TermArgs    argp;   // head arguments
+    int         arity;  // head arity
 
-    DbIntlog*	db;		// 'owner' DB
+    CallData*   body;   // clause body (0 if fact)
 
-    kstring		src;	// source file (null if asserted)
-    SrcPosTree*	spt;	// with optional tree position
+    DbIntlog*   db;     // 'owner' DB
+
+    kstring     src;    // source file (null if asserted)
+    SrcPosTree* spt;    // with optional tree position
 
     // body elements constructor
-    CallData* makebody(Term *tData, DbIntlog* pDb, SrcPosTree *pSrc, NodeIndex nIndex);
+    CallData* makebody(Term *tData, SrcPosTree *pSrc, NodeIndex nIndex);
 
     // check for builtin in table
     BuiltIn* builtin(Term) const;
 
     // display error
-    int err_msg(int, const char* = 0) const;
+    int err_msg(int, const char* = nullptr) const;
 
     // check for ok functor (identifiable)
     int check_funct(Term) const;
@@ -177,15 +181,14 @@ private:
 //-----------------------
 // ready to use for call
 //
-class IAFX_API CallData
-{
+class IAFX_API CallData {
 public:
     enum cdtype {
-        DBPRED,			// DB stored procedure entry
-        BUILTIN,		// system defined procedure
-        CUT,			// cut (not implemented ancestor cutting)
-        DISJUNCT,		// disjunction
-        TAILREC			// tail recursion optimization
+        DBPRED,         // DB stored procedure entry
+        BUILTIN,        // system defined procedure
+        CUT,            // cut (not implemented ancestor cutting)
+        DISJUNCT,       // disjunction
+        TAILREC         // tail recursion optimization
     };
 
     // generic accessors
@@ -216,17 +219,17 @@ public:
     }
 
     CallData* get_orelse() const {
-        ASSERT(type == DISJUNCT);
+        assert(type == DISJUNCT);
         return orelse;
     }
 
     BuiltIn* get_builtin() const {
-        ASSERT(type == BUILTIN);
+        assert(type == BUILTIN);
         return bltin;
     }
 
     DbEntry* get_dbe() const {
-        ASSERT(type == DBPRED);
+        assert(type == DBPRED);
         return entry;
     }
 
@@ -245,25 +248,25 @@ private:
 
     CallData(Clause *c) {
         owner = c;
-        link = 0;
+        link = nullptr;
         spos = INVALID_NODE;
     }
 
     ~CallData();
 
-    TermArgs	argp;	// fast access to arguments
+    TermArgs    argp;   // fast access to arguments
 
-    CallData*	link;	// right hand brother in clause body
-    Clause*		owner;	// back link to fast access body constructor
+    CallData*   link;   // right hand brother in clause body
+    Clause*     owner;  // back link to fast access body constructor
 
-    cdtype		type;	// union type selector
+    cdtype      type;   // union type selector
     union {
-        DbEntry*	entry;	// if DBPRED
-        BuiltIn*	bltin;	// if BUILTIN
-        CallData*	orelse;	// if DISJUNCT
+        DbEntry*    entry;  // if DBPRED
+        BuiltIn*    bltin;  // if BUILTIN
+        CallData*   orelse; // if DISJUNCT
     };
 
-    NodeIndex	spos;	// keep source position index (default to none)
+    NodeIndex   spos;   // keep source position index (default to none)
 
     friend class Clause;
 };

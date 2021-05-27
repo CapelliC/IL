@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,50 +19,46 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-
-#include "stdafx.h"
 #include "defsys.h"
 #include "parsemsg.h"
 #include "eng.h"
+#include "term.h"
 
 /////// SYSDATA ////////
 
-IAFX_API ostream& operator<<(ostream& s, SysData& d)
-{
-	s << d.m_key.id << '/'; d.save(s) << ':';
-	return s;
+IAFX_API ostream& operator<<(ostream& s, SysData& d) {
+    s << d.m_key.id << '/'; d.save(s) << ':';
+    return s;
 }
-IAFX_API istream& operator>>(istream& s, SysData*& d)
-{
-	char k[20], c;
+IAFX_API istream& operator>>(istream& s, SysData*& d) {
+    char k[20], c;
 
-	if (s.get(k, sizeof(k), '/') >> c && c == '/') {
-		SysData::rtinfo *p = SysData::reglist;
-		for ( ; p; p = p->link)
-			if (!strcmp(k, p->id)) {
-				d = p->build();
-				d->load(s) >> c;
-				if (c != ':')
-					GetEngines()->ErrMsg(INVALID_SERIAL_DATA);
-				break;
-			}
-		if (!p)
-			GetEngines()->ErrMsg(SERIAL_FMT_NOT_FOUND, k);
-	}
+    if (s.get(k, sizeof(k), '/') >> c && c == '/') {
+        SysData::rtinfo *p = SysData::reglist;
+        for ( ; p; p = p->link)
+            if (!strcmp(k, p->id)) {
+                d = p->build();
+                d->load(s) >> c;
+                if (c != ':')
+                    GetEngines()->ErrMsg(INVALID_SERIAL_DATA);
+                break;
+            }
+        if (!p)
+            GetEngines()->ErrMsg(SERIAL_FMT_NOT_FOUND, k);
+    }
 
-	return s;
+    return s;
 }
 
 SysData::rtinfo *SysData::reglist;
 
 SysData::SysData(rtinfo &key)
-: m_key(key)
-{
-	for (rtinfo *p = reglist; p; p = p->link)
-		if (p->id == key.id)
-			return;
+: m_key(key) {
+    for (rtinfo *p = reglist; p; p = p->link)
+        if (p->id == key.id)
+            return;
 
-	// chain type descriptor
-	key.link = reglist;
-	reglist = &key;
+    // chain type descriptor
+    key.link = reglist;
+    reglist = &key;
 }

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
+#include <iostream>
+#include <fstream>
+#include <sstream>
+using namespace std;
 
-#include "stdafx.h"
 #include "iafx.h"
 #include "constr.h"
 #include "membuf.h"
@@ -30,24 +33,20 @@
 ////////////////////////////////
 
 ConsoleEngines::ConsoleEngines()
-    : EngineHandlers(&cout)
-{
+    : EngineHandlers(&cout) {
 }
-IntlogExec* ConsoleEngines::build(DbIntlog *pDb)
-{
+IntlogExec* ConsoleEngines::build(DbIntlog *pDb) {
     return new ConsoleExec(pDb);
 }
 
 ConsoleExec::ConsoleExec(DbIntlog *pDb)
-    : IntlogExec(pDb)
-{
+    : IntlogExec(pDb) {
 }
 
 ///////////////////////////////
 // create the stream as output
 //
-ostream *ConsoleExec::openout(kstring id, int)
-{
+ostream *ConsoleExec::openout(kstring id, int) {
     if (id == user)
         return &cout;
 
@@ -61,48 +60,39 @@ ostream *ConsoleExec::openout(kstring id, int)
 /////////////////////////////////////////////
 // create the stream as input from disk file
 //
-istream *ConsoleExec::openinp(kstring* id, int flags)
-{
+istream *ConsoleExec::openinp(kstring* id, int flags) {
     if (*id == user)
         return &cin;
 
-    if (envar == kstring(MSR_NULL))
-    {
+    if (envar == kstring(MSR_NULL)) {
         const char *pSearch = getenv("ILOCSRC");
         if (pSearch)
             envar = kstring(pSearch);
     }
 
     filebuf *fb = openfile(*id, flags|ios::in);
-    if (!fb)
-    {
-        //char buf[_MAX_PATH];
-        //kstring id1(strncat(strncpy(buf, *id, _MAX_PATH), ".il", _MAX_PATH));
+    if (!fb) {
         char buf[1 << 16];
         kstring id1(strncat(strncpy(buf, *id, sizeof buf), ".il", sizeof buf));
-        if ((fb = openfile(id1, flags|ios::in)) != 0)
+        if ((fb = openfile(id1, flags|ios::in)) != nullptr)
             *id = id1;
     }
 
-    istream *s = 0;
-    if (fb)
-    {
+    istream *s = nullptr;
+    if (fb) {
         s = new istream(fb);
         //s->delbuf(1);
     }
     return s;
 }
 
-void ConsoleExec::close(ostream *s, kstring n)
-{
-    if (n != user)
-    {
+void ConsoleExec::close(ostream *s, kstring n) {
+    if (n != user) {
         slist_iter i(membuffer);
         membuf *mb = find(n, i);
 
-        if (mb)
-        {
-            basic_ostringstream<char> *os = (basic_ostringstream<char>*)s;
+        if (mb) {
+            auto *os = static_cast<basic_ostringstream<char>*>(s);
             *os << ends;
 
             delete mb->mem;
@@ -112,8 +102,7 @@ void ConsoleExec::close(ostream *s, kstring n)
         delete s;
     }
 }
-void ConsoleExec::close(istream *s, kstring n)
-{
+void ConsoleExec::close(istream *s, kstring n) {
     if (n != user)
         delete s;
 }

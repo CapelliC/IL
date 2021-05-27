@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,30 +26,31 @@
 //---------------------------------------------------------------
 // Intlog named streams model:
 //
-//	high level constructs for Term(s) read and a polymorphic
-//	data interface, that can fetch data from source stream files
-//	or binary format libraries.
+//  high level constructs for Term(s) read and a polymorphic
+//  data interface, that can fetch data from source stream files
+//  or binary format libraries.
 //
 // These libraries are fully transparent and built 'at once',
-//	saving data while source input file are scanned.
+//  saving data while source input file are scanned.
 //---------------------------------------------------------------
 
 #include "iafx.h"
 #include "term.h"
 
-class IntlogExec;	// forward decl
-class IntlogStream;	// a named stream
-class IntlogIStream;	// for input
-class IntlogOStream;	// for output
-class IntlogIOStreams;	// IO modelling
-class SourceBinaryLib;	// binary files libraries
+class IntlogExec;   // forward decl
+class IntlogStream; // a named stream
+class IntlogIStream;    // for input
+class IntlogOStream;    // for output
+class IntlogIOStreams;  // IO modelling
+class SourceBinaryLib;  // binary files libraries
 
 //////////////////////////////////////
 // a named stream for input or output
 //
-class IAFX_API IntlogStream : e_slist
-{
+class IAFX_API IntlogStream : e_slist {
 public:
+
+    virtual ~IntlogStream();
 
     // keep identifier
     kstring name() const {
@@ -65,7 +66,7 @@ public:
 
 protected:
 
-    IntlogStream(kstring id, mode m){
+    IntlogStream(kstring id, mode m) {
         ident = id;
         md = m;
     }
@@ -79,9 +80,9 @@ protected:
 /////////////////////////////////////////
 // for input: derive actual term readers
 //
-class IntlogIStream : public IntlogStream
-{
+class IntlogIStream : public IntlogStream {
 public:
+    virtual ~IntlogIStream() override;
 
     virtual int ateof() const = 0;
 
@@ -102,8 +103,7 @@ public:
 
 protected:
 
-    IntlogIStream(kstring id) : IntlogStream(id, input)
-    {
+    IntlogIStream(kstring id) : IntlogStream(id, input) {
     }
 
     istream *i;
@@ -114,10 +114,10 @@ protected:
 ///////////////////////////
 // for output: dummy class
 //
-class IntlogOStream : public IntlogStream
-{
-    IntlogOStream(kstring id, ostream* s) : IntlogStream(id, output)
-    {
+class IntlogOStream : public IntlogStream {
+    virtual ~IntlogOStream() override;
+
+    IntlogOStream(kstring id, ostream* s) : IntlogStream(id, output) {
         o = s;
     }
 
@@ -127,16 +127,16 @@ class IntlogOStream : public IntlogStream
 
 ///////////////////////////////////////
 // a model for prolog named streams
-//	mimic te same calls used in prolog
+//  mimic te same calls used in prolog
 //
-class IAFX_API IntlogIOStreams
-{
+class IAFX_API IntlogIOStreams {
 public:
 
     IntlogIOStreams() {
-        currinp = 0;
-        currout = 0;
+        currinp = nullptr;
+        currout = nullptr;
     }
+    virtual ~IntlogIOStreams();
 
     void closeall();
 
@@ -198,7 +198,7 @@ public:
     static void ReleaseBinLib();
 
     // open file buf (avoid a problem arise from WINDLL streams...)
-    static filebuf *openfile(kstring id, int of, char *path = 0, char *buf = 0, int maxbuf = -1);
+    static filebuf *openfile(kstring id, int of, char *path = nullptr, char *buf = nullptr, int maxbuf = -1);
     static kstring envar;
     static void setenvar(kstring var) {
         envar = var;
@@ -235,7 +235,7 @@ protected:
     slist membuffer;
 
     // binary lib control
-    static SourceBinaryLib*	sbl;
+    static SourceBinaryLib* sbl;
 };
 
 #endif

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@
 #ifndef BINSTR_H_
 #define BINSTR_H_
 
+#include <iostream>
+using namespace std;
+
 void bswrite(ostream &, unsigned);
 void bswrite(ostream &, short);
 void bswrite(ostream &, long);
@@ -38,51 +41,40 @@ void bsread(istream &, double *);
 void bsread(istream &, char *, unsigned*);
 void bsread(istream &, char **);
 
-//#define TYPE_WRITE_1(x) (unsigned char *)x
-#define TYPE_WRITE_1(p) (const char *)(p)	//PVOID(p) // 
-#define TYPE_READ_1(p)	(char*)(p)	//PVOID(p) //
+#define TYPE_WRITE_1(p) reinterpret_cast<const char *>(p)   //PVOID(p) //
+#define TYPE_READ_1(p)  reinterpret_cast<char*>(p)  //PVOID(p) //
 
-inline void bswrite(ostream &s, unsigned p)
-{
-	s.write(TYPE_WRITE_1(&p), sizeof(p));
+inline void bswrite(ostream &s, unsigned p) {
+    s.write(TYPE_WRITE_1(&p), sizeof(p));
 }
-inline void bswrite(ostream &s, short p)
-{
-	s.write(TYPE_WRITE_1(&p), sizeof(p));
+inline void bswrite(ostream &s, short p) {
+    s.write(TYPE_WRITE_1(&p), sizeof(p));
 }
-inline void bswrite(ostream &s, long p)
-{
-	s.write(TYPE_WRITE_1(&p), sizeof(p));
+inline void bswrite(ostream &s, long p) {
+    s.write(TYPE_WRITE_1(&p), sizeof(p));
 }
-inline void bswrite(ostream &s, float p)
-{
-	s.write(TYPE_WRITE_1(&p), sizeof(p));
+inline void bswrite(ostream &s, float p) {
+    s.write(TYPE_WRITE_1(&p), sizeof(p));
 }
-inline void bswrite(ostream &s, double p)
-{
-	s.write(TYPE_WRITE_1(&p), sizeof(p));
+inline void bswrite(ostream &s, double p) {
+    s.write(TYPE_WRITE_1(&p), sizeof(p));
 }
 
 
-inline void bsread(istream &s, unsigned *p)
-{
-	s.read(TYPE_READ_1(p), sizeof(*p));
+inline void bsread(istream &s, unsigned *p) {
+    s.read(TYPE_READ_1(p), sizeof(*p));
 }
-inline void bsread(istream &s, short *p)
-{
-	s.read(TYPE_READ_1(p), sizeof(*p));
+inline void bsread(istream &s, short *p) {
+    s.read(TYPE_READ_1(p), sizeof(*p));
 }
-inline void bsread(istream &s, long *p)
-{
-	s.read(TYPE_READ_1(p), sizeof(*p));
+inline void bsread(istream &s, long *p) {
+    s.read(TYPE_READ_1(p), sizeof(*p));
 }
-inline void bsread(istream &s, float *p)
-{
-	s.read(TYPE_READ_1(p), sizeof(*p));
+inline void bsread(istream &s, float *p) {
+    s.read(TYPE_READ_1(p), sizeof(*p));
 }
-inline void bsread(istream &s, double *p)
-{
-	s.read(TYPE_READ_1(p), sizeof(*p));
+inline void bsread(istream &s, double *p) {
+    s.read(TYPE_READ_1(p), sizeof(*p));
 }
 
 #endif

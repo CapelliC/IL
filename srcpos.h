@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,72 +23,73 @@
 #ifndef SRCPOS_H_
 #define SRCPOS_H_
 
+#include <iostream>
+#include <cstdint>
+using namespace std;
+
 //////////////////////////////////////
 // encode position and len in 32 bits
-//	14 bits to row number (16K)
-//	8 bits to col number (256)
-//	10 bits to len (1K)
+//  16 bits to row number (64K)
+//   8 bits to col number
+//   8 bits to len
 //
-class SourcePos
-{
+class SourcePos {
 public:
 
-	SourcePos(streampos ipos, unsigned clen);
-	SourcePos(unsigned row, unsigned col, unsigned clen);
-    SourcePos(long = -1);
+    typedef uint32_t sp_data;
+    static const sp_data sp_data_null = sp_data(-1);
 
-	unsigned row() const;
-	unsigned col() const;
-	unsigned len() const;
+    SourcePos(streampos ipos, unsigned clen);
+    SourcePos(unsigned row, unsigned col, unsigned clen);
+    SourcePos(sp_data sp = sp_data_null);
 
-	operator long() const;
-	bool Used() const;
+    unsigned row() const;
+    unsigned col() const;
+    unsigned len() const;
+
+    operator sp_data() const;
+    bool Used() const;
 
 private:
 
-	enum { MASK_ROW = 0x3FFF,	MASK_COL = 0x00FF,	MASK_LEN = 0x03FF };
-	enum { SHIFT_ROW = 18,		SHIFT_COL = 10,		SHIFT_LEN = 0 };
+    enum {
+        MASK_ROW = sp_data(0x0000FFFF),
+        MASK_COL = sp_data(0x000000FF),
+        MASK_LEN = sp_data(0x000000FF)
+    };
+    enum {
+        SHIFT_ROW = 8+8,
+        SHIFT_COL = 8,
+        SHIFT_LEN = 0
+    };
 
-	long m_data;
+    sp_data m_data;
 };
 
-/* don't work with istream (i->tellg() cause character lose...)
-inline SourcePos::SourcePos(streampos ipos, unsigned clen)
-{
-	// leave size up to 1024
-	m_data = (ipos << 10) | (clen & 0x3FF);
+inline SourcePos::SourcePos(sp_data data) {
+    m_data = data;
 }
-*/
-inline SourcePos::SourcePos(long data)
-{
-	m_data = data;
-}
-inline SourcePos::SourcePos(unsigned row, unsigned col, unsigned len)
-{
-	m_data =	(long(row & MASK_ROW) << SHIFT_ROW) |
-				(long(col & MASK_COL) << SHIFT_COL) |
-				(long(len & MASK_LEN) << SHIFT_LEN);
+inline SourcePos::SourcePos(unsigned row, unsigned col, unsigned len) {
+    m_data =
+        (sp_data(row & MASK_ROW) << SHIFT_ROW) |
+        (sp_data(col & MASK_COL) << SHIFT_COL) |
+        (sp_data(len & MASK_LEN) << SHIFT_LEN);
 }
 
-inline unsigned SourcePos::row() const
-{
-	return unsigned(m_data >> SHIFT_ROW) & MASK_ROW;
+inline unsigned SourcePos::row() const {
+    return unsigned(m_data >> SHIFT_ROW) & MASK_ROW;
 }
-inline unsigned SourcePos::col() const
-{
-	return unsigned(m_data >> SHIFT_COL) & MASK_COL;
+inline unsigned SourcePos::col() const {
+    return unsigned(m_data >> SHIFT_COL) & MASK_COL;
 }
-inline unsigned SourcePos::len() const
-{
-	return unsigned(m_data >> SHIFT_LEN) & MASK_LEN;
+inline unsigned SourcePos::len() const {
+    return unsigned(m_data >> SHIFT_LEN) & MASK_LEN;
 }
-inline SourcePos::operator long() const
-{
-	return m_data;
+inline SourcePos::operator sp_data() const {
+    return m_data;
 }
-inline bool SourcePos::Used() const
-{
-	return m_data != -1;
+inline bool SourcePos::Used() const {
+    return m_data != sp_data_null;
 }
 
 #endif

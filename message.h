@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,39 +24,38 @@
 #define MESSAGE_H_
 
 #include "iafx.h"
+#include <iostream>
+using namespace std;
 
 /////////////////////
 // a messages table
 //
-class IAFX_API MsgTable
-{
+class IAFX_API MsgTable {
 public:
-	MsgTable(ostream *);
-	~MsgTable();
+    MsgTable(ostream *);
+    ~MsgTable();
 
-	int add(int code, const char *msg);
-	ostream *setoutput(ostream *);
+    int add(int code, const char *msg);
+    ostream *setoutput(ostream *);
 
-	struct MsgLink
-	{
-		const char* string;
-		int code;
-		MsgLink* link;
-	};
-	MsgLink* search(int code, MsgLink *from = 0) const;
+    struct MsgLink {
+        const char* string;
+        int code;
+        MsgLink* link;
+    };
+    MsgLink* search(int code, MsgLink *from = nullptr) const;
 
-	ostream* str;
-	MsgLink* list;
+    ostream* str;
+    MsgLink* list;
 };
 
 //////////////////////////
 // change current stream
 //
-inline ostream *MsgTable::setoutput(ostream *os)
-{
-	ostream *s = str;
-	str = os;
-	return s;
+inline ostream *MsgTable::setoutput(ostream *os) {
+    ostream *s = str;
+    str = os;
+    return s;
 }
 
 #endif

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,11 +44,10 @@ class DbIntlog;
 class DbEntryIter;
 
 // internal stacks index type
-typedef unsigned	stkpos;
-#define STKNULL		stkpos(-1)
+typedef unsigned    stkpos;
+#define STKNULL     stkpos(-1)
 
-class IAFX_API IntlogExec : public IntlogIOStreams
-{
+class IAFX_API IntlogExec : public IntlogIOStreams {
 public:
     // init object and bind to a DB
     IntlogExec(DbIntlog*);
@@ -61,7 +60,7 @@ public:
     int runquery(const char *src);
 
     // start/continue a query
-    virtual int query(const Clause * = 0);
+    virtual int query(const Clause * = nullptr);
 
     // make a call on a term
     int call(Term);
@@ -120,9 +119,9 @@ public:
 
     // keep write mode
     enum writeModeBits {
-        UseOpDecl	= 0x01,
-        NameVars	= 0x01,
-        NumberVars	= 0x02
+        UseOpDecl   = 0x01,
+        NameVars    = 0x01,
+        NumberVars  = 0x02
     };
     static int writeMode;
 
@@ -130,7 +129,7 @@ public:
     Term readTerm();
 
     // variable value access
-    Term value(Var, stkpos = STKNULL) const;	// copy full value
+    Term value(Var, stkpos = STKNULL) const;    // copy full value
     Term tval(Var rv, stkpos posenv = STKNULL) const; // only first reference
 
     // attempt unification of terms t1 & t2 (top env for both term)
@@ -148,7 +147,7 @@ public:
     void use_file();
 
     // search for first/next match in DB
-    int find_match(Term, DbEntryIter &, DbIntlog * = 0);
+    int find_match(Term, DbEntryIter &, DbIntlog * = nullptr);
 
     // if not already exist & requested, create
     ProofTracer* tracer(int = 1);
@@ -158,38 +157,38 @@ public:
 
     // display status as required
     enum statusmode {
-        Base	= 0x01,
-        Proof	= 0x02,
-        Vars	= 0x04,
-        Trail	= 0x10,
-        DbHash	= 0x20,
-        All		= Base|Proof|Vars|Trail|DbHash
+        Base    = 0x01,
+        Proof   = 0x02,
+        Vars    = 0x04,
+        Trail   = 0x10,
+        DbHash  = 0x20,
+        All     = Base|Proof|Vars|Trail|DbHash
     };
     void showstatus(ostream &, statusmode = All) const;
 
 protected:
 
-    DbIntlog*	db;	// clauses database
+    DbIntlog*   db; // clauses database
 
-    ProofStack*	ps;	// proof evaluation stack
-    BindStack*	vs;	// variables binding stack
-    TrailStack*	ts;	// tracking of bindings
+    ProofStack* ps; // proof evaluation stack
+    BindStack*  vs; // variables binding stack
+    TrailStack* ts; // tracking of bindings
 
-    ProofTracer*	tr;	// debugging tracer (0 if disabled)
+    ProofTracer*    tr; // debugging tracer (0 if disabled)
 
-    CallData*	cc;	// current call
+    CallData*   cc; // current call
 
-    slist		tmpt;	// hold temporary terms/Clauses
+    slist       tmpt;   // hold temporary terms/Clauses
 
-    int		unify(stkpos, TermArgs, stkpos, TermArgs, int);
-    void	unbind(stkpos);
-    void	query_fail(stkpos);
+    int     unify(stkpos, TermArgs, stkpos, TermArgs, int);
+    void    unbind(stkpos);
+    void    query_fail(stkpos);
 
-    Term	copy_term(Term, stkpos) const;
+    Term    copy_term(Term, stkpos) const;
 
-    int		show_solution(const Clause*, stkpos) const;
+    int     show_solution(const Clause*, stkpos) const;
 
-    void	chktracer();
+    void    chktracer();
 
     // build a tracer at request
     virtual ProofTracer *make_tracer();
@@ -218,10 +217,9 @@ protected:
 /////////////////////////////
 // term writing without copy
 //
-class IAFX_API teWrite
-{
+class IAFX_API teWrite {
 public:
-    teWrite(Term toWrite, IntlogExec *pExec = 0, stkpos stkPos = STKNULL) {
+    teWrite(Term toWrite, IntlogExec *pExec = nullptr, stkpos stkPos = STKNULL) {
         m_toWrite = toWrite;
         m_pExec = pExec;
         m_stkPos = stkPos;

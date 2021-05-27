@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,11 @@
 // modelling Intlog IO streams
 ///////////////////////////////
 
-#include "stdafx.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+using namespace std;
+
 #include "proios.h"
 #include "binlib.h"
 #include "defsys.h"
@@ -33,61 +37,59 @@
 #include "actios.h"
 #include "parse.h"
 #include "membuf.h"
-/*
-#include <io.h>
-#include <fcntl.h>
-*/
+
+IntlogStream::~IntlogStream() {
+}
+IntlogIStream::~IntlogIStream() {
+}
+IntlogOStream::~IntlogOStream() {
+}
+IntlogIOStreams::~IntlogIOStreams() {
+}
 
 ///////////////////////////////////
 // static IntlogIOStreams members
 //
-kstring			IntlogIOStreams::envar;
-kstring			IntlogIOStreams::user;
-SourceBinaryLib*	IntlogIOStreams::sbl;
+kstring IntlogIOStreams::envar;
+kstring IntlogIOStreams::user;
+SourceBinaryLib* IntlogIOStreams::sbl;
 
 //////////////////
 // memory cleanup
 //
-void IntlogIOStreams::closeall()
-{
+void IntlogIOStreams::closeall() {
     slist_iter i(opened);
 
     IntlogStream *s;
-    while ((s = (IntlogStream *)i.next()) != 0)
-    {
-        if (s->md == IntlogStream::input)
-        {
-            IntlogIStream* i = (IntlogIStream*)s;
+    while ((s = static_cast<IntlogStream *>(i.next())) != nullptr) {
+        if (s->md == IntlogStream::input) {
+            auto i = static_cast<IntlogIStream*>(s);
             close(i->i, i->name());
         }
-        if (s->md == IntlogStream::output)
-        {
-            IntlogOStream* o = (IntlogOStream*)s;
+        if (s->md == IntlogStream::output) {
+            auto o = static_cast<IntlogOStream*>(s);
             close(o->o, o->name());
         }
     }
 }
 
-void IntlogIOStreams::ReleaseBinLib()
-{
+void IntlogIOStreams::ReleaseBinLib() {
     delete sbl;
-    sbl = 0;
+    sbl = nullptr;
 }
 
 ////////////////////////
 // set the input stream
 //
-int IntlogIOStreams::see(kstring id, int flags)
-{
+int IntlogIOStreams::see(kstring id, int flags) {
     IntlogStream *s = isin(id, IntlogStream::input);
-    if (!s)
-    {
-        if ((s = create_input_file(id, flags)) == 0)
+    if (!s) {
+        if ((s = create_input_file(id, flags)) == nullptr)
             return 0;
         opened.insert(s, 0);
     }
 
-    currinp = (IntlogIStream*)s;
+    currinp = static_cast<IntlogIStream*>(s);
     if (currinp->i)
         GetEngines()->get_parser()->SetSource(currinp->i, id, &currinp->t_vars);
 
@@ -97,19 +99,16 @@ int IntlogIOStreams::see(kstring id, int flags)
 //////////////////////////
 // pop current top stream
 //
-int IntlogIOStreams::seen()
-{
-    if (currinp->name() != user)
-    {
+int IntlogIOStreams::seen() {
+    if (currinp->name() != user) {
         // revert to default (name is unique)
-        if (currinp->i)
-        {
+        if (currinp->i) {
             GetEngines()->get_parser()->PopSource(currinp->i);
             close(currinp->i, currinp->name());
         }
         opened.remove(opened.seek(currinp));
 
-        currinp = (IntlogIStream*)isin(MSR_NULL, IntlogStream::input);
+        currinp = static_cast<IntlogIStream*>(isin(MSR_NULL, IntlogStream::input));
         return 1;
     }
 
@@ -119,21 +118,18 @@ int IntlogIOStreams::seen()
 /////////////////////////
 // set the output stream
 //
-int IntlogIOStreams::tell(kstring id, int flags)
-{
+int IntlogIOStreams::tell(kstring id, int flags) {
     IntlogStream *s = isin(id, IntlogStream::output);
-    if (!s)
-    {	// create a new output file
+    if (!s) {   // create a new output file
         ostream *o = openout(id, flags);
-        if (!o || !o->good())
-        {
+        if (!o || !o->good()) {
             delete o;
             return 0;
         }
         opened.insert(s = new IntlogOStream(id, o), 0);
     }
 
-    currout = (IntlogOStream*)s;
+    currout = static_cast<IntlogOStream*>(s);
     return 1;
 }
 
@@ -141,15 +137,13 @@ int IntlogIOStreams::tell(kstring id, int flags)
 // close (if !default) the output stream
 // and revert to default
 //
-int IntlogIOStreams::told()
-{
-    if (currout->name() != user)
-    {
+int IntlogIOStreams::told() {
+    if (currout->name() != user) {
         // revert to default (delete unique name)
         close(currout->o, currout->name());
         opened.remove(opened.seek(currout));
 
-        currout = (IntlogOStream*)isin(MSR_NULL, IntlogStream::output);
+        currout = static_cast<IntlogOStream*>(isin(MSR_NULL, IntlogStream::output));
         return 1;
     }
 
@@ -159,12 +153,11 @@ int IntlogIOStreams::told()
 ////////////////////////////
 // search for an identifier
 //
-IntlogStream* IntlogIOStreams::isin(kstring id, IntlogStream::mode mode) const
-{
+IntlogStream* IntlogIOStreams::isin(kstring id, IntlogStream::mode mode) const {
     IntlogStream* s;
     slist_iter i(opened);
 
-    while ((s = (IntlogStream*)i.next()) != 0)
+    while ((s = static_cast<IntlogStream*>(i.next())) != nullptr)
         if (((MemStoreRef(id) == MSR_NULL || s->ident == id) && mode == s->md)
                 || mode == IntlogStream::none)
             break;
@@ -175,16 +168,13 @@ IntlogStream* IntlogIOStreams::isin(kstring id, IntlogStream::mode mode) const
 ////////////////////////////
 // check for binary library
 //
-IntlogIStream *IntlogIOStreams::create_input_file(kstring id, int flags)
-{
+IntlogIStream *IntlogIOStreams::create_input_file(kstring id, int flags) {
     IntlogIStream *s;
-    BinOFile *obf = 0;
+    BinOFile *obf = nullptr;
 
-    if (sbl)
-    {
+    if (sbl) {
         BinIFile *ibf = sbl->is_input(id);
-        if (ibf != 0)
-        {
+        if (ibf != nullptr) {
             s = new IntlogBinStream(ibf);
             ibf->restart();
             openedbin(id);
@@ -194,10 +184,9 @@ IntlogIStream *IntlogIOStreams::create_input_file(kstring id, int flags)
     }
 
     istream *i = openinp(&id, flags);
-    if (!i || !i->good())
-    {
+    if (!i || !i->good()) {
         delete i;
-        return 0;
+        return nullptr;
     }
 
     s = new IntlogSourceStream(id, i, obf);
@@ -207,110 +196,93 @@ IntlogIStream *IntlogIOStreams::create_input_file(kstring id, int flags)
 //////////////////////////
 // set binary source file
 //
-void IntlogIOStreams::CreateBinLib(kstring id)
-{
+void IntlogIOStreams::CreateBinLib(kstring id) {
     sbl = new SourceBinaryLib(id, SourceBinaryLib::toWrite);
 }
 
 ///////////////////////////////////
 // set source file from binary lib
 //
-void IntlogIOStreams::ReadFromBinLib(kstring id)
-{
+void IntlogIOStreams::ReadFromBinLib(kstring id) {
     sbl = new SourceBinaryLib(id, SourceBinaryLib::toRead);
 }
 
 ////////////////////////////////////////////////
 // cat a name file to be saved in binary format
 //
-void IntlogIOStreams::AddBinLibSourceName(kstring idf)
-{
+void IntlogIOStreams::AddBinLibSourceName(kstring idf) {
     if (sbl)
         sbl->add_name(idf);
 }
 
 //////////////////////////////////////
 // make a search of file
-//	scanning the environment variable
+//  scanning the environment variable
 //
-filebuf* IntlogIOStreams::openfile(kstring id, int of, char *paths, char *buf, int maxbuf)
-{
+filebuf* IntlogIOStreams::openfile(kstring id, int of, char *paths, char *buf, int maxbuf) {
     CCP fid = id;
     filebuf *fb = new filebuf;
 
-    if (fb->open(fid, ios::in)) //of))//|ios::nocreate))
-    {
+    if (fb->open(fid, ios::in))  {
         if (buf)
-            strncpy(buf, id, maxbuf);
+            strncpy(buf, id, size_t(maxbuf));
         return fb;
     }
-    if ((of & ios::in) == 0)	// open failed: output stream can't be opened
-    {
+    if ((of & ios::in) == 0) {  // open failed: output stream can't be opened
         delete fb;
-        return 0;
+        return nullptr;
     }
 
     if (!paths)
-        paths = (char*)CCP(envar);
-    if (paths)
-    {
+        paths = const_cast<char*>(CCP(envar));
+    if (paths) {
         // search all directories enumerated
-        char dir[1 << 16];
         basic_istringstream<char> dirs(paths);
-        int szdir = sizeof(dir) - strlen(fid) + 1;
-        if (szdir > 0)
-            while (dirs.getline(dir, szdir, ';'))
-            {
-                char *pdir = strcat(strcat(dir, "//"), fid);
-                if (fb->open(pdir, ios::in))
-                {
-                    if (buf)
-                        strncpy(buf, dir, maxbuf);
-                    return fb;
-                }
+        string dir;
+        while (getline(dirs, dir, ';')) {
+            string pdir = dir + "//" + fid;
+            if (fb->open(pdir, ios::in)) {
+                if (buf)
+                    strncpy(buf, dir.c_str(), size_t(maxbuf));
+                return fb;
             }
+        }
     }
 
     // not found
     delete fb;
-    return 0;
+    return nullptr;
 }
 
-membuf *find(kstring id, slist_iter& i)
-{
+membuf *find(kstring id, slist_iter& i) {
     membuf *mb;
-    while ((mb = (membuf*)i.next()) != 0)
+    while ((mb = static_cast<membuf*>(i.next())) != nullptr)
         if (mb->id == id)
             return mb;
-    return 0;
+    return nullptr;
 }
 
-void IntlogIOStreams::DelBuffer(kstring id)
-{
+void IntlogIOStreams::DelBuffer(kstring id) {
     slist_scan s(membuffer);
     membuf *mb = find(id, s);
     if (mb)
         s.delitem();
 }
-bool IntlogIOStreams::IsBuffer(kstring id) const
-{
+bool IntlogIOStreams::IsBuffer(kstring id) const {
     slist_iter i(membuffer);
-    return find(id, i) != 0;
+    return find(id, i) != nullptr;
 }
-const char* IntlogIOStreams::GetBuffer(kstring id)
-{
+const char* IntlogIOStreams::GetBuffer(kstring id) {
     slist_iter i(membuffer);
     membuf *mb = find(id, i);
-    return mb? mb->mem : 0;
+    return mb? mb->mem : nullptr;
 }
-void IntlogIOStreams::SetBuffer(kstring name, const char *pMem)
-{
+void IntlogIOStreams::SetBuffer(kstring name, const char *pMem) {
     membuf *mb;
     membuffer.append(mb = new membuf);
     mb->id = name;
-    mb->mem = (char*)pMem;
+    mb->mem = const_cast<char*>(pMem);
 }
-istream &IntlogIOStreams::inp() const
-{
+istream &IntlogIOStreams::inp() const {
     return *ips()->i;
 }

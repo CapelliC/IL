@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,36 +34,34 @@ class BinOFile;
 //-----------------------
 // an element of library
 //
-class BinFile : public e_slist
-{
+class BinFile : public e_slist {
 public:
     kstring get_id() const;
     virtual void end_data() = 0;
 
 protected:
     BinFile(kstring, SourceBinaryLib *);
-    BinFile();				// for file data only
+    BinFile();              // for file data only
 
     // directory data
-    kstring id;				// source identifier
-    unsigned nobjects;		// counter of file elements
+    kstring id;             // source identifier
+    unsigned nobjects;      // counter of file elements
 
     /*
-     streampos begdata;		// track begin data in library file
-     streampos enddata;		// file dimension
+     streampos begdata;     // track begin data in library file
+     streampos enddata;     // file dimension
     */
 
-    streamoff begdata;		// track begin data in library file
-    streamoff enddata;		// file dimension
+    streamoff begdata;      // track begin data in library file
+    streamoff enddata;      // file dimension
 
-    SourceBinaryLib *plib;	// owner of this file
+    SourceBinaryLib *plib;  // owner of this file
 };
 
 //-----------
 // for input
 //
-class BinIFile : public BinFile
-{
+class BinIFile : public BinFile {
 public:
     BinIFile(SourceBinaryLib *);
 
@@ -81,11 +79,10 @@ private:
 
 //----------------------------------------------
 // building an output section
-//	rely on a temporary file, to avoid problems
-//	in input data sequencing
+//  rely on a temporary file, to avoid problems
+//  in input data sequencing
 //
-class BinOFile : public BinFile
-{
+class BinOFile : public BinFile {
 public:
     BinOFile(kstring, SourceBinaryLib *);
     ~BinOFile();
@@ -111,11 +108,10 @@ private:
 
 //----------------------------------------------
 // support binary data format
-//	a library is a list of sources, i.e.
-//	a set of files, each with its clauses saved
+//  a library is a list of sources, i.e.
+//  a set of files, each with its clauses saved
 //
-class SourceBinaryLib : slist
-{
+class SourceBinaryLib : slist {
 public:
     enum openMode {
         toRead, toWrite
@@ -138,7 +134,7 @@ private:
 
     int match(e_slist *, void *) const;
     BinFile* is_name(kstring) const;
-    int chkerr(int, ios * = 0, CCP = 0) const;
+    int chkerr(int, ios * = nullptr, CCP = nullptr) const;
 
     // on output
     kstr_list kstrl;
@@ -156,43 +152,11 @@ private:
  INLINEs
 **************/
 
-inline int SourceBinaryLib::making() const
-{
-    return inp == 0;
+inline int SourceBinaryLib::making() const {
+    return inp == nullptr;
 }
-inline int SourceBinaryLib::extracting() const
-{
-    return inp != 0;
-}
-inline BinIFile *SourceBinaryLib::is_input(kstring f) const
-{
-    return inp? (BinIFile *)is_name(f) : 0;
-}
-inline BinOFile *SourceBinaryLib::is_output(kstring f) const
-{
-    return inp? 0 : (BinOFile *)is_name(f);
-}
-
-inline BinFile::BinFile()
-{
-}
-inline BinFile::BinFile(kstring i, SourceBinaryLib *pl) {
-    id = i;
-    plib = pl;
-    nobjects = 0;
-}
-inline kstring BinFile::get_id() const
-{
-    return id;
-}
-
-inline int BinIFile::ateof() const
-{
-    return fcursor >= enddata;
-}
-inline void BinIFile::end_data()
-{
-    plib->check_done_inp();
+inline int SourceBinaryLib::extracting() const {
+    return inp != nullptr;
 }
 
 #endif

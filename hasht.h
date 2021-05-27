@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,18 +34,20 @@ class hashtable_iter;
 
 #include "iafx.h"
 
+#include <cstring>
+using namespace std;
+
 //-------------------------------------
 // a table entry
-//	derive object from this base class,
-//	to be inserted into hashtable
+//  derive object from this base class,
+//  to be inserted into hashtable
 //
-class e_hashtable
-{
+class e_hashtable {
 public:
-    virtual ~e_hashtable() {}
+    virtual ~e_hashtable();
 
     // must return a string pointer
-    virtual const char*	getstr() const = 0;
+    virtual const char* getstr() const = 0;
 
 private:
     friend class hashtable;
@@ -58,12 +60,12 @@ private:
 //---------------------------------
 // specialized version for strings
 //
-class e_hashtable_str : public e_hashtable
-{
+class e_hashtable_str : public e_hashtable {
 public:
-    const char *getstr() const { return str; }
+    ~e_hashtable_str() override;
+    const char *getstr() const override { return str; }
     e_hashtable_str(const char *s) { str = s; }
-    e_hashtable_str() {}
+    e_hashtable_str() { str = nullptr; }
 private:
     const char *str;
 };
@@ -71,8 +73,7 @@ private:
 //-------------------------------
 // hash table with overflow area
 //
-class IAFX_API hashtable
-{
+class IAFX_API hashtable {
 public:
     hashtable(unsigned initsize = 997);
     virtual ~hashtable();
@@ -113,12 +114,7 @@ protected:
 private:
 
     // compute hash code (see Bjarne Stroustrup, pag 81)
-    unsigned hash(const char *pp, unsigned d) const {
-        register unsigned ii = 0;
-        while (*pp)
-            ii = (ii << 1) ^ *pp++;
-        return ii % d;
-    }
+    static unsigned hash(const char *pp, unsigned d);
 
     // keep entry vector
     e_hashtable** hvect;
@@ -135,11 +131,11 @@ private:
 //----------------------------------
 // simply compare directly pointers
 //
-class hashtable_str : public hashtable
-{
+class hashtable_str : public hashtable {
 public:
+    ~hashtable_str() override;
     hashtable_str(unsigned insz) : hashtable(insz) {}
-    int keymatch(const e_hashtable *e1, const e_hashtable *e2) const {
+    int keymatch(const e_hashtable *e1, const e_hashtable *e2) const override {
         return e1->getstr() == e2->getstr();
     }
 };
@@ -147,14 +143,13 @@ public:
 //----------------------
 // iterator for entries
 //
-class IAFX_API hashtable_iter
-{
+class IAFX_API hashtable_iter {
 public:
-    hashtable_iter(const hashtable *ht, const char *s = 0) {
+    hashtable_iter(const hashtable *ht, const char *s = nullptr) {
         t = ht;
         init(s);
     }
-    void init(const char *s = 0);
+    void init(const char *s = nullptr);
     e_hashtable *next();
     e_hashtable *curr() { return e; }
 

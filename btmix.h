@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,53 +23,49 @@
 #ifndef BTMIX_H_
 #define BTMIX_H_
 
+#include "builtin.h"
+
 extern BuiltIn mixing[16];
 
 //---------------------------------------
 // time representation as user data test
 //
-class mtime : public SysData
-{
+class mtime : public SysData {
 public:
 
-	mtime(time_t t = time_t(0));
-	void show(ostream &s) const;
-	char *format(char *buf, int maxbuf, const char *fmt = 0) const;
+    mtime(time_t t = time_t(0));
+    void show(ostream &s) const;
+    char *format(char *buf, int maxbuf, const char *fmt = 0) const;
 
-	int copy_able() const;
-	Term copy() const;
+    int copy_able() const;
+    Term copy() const;
 
-	time_t get() const;
-	int delete_able() const;
+    time_t get() const;
+    int delete_able() const;
 
-	static mtime* get_data(Term);
+    static mtime* get_data(Term);
 
 private:
-	static rtinfo rti;
-	time_t tval;
+    static rtinfo rti;
+    time_t tval;
 };
 
 inline mtime::mtime(time_t t)
-	: SysData(rti)
-{
-	tval = t;
+    : SysData(rti) {
+    tval = t;
 }
-inline void mtime::show(ostream &s) const
-{
-	char buf[1<<10];
-	s << format(buf, sizeof buf);
+inline void mtime::show(ostream &s) const {
+    char buf[1<<10];
+    s << format(buf, sizeof buf);
 }
-inline int mtime::copy_able() const
-{
-	return 1;
+inline int mtime::copy_able() const {
+    return 1;
 }
-inline time_t mtime::get() const
-{
-	return tval;
+inline time_t mtime::get() const {
+    return tval;
 }
-inline int mtime::delete_able() const
-{
-	return 1;
+inline int mtime::delete_able() const {
+    return 1;
 }
 
 #endif

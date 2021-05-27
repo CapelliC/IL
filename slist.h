@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,159 +39,152 @@ class slistvptr_iter;
 
 #define SLIST_INVPOS unsigned(-1)
 
-class e_slist
-{
+class e_slist {
 public:
     e_slist() { next = nullptr; }
-    virtual	~e_slist();
-	unsigned offlast() const;
+    virtual ~e_slist();
+    unsigned offlast() const;
 
 protected:
-	e_slist* next;
+    e_slist* next;
 
     friend class slist;
     friend class slist_iter;
     friend class slist_scan;
 };
 
-class IAFX_API slist
-{
+class IAFX_API slist {
 public:
     slist() { first = nullptr; }
     virtual ~slist();
 
-	unsigned append(e_slist *);
-	void insert(e_slist *, unsigned);
-	void clear();
-	void remove(unsigned);
+    unsigned append(e_slist *);
+    void insert(e_slist *, unsigned);
+    void clear();
+    void remove(unsigned);
 
-	unsigned numel() const;
+    unsigned numel() const;
 
-	// linear searching
-	unsigned seek(void*) const;
-	e_slist* seekptr(void*) const;
-	virtual int match(e_slist *e1, void *e2) const {
-		return e1 == e2;
-	}
+    // linear searching
+    unsigned seek(void*) const;
+    e_slist* seekptr(void*) const;
+    virtual int match(e_slist *e1, void *e2) const {
+        return e1 == e2;
+    }
 
-	e_slist* get(unsigned) const;
-	e_slist* get_first() const {
-		return first;
-	}
+    e_slist* get(unsigned) const;
+    e_slist* get_first() const {
+        return first;
+    }
 
 private:
     friend class slist_iter;
     friend class slist_scan;
-	e_slist* first;
+    e_slist* first;
 };
 
 //------------------
 // forward iterator
 //------------------
-class IAFX_API slist_iter
-{
+class IAFX_API slist_iter {
 public:
     slist_iter() { e = nullptr; }
-	slist_iter(const slist& sl) { set(sl); }
-	slist_iter(const slist* sl) { set(*sl); }
+    slist_iter(const slist& sl) { set(sl); }
+    slist_iter(const slist* sl) { set(*sl); }
 
-	void set(const slist& sl) { e = sl.first;	}
+    void set(const slist& sl) { e = sl.first;   }
     void set(const slist* sl) { e = sl? sl->first : nullptr; }
 
-	e_slist* curr() const { return e; }
-	e_slist* next() {
-		if (e) {
-			e_slist *n = e;
-			e = e->next;
-			return n;
-		}
+    e_slist* curr() const { return e; }
+    e_slist* next() {
+        if (e) {
+            e_slist *n = e;
+            e = e->next;
+            return n;
+        }
         return nullptr;
-	}
+    }
 
 protected:
-	e_slist* e;
+    e_slist* e;
 };
 
 //-----------------------
 // iterator with editing
 //-----------------------
-class IAFX_API slist_scan : public slist_iter
-{
+class IAFX_API slist_scan : public slist_iter {
 public:
 
-	slist_scan(slist &l) : slist_iter(l), lref(l) {}
-	void delitem();
-	void swap(e_slist *);
+    slist_scan(slist &l) : slist_iter(l), lref(l) {}
+    void delitem();
+    void swap(e_slist *);
 
 private:
-	slist &lref;
+    slist &lref;
 };
 
 //-----------------------
 // list of void pointers
 //-----------------------
-class e_slistvptr : public e_slist
-{
-	void *vptr;
+class e_slistvptr : public e_slist {
+    void *vptr;
     e_slistvptr(void *p);
     friend class slistvptr;
     friend class slistvptr_iter;
 };
 
-class IAFX_API slistvptr : public slist
-{
+class IAFX_API slistvptr : public slist {
 public:
-	// append a pointer
-	void append(void *p) {
-		slist::append(new e_slistvptr(p));
-	}
+    // append a pointer
+    void append(void *p) {
+        slist::append(new e_slistvptr(p));
+    }
 
-	// insert a pointer
-	void insert(void *p, unsigned ix) {
-		slist::insert(new e_slistvptr(p), ix);
-	}
+    // insert a pointer
+    void insert(void *p, unsigned ix) {
+        slist::insert(new e_slistvptr(p), ix);
+    }
 
-	// return indexed pointer
-	void* get(unsigned index) const {
-		e_slistvptr* e = (e_slistvptr*)slist::get(index);
+    // return indexed pointer
+    void* get(unsigned index) const {
+        e_slistvptr* e = static_cast<e_slistvptr*>(slist::get(index));
         return e? e->vptr : nullptr;
-	}
+    }
 
-	// matching condition
-	int match(e_slist *e1, void *e2) const {
-		return ((e_slistvptr*)e1)->vptr == ((e_slistvptr*)e2)->vptr;
-	}
+    // matching condition
+    int match(e_slist *e1, void *e2) const {
+        return static_cast<e_slistvptr*>(e1)->vptr == reinterpret_cast<e_slistvptr*>(e2)->vptr;
+    }
 };
 
-class slistvptr_iter
-{
+class slistvptr_iter {
 public:
     slistvptr_iter() { e = nullptr; }
-	slistvptr_iter(const slistvptr& sl) {
-		set(sl);
-	}
+    slistvptr_iter(const slistvptr& sl) {
+        set(sl);
+    }
 
-	void set(const slistvptr& sl) {
-		e = (e_slistvptr*)sl.get_first();
-	}
-	void set(const slistvptr* sl) {
-        e = sl? (e_slistvptr*)sl->get_first() : nullptr;
-	}
+    void set(const slistvptr& sl) {
+        e = static_cast<e_slistvptr*>(sl.get_first());
+    }
+    void set(const slistvptr* sl) {
+        e = sl? static_cast<e_slistvptr*>(sl->get_first()) : nullptr;
+    }
 
-	void* curr() const {
+    void* curr() const {
         return e? e->vptr : nullptr;
-	}
-	void* next() {
-		if (e) {
-			e_slistvptr *n = e;
-			e = (e_slistvptr*)e->next;
-			return n->vptr;
-		}
+    }
+    void* next() {
+        if (e) {
+            e_slistvptr *n = e;
+            e = static_cast<e_slistvptr*>(e->next);
+            return n->vptr;
+        }
         return nullptr;
-	}
+    }
 
 protected:
-	e_slistvptr* e;
+    e_slistvptr* e;
 };
 
 #endif

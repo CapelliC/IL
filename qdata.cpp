@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,10 +22,9 @@
 
 ///////////////////////
 // query data access
-//	solution displayer
+//  solution displayer
 ///////////////////////
 
-#include "stdafx.h"
 #include "qdata.h"
 #include "defsys.h"
 #include "parsemsg.h"
@@ -36,15 +35,15 @@
 //////////////////////////////////////////
 // keep parser active, using parsed terms
 //
-void IntlogExec::use_file()
-{
+void IntlogExec::use_file() {
     ProofStatus stglobal(this), stq(this);
 
     // catch input file Data
     IntlogIStream *is = ips();
     Clause *c = nullptr;
+    bool loop = true;
 
-    while (is->ateof() == 0) {
+    while (loop && !is->ateof()) {
 
         user_prompt();
 
@@ -57,7 +56,7 @@ void IntlogExec::use_file()
                 stq.restore();
             }
 
-            if ((c = build_clause(is)) == nullptr) {	// semantic error
+            if ((c = build_clause(is)) == nullptr) {    // semantic error
                 stq.save();
                 break;
             }
@@ -96,6 +95,9 @@ void IntlogExec::use_file()
             break;
 
         case IntlogIStream::EndFile:
+            loop = false;
+            break;
+
         case IntlogIStream::Error:
             break;
         }
@@ -109,12 +111,11 @@ void IntlogExec::use_file()
 //////////////////////////////////////////
 // enable overriding clause construction
 //
-Clause *IntlogExec::build_clause(IntlogIStream *is)
-{
-    Clause *c = new Clause(is->t_data, &is->t_vars, get_db(), is->name());
+Clause *IntlogExec::build_clause(IntlogIStream *is) {
+    auto db = get_db();
+    Clause *c = new Clause(is->t_data, &is->t_vars, db, is->name());
 
-    if (!c->is_ok())
-    {
+    if (!c->is_ok()) {
         delete c;
         return nullptr;
     }
@@ -124,8 +125,7 @@ Clause *IntlogExec::build_clause(IntlogIStream *is)
 /////////////////////////////////
 // open a file and run interface
 //
-int IntlogExec::use_file(kstring fileid)
-{
+int IntlogExec::use_file(kstring fileid) {
     if (see(fileid)) {
         use_file();
         seen();
@@ -138,10 +138,9 @@ int IntlogExec::use_file(kstring fileid)
 
 ////////////////////////////////////////////////
 // variable data access
-//	make a copy of term	to be freed after usage
+//  make a copy of term to be freed after usage
 //
-Term IntlogExec::value(Var rv, stkpos posenv) const
-{
+Term IntlogExec::value(Var rv, stkpos posenv) const {
     if (rv == ANONYM_IX)
         return f_NOTERM;
 
@@ -159,8 +158,7 @@ Term IntlogExec::value(Var rv, stkpos posenv) const
 ////////////////////////////////////////
 // copy term built into variables stack
 //
-Term IntlogExec::copy_term(Term t, stkpos e) const
-{
+Term IntlogExec::copy_term(Term t, stkpos e) const {
     Term t1;
 
 #ifndef NDEBUG
@@ -201,7 +199,7 @@ Term IntlogExec::copy_term(Term t, stkpos e) const
     break;
 
     case f_LIST:
-        if (!t.LNULL()) {	// not empty list
+        if (!t.LNULL()) {   // not empty list
             const List& l = t;
             auto H = copy_term(l.head(), e);
             auto T = copy_term(l.tail(), e);
@@ -215,23 +213,22 @@ Term IntlogExec::copy_term(Term t, stkpos e) const
         if (sd->copy_able())
             t1 = sd->copy();
         else
-            t1 = t;		// WARNING: shared data
+            t1 = t;     // WARNING: shared data
     }
     break;
 
     default:
-        ASSERT(0);
+        assert(0);
     }
 
-    ASSERT(!t1.type(f_NOTERM));
+    assert(!t1.type(f_NOTERM));
     return t1;
 }
 
 /////////////////////////////////////
 // display all vars of current query
 //
-int IntlogExec::show_solution(const Clause *q, stkpos base) const
-{
+int IntlogExec::show_solution(const Clause *q, stkpos base) const {
     ostream &s = out();
     Var currvar = 0;
 
@@ -239,8 +236,7 @@ int IntlogExec::show_solution(const Clause *q, stkpos base) const
     Term t;
 
     while (!(t = tv.next()).type(f_NOTERM))
-        if (t.type(f_VAR) && Var(t) == currvar)
-        {
+        if (t.type(f_VAR) && Var(t) == currvar) {
             s << CCP(q->get_varid(currvar)) << '=';
 
             // get base node
@@ -257,17 +253,15 @@ int IntlogExec::show_solution(const Clause *q, stkpos base) const
     if (currvar == 0)
         yes_solution();
 
-    return currvar;
+    return int(currvar);
 }
 
 ///////////////////////////////////////
 // release bindings of environment <e>
 //
-void IntlogExec::unbind(stkpos atpos)
-{
+void IntlogExec::unbind(stkpos atpos) {
     stkpos cpos = ts->curr_dim();
-    while (cpos-- > atpos)
-    {
+    while (cpos-- > atpos) {
         vs->clearcell(ts->get(cpos));
         ts->pop();
     }
@@ -276,18 +270,15 @@ void IntlogExec::unbind(stkpos atpos)
 ///////////////////////////////
 // insert temporary store list
 //
-Term IntlogExec::save(Term t)
-{
+Term IntlogExec::save(Term t) {
     tmpt.insert(new ElemTmp(t, ps->curr_dim() - 1), 0);
     return t;
 }
-Clause* IntlogExec::save(Clause *c)
-{
+Clause* IntlogExec::save(Clause *c) {
     tmpt.insert(new ElemTmp(c, ps->curr_dim() - 1), 0);
     return c;
 }
-BltinData* IntlogExec::save(BltinData *d)
-{
+BltinData* IntlogExec::save(BltinData *d) {
     tmpt.insert(new ElemTmp(d, ps->curr_dim() - 1), 0);
     return d;
 }
@@ -295,8 +286,7 @@ BltinData* IntlogExec::save(BltinData *d)
 /////////////////////////////////////
 // build a clause (to be added to DB)
 //
-Clause *IntlogExec::make_clause(Term t)
-{
+Clause *IntlogExec::make_clause(Term t) {
     // adjust variables
     OffVars rix(t);
     Env *etop = ps->topget();
@@ -318,22 +308,18 @@ Clause *IntlogExec::make_clause(Term t)
 //////////////////////////////////
 // read from current input stream
 //
-static void absVars(Term t, stkpos p)
-{
+static void absVars(Term t, stkpos p) {
     stack<Term> st;
     st.push(t);
 
-    for ( ; st.size() > 0; )
-    {
+    for ( ; st.size() > 0; ) {
         t = st.get();
         st.pop();
 
         if (t.type(f_STRUCT|f_LIST))
-            for (int ixson = 0, arity = t.get_arity(); ixson < arity; ixson++)
-            {
+            for (int ixson = 0, arity = t.get_arity(); ixson < arity; ixson++) {
                 Term son = t.getarg(ixson);
-                if (son.type(f_VAR))
-                {
+                if (son.type(f_VAR)) {
                     Var v = son;
                     if (v != ANONYM_IX)
                         t.setarg(ixson, Term(Var(v + p)));
@@ -343,22 +329,19 @@ static void absVars(Term t, stkpos p)
             }
     }
 }
-Term IntlogExec::readTerm()
-{
+
+Term IntlogExec::readTerm() {
     IntlogIStream *i = ips();
     if (!i)
         see(user);
     i = ips();
 
-    if (!i->ateof())
-    {
+    if (!i->ateof()) {
         i->t_data.NoTerm();
-        if (i->read() == IntlogIStream::NewClause)
-        {
+        if (i->read() == IntlogIStream::NewClause) {
             // make space to vars, if any
             unsigned nv = i->t_vars.numel();
-            if (nv > 0)
-            {
+            if (nv > 0) {
                 absVars(i->t_data, vs->curr_dim());
                 vs->reserve(nv);
             }
@@ -373,22 +356,19 @@ Term IntlogExec::readTerm()
 /////////////////////////////////
 // display builtin error message
 //
-int IntlogExec::BtErr(int nCodeMsg, ...)
-{
+int IntlogExec::BtErr(int nCodeMsg, ...) {
     va_list argptr;
     MsgTable::MsgLink *l = GetEngines()->get_msgtbl()->search(nCodeMsg);
 
     if (!l)
         out() << "message not found: " << nCodeMsg << endl;
-    else
-    {
+    else {
         va_start(argptr, nCodeMsg);
 
         char buf[512];
         vsnprintf(buf, sizeof buf, l->string, argptr);
 
-        if (TermData(cc->val()) != f_NOTERM)
-        {
+        if (TermData(cc->val()) != f_NOTERM) {
             teWrite w(cc->val(), this);
             out() << "builtin error:" << w << ':' << buf << endl;
         }
@@ -403,8 +383,7 @@ int IntlogExec::BtErr(int nCodeMsg, ...)
 ///////////////////////
 // save current status
 //
-void ProofStatus::save()
-{
+void ProofStatus::save() {
     psdim = p->ps->curr_dim();
     vsdim = p->vs->curr_dim();
     tsdim = p->ts->curr_dim();
@@ -413,9 +392,8 @@ void ProofStatus::save()
 ///////////////////////////
 // restore previous status
 //
-void ProofStatus::restore()
-{
-    ASSERT(ok());
+void ProofStatus::restore() {
+    assert(ok());
 
     p->ps->pop(p->ps->curr_dim() - psdim);
     p->vs->pop(p->vs->curr_dim() - vsdim);
@@ -433,10 +411,9 @@ void ProofStatus::restore()
 
 ////////////////////////////////////////////////////////
 // store all non anonymous variables, reindexing from 0
-//	save previous indexes, to be queried later
+//  save previous indexes, to be queried later
 //
-void OffVars::SetTerm(Term& tin, stkpos offbase)
-{
+void OffVars::SetTerm(Term& tin, stkpos offbase) {
     count = 0;
 
     if (tin.type(f_VAR) && Var(tin) != ANONYM_IX) {
@@ -466,10 +443,9 @@ void OffVars::SetTerm(Term& tin, stkpos offbase)
 
 ////////////////////////////////////////////
 // search for variable, adding if not found
-//	return new index from 0
+//  return new index from 0
 //
-Var OffVars::lookup(Var v)
-{
+Var OffVars::lookup(Var v) {
     unsigned rv = search(v);
     if (rv == unsigned(-1)) {
         // add variable, avoiding overflow
@@ -483,8 +459,7 @@ Var OffVars::lookup(Var v)
 ///////////////////////////////////////////
 // display command prompter if appropriate
 //
-void IntlogExec::user_prompt() const
-{
+void IntlogExec::user_prompt() const {
     if (ips()->name() == name() && ops()->name() == name())
         (out() << "> ").flush();
 }
@@ -492,39 +467,32 @@ void IntlogExec::user_prompt() const
 ///////////////////////////
 // display failure message
 //
-void IntlogExec::no_solution() const
-{
+void IntlogExec::no_solution() const {
     out() << "no" << endl;
 }
 
 ///////////////////////////
 // display success message
 //
-void IntlogExec::yes_solution() const
-{
+void IntlogExec::yes_solution() const {
     out() << "yes" << endl;
 }
 
 /////////////////////////////////////////////////
 // change all clauses contained in required file
 //
-int IntlogExec::reuse_file(kstring fileId)
-{
+int IntlogExec::reuse_file(kstring fileId) {
     slistvptr updated;
 
-    DbIntlog *r = get_db()->RemoveFileClauses(fileId, updated);
-    if (r)
-    {
+    if (DbIntlog *r = get_db()->RemoveFileClauses(fileId, updated)) {
         r->ClearStatus();
 
         see(fileId);
         IntlogIStream *is = ips();
 
-        while (is->read() != IntlogIStream::EndFile)
-        {
+        while (is->read() != IntlogIStream::EndFile) {
             Term d = is->t_data;
-            if (!d.is_query() && !d.is_command())
-            {
+            if (!d.is_query() && !d.is_command()) {
                 Clause *c = new Clause(d, &is->t_vars, r, fileId);
                 r->RestoreClause(c);
             }
@@ -534,38 +502,52 @@ int IntlogExec::reuse_file(kstring fileId)
 
         seen();
     }
-    return 1;	// dont' fail anyway
+    return 1;   // dont' fail anyway
 }
 
-BltinData* IntlogExec::get_btdata() const
-{
+BltinData* IntlogExec::get_btdata() const {
     Env *e = ps->topget();
-    ASSERT(e->call->get_type() == CallData::BUILTIN);
+    assert(e->call->get_type() == CallData::BUILTIN);
     return e->ptr;
 }
-void IntlogExec::set_btdata(BltinData* ptr)
-{
+void IntlogExec::set_btdata(BltinData* ptr) {
     Env *e = ps->topget();
-    ASSERT(e->call->get_type() == CallData::BUILTIN);
+    assert(e->call->get_type() == CallData::BUILTIN);
     e->ptr = ptr;
 }
 
 // return which CallData is currently executed
-const CallData *IntlogExec::on_call() const
-{
+const CallData *IntlogExec::on_call() const {
     return ps->topget()->call;
 }
 
 // build a copy of term using variable access
-Term IntlogExec::copy(Term t) const
-{
+Term IntlogExec::copy(Term t) const {
     Env *e = ps->topget();
-    ASSERT(!t.type(f_NOTERM) && e);
+    assert(!t.type(f_NOTERM) && e);
     return copy_term(t, e->vspos);
 }
 
 // variable data access: get top node
-Term IntlogExec::tval(Var rv, stkpos posenv) const
-{
-    return rv == ANONYM_IX? Term(f_NOTERM) : vs->getvar(rv + ps->topget()->vspos, &posenv, &posenv);
+Term IntlogExec::tval(Var rv, stkpos posenv) const {
+    return rv == ANONYM_IX
+        ? Term(f_NOTERM)
+        : vs->getvar(rv + ps->topget()->vspos, &posenv, &posenv);
+}
+
+BltinData::~BltinData() {
+}
+
+ElemTmp::~ElemTmp() {
+    switch (type) {
+    case vT:
+        Term(t).Destroy();
+        break;
+    case vC:
+        delete c;
+        break;
+    case vD:
+        delete d;
+        break;
+    }
 }

@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,25 +29,24 @@
 //--------------------------------------------------
 // a class to iterate arguments of form like spy...
 //
-class ArgALIter
-{
+class ArgALIter {
 public:
-	struct aDesc {
-		CCP idkey;
-		unsigned long tval;
-	};
+    struct aDesc {
+        CCP idkey;
+        TermData tval;
+    };
 
     ArgALIter(Term, aDesc* = nullptr, unsigned = 0);
     virtual ~ArgALIter() {}
 
-	enum aType {
-		Key,
-		KeyValue,
-		KeyErr,
-		Pair,
-		Single,
-		EndArgs
-	};
+    enum aType {
+        Key,
+        KeyValue,
+        KeyErr,
+        Pair,
+        Single,
+        EndArgs
+    };
 
     aType nextarg(unsigned* = nullptr, Term* = nullptr);
 
@@ -57,51 +56,50 @@ protected:
     Term get_root() const;
 
 private:
-	Term curr;
-	Term lptr;
-	aDesc *vectkeys;
-	unsigned nkeys;
+    Term curr;
+    Term lptr;
+    aDesc *vectkeys;
+    unsigned nkeys;
 
-	unsigned search(CCP) const;
-	aType ret(aType, unsigned *, unsigned, Term*, Term);
+    unsigned search(CCP) const;
+    aType ret(aType, unsigned *, unsigned, Term*, Term);
 };
 
 //----------------------------------
 // iterate a common argument schema
-//	identifier
-//	identifier / arity
+//  identifier
+//  identifier / arity
 //
-class ArgIdArityList : public ArgALIter
-{
+class ArgIdArityList : public ArgALIter {
 public:
 
-	// copy term on create
-	ArgIdArityList(Term, IntlogExec *, CCP);
+    // copy term on create
+    ArgIdArityList(Term, IntlogExec *, CCP);
 
-	// delete copied term
+    // delete copied term
     virtual ~ArgIdArityList();
 
-	// access next arg (0 on fail/EndArgs)
-	int next();
+    // access next arg (0 on fail/EndArgs)
+    int next();
 
-	// display error message with some other info
+    // display error message with some other info
     void errmsg(int = 0, CCP = nullptr, CCP = nullptr);
 
-	// nth-argument functor
-	kstring funct;
+    // nth-argument functor
+    kstring funct;
 
-	// nth-argument arity (-1 if none)
-	int arity;
+    // nth-argument arity (-1 if none)
+    int arity;
 
-	// 1 if OK, 0 else
-	int status;
+    // 1 if OK, 0 else
+    int status;
 
-	// track OK arguments
-	unsigned counter;
+    // track OK arguments
+    unsigned counter;
 
 private:
-	CCP caller;
-	Term root;
+    CCP caller;
+    Term root;
 };
 
 #endif

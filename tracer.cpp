@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@
 // trace/spy model interface
 //---------------------------
 
-#include "stdafx.h"
 #include "qdata.h"
 #include "tracer.h"
 
@@ -39,32 +38,27 @@ static const char* action_str[4] = {
 // init status
 //
 ProofTracer::ProofTracer(IntlogExec *p)
-    : hashtable_str(20)
-{
+    : hashtable_str(20) {
     eng = p;
-    str = 0;
+    str = nullptr;
     mode = 0;
     invocnum = STKNULL;
 }
-ProofTracer::~ProofTracer()
-{
+ProofTracer::~ProofTracer() {
     delete str;
 }
 
 /////////////////////////////
 // insert/delete a spy point
 //
-void ProofTracer::spy(const char* id, int on, int arity, int stopmode)
-{
-    SpyEntry *s = (SpyEntry*)isin(e_hashtable_str(id));
+void ProofTracer::spy(const char* id, int on, int arity, int stopmode) {
+    SpyEntry *s = static_cast<SpyEntry*>(isin(e_hashtable_str(id)));
 
-    if (s)
-    {
+    if (s) {
         if (!on)
             remove(s);
     }
-    else if (on)
-    {
+    else if (on) {
         s = new SpyEntry();
         s->id = id;
         s->arity = arity;
@@ -77,22 +71,19 @@ void ProofTracer::spy(const char* id, int on, int arity, int stopmode)
 //////////////////////////
 // display all spy points
 //
-void ProofTracer::debugging(ostream &s) const
-{
+void ProofTracer::debugging(ostream &s) const {
     hashtable_iter it(this);
 
     SpyEntry *e;
-    while ((e = (SpyEntry *)it.next()) != 0)
+    while ((e = static_cast<SpyEntry *>(it.next())) != nullptr)
         s << CCP(e->id) << '/' << e->arity << endl;
 }
 
 /////////////////////////////////////////
 // a call: give term a invocation number
 //
-int ProofTracer::call(stkpos p, CallData* t)
-{
-    if (p == 1)
-    {
+int ProofTracer::call(stkpos p, CallData* t) {
+    if (p == 1) {
         called.clear();
         invocnum = 1;
     }
@@ -108,16 +99,15 @@ int ProofTracer::call(stkpos p, CallData* t)
 
 //////////////////////////////////////
 // display fail
-//	delete from called list the term
+//  delete from called list the term
 //
-int ProofTracer::fail(stkpos p, CallData* t)
-{
+int ProofTracer::fail(stkpos p, CallData* t) {
     int rc = work(p, t, Fail);
 
     slist_scan it(called);
     SpyCall *e;
 
-    while ((e = (SpyCall*)it.next()) != 0)
+    while ((e = static_cast<SpyCall*>(it.next())) != nullptr)
         if (TermData(e->tcall) == TermData(t) && p == e->pos) {
             it.delitem();
             break;
@@ -129,13 +119,11 @@ int ProofTracer::fail(stkpos p, CallData* t)
 //////////////////////////////////////
 // display infos associated to action
 //
-int ProofTracer::work(stkpos p, CallData* t, Action act)
-{
-    SpyEntry *pEntry = 0;
+int ProofTracer::work(stkpos p, CallData* t, Action act) {
+    SpyEntry *pEntry = nullptr;
 
     if ((mode & AllEntries) ||
-        (pEntry = (SpyEntry*)isin(e_hashtable_str(t->val().get_funct()))) != 0)
-    {
+        (pEntry = static_cast<SpyEntry*>(isin(e_hashtable_str(t->val().get_funct())))) != nullptr) {
         SpyCall *c = findinvoc(t, p);
         if (c)
             showentry(c, pEntry, act, str? *str : eng->out());
@@ -147,24 +135,21 @@ int ProofTracer::work(stkpos p, CallData* t, Action act)
 ////////////////////
 // display an entry
 //
-ostream& ProofTracer::fmtentry(ostream &os, SpyCall *c) const
-{
+ostream& ProofTracer::fmtentry(ostream &os, SpyCall *c) const {
     Env *e = eng->ps->get(c->pos);
     e = eng->ps->get(e->father);
-    ASSERT(e);
+    assert(e);
 
     teWrite w(c->tcall->val(), eng, e->vspos);
     return os << w;
 }
-void ProofTracer::showentry(SpyCall *c, SpyEntry*, Action act, ostream &os)
-{
+void ProofTracer::showentry(SpyCall *c, SpyEntry*, Action act, ostream &os) {
     if (c->invoc != unsigned(-1))
         os << '(' << c->invoc << ") ";
 
     fmtentry(os << action_str[act] << ':', c) << endl;
-    if (mode & Extended)
-    {
-        IntlogExec::statusmode sm =	IntlogExec::statusmode(
+    if (mode & Extended) {
+        IntlogExec::statusmode sm = IntlogExec::statusmode(
                     IntlogExec::Proof|
                     IntlogExec::Vars|
                     IntlogExec::Trail);
@@ -175,13 +160,11 @@ void ProofTracer::showentry(SpyCall *c, SpyEntry*, Action act, ostream &os)
 ////////////////////////////////////////
 // find the proof tree offset of <pos>
 //
-stkpos ProofTracer::findoffset(stkpos pos) const
-{
+stkpos ProofTracer::findoffset(stkpos pos) const {
     Env *ec = eng->ps->get(pos);
-    int off = 0;
+    stkpos off = 0;
 
-    while (ec->father != STKNULL)
-    {
+    while (ec->father != STKNULL) {
         off++;
         ec = eng->ps->get(ec->father);
     }
@@ -192,38 +175,34 @@ stkpos ProofTracer::findoffset(stkpos pos) const
 ///////////////////////////////////////
 // find the invocation number of term
 //
-SpyCall* ProofTracer::findinvoc(CallData *t, stkpos p) const
-{
+SpyCall* ProofTracer::findinvoc(CallData *t, stkpos p) const {
     slist_iter it(called);
 
     SpyCall *e;
-    while ((e = (SpyCall*)it.next()) != 0)
+    while ((e = static_cast<SpyCall*>(it.next())) != nullptr)
         if (e->tcall == t && e->pos == p)
             return e;
 
-    return 0;
+    return nullptr;
 }
 
 ////////////////////////////////////////////
 // if nothing more to do,
-//	release interface to speed up execution
+//  release interface to speed up execution
 //
-void ProofTracer::trace_off()
-{
+void ProofTracer::trace_off() {
     if (get_nentries() > 0)
         mode &= ~AllEntries;
-    else
-    {
-        eng->tr = 0;
+    else {
+        eng->tr = nullptr;
         delete this;
     }
 }
 
-#define GetEnv(Index) ((const Env *)GetAt(Index)->m_data)
+#define GetEnv(Index) (reinterpret_cast<const Env *>(GetAt(Index)->m_data))
 
 // make proof formatted
-FmtProofTree::FmtProofTree(const ProofStack *ps)
-{
+FmtProofTree::FmtProofTree(const ProofStack *ps) {
     m_ps = ps;
 
     // dummy root to connect all sub proof trees
@@ -231,27 +210,23 @@ FmtProofTree::FmtProofTree(const ProofStack *ps)
     GetAt(m_nRoot)->m_data = 0;
 
     // build actual sub trees
-    for (stkpos i = 0; i < ps->curr_dim(); i++)
-    {
+    for (stkpos i = 0; i < ps->curr_dim(); i++) {
         const Env *e = ps->get(i);
 
         NodeIndex n = AllocNode();
-        GetAt(n)->m_data = NodeData(e);
+        //GetAt(n)->m_data = NodeData(e);
 
         if (e->father != STKNULL)
             AddSon(FindNode(e->father), n);
-        else	 // connect to dummy root
+        else     // connect to dummy root
             AddSon(Root(), n);
     }
 }
 
-int FmtProofTree::DisplayNode(ostream &s, int, const NodeLevel & nd) const
-{
+int FmtProofTree::DisplayNode(ostream &s, int, const NodeLevel &nd) const {
     const Env *e = GetEnv(nd.n);
-    if (e)
-    {
-        if (e->call)
-        {
+    if (e) {
+        if (e->call) {
             teWrite w(e->call->val());
             s << w;
         }
@@ -266,21 +241,22 @@ int FmtProofTree::DisplayNode(ostream &s, int, const NodeLevel & nd) const
 }
 
 // find node, really!
-NodeIndex FmtProofTree::FindNode(stkpos pNode) const
-{
+NodeIndex FmtProofTree::FindNode(stkpos pNode) const {
     const Env *e = m_ps->get(pNode);
 
     for (NodeIndex i = 0; i < m_nTop; i++)
         if (GetEnv(i) == e)
             return i;
 
-    ASSERT(FALSE);
+    assert(false);
     return INVALID_NODE;
 }
 /*
  const Env *GetEnv(NodeIndex Index) const;
-const Env *FmtProofTree::GetEnv(NodeIndex Index) const;
-{
+const Env *FmtProofTree::GetEnv(NodeIndex Index) const; {
  return (const Env *)GetAt(Index)->m_data;
 }
 */
+
+SpyEntry::~SpyEntry() {
+}

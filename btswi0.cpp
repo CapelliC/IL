@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +20,6 @@
 */
 
 
-#include "stdafx.h"
 #include "btswi0.h"
 #include "bterr.h"
 #include "qdata.h"
@@ -37,13 +36,6 @@ BtFDecl(nth0);
 BtFDecl(length);
 
 
-/*
-std::array<BuiltIn, 3> btswi0 = {
-    {"cd",  1,   cd},
-    {"ls",  1,   ls},
-    {"pwd", 0,   pwd}
-};
-*/
 BuiltIn btswi0[7] = {
     {"cd",      1,   cd},
     {"ls",      1,   ls},
@@ -51,7 +43,7 @@ BuiltIn btswi0[7] = {
     {"between", 3|BuiltIn::retry, between},
     {"nth1",    3|BuiltIn::retry, nth1},
     {"nth0",    3|BuiltIn::retry, nth0},
-    {"length_",  2|BuiltIn::retry, length},
+    {"length",  2|BuiltIn::retry, length},
 };
 
 BtFImpl(cd, t, p) {
@@ -82,8 +74,7 @@ BtFImpl_P1(pwd, p) {
     return 0;
 }
 
-struct between_range : public BltinData
-{
+struct between_range : public BltinData {
     between_range(int a, int b) : a(a), b(b) {}
     int a, b;
     ~between_range() override;
@@ -112,9 +103,9 @@ BtFImpl_R(between, t, p, r) {
         }
         p->BtErr(BTERR_INVALID_ARG_TYPE, "between");
         return 0;
-	}
+    }
     else {
-        auto pd = dynamic_cast<between_range*>(p->get_btdata());
+        auto pd = static_cast<between_range*>(p->get_btdata());
         if (++pd->a <= pd->b)
             return p->unify(Int(pd->a), t.getarg(2));
     }
@@ -125,14 +116,13 @@ BtFImpl_R(between, t, p, r) {
 BtFTBD(nth1)
 BtFTBD(nth0)
 
-struct length_gen : public BltinData
-{
+struct length_gen : public BltinData {
     length_gen(int length) : length(length) {}
     long length;
     int list(IntlogExec *p, Term inStack, Term tLen) const {
         auto lvar = Term(ListNULL);
         for (auto clen = length; clen > 0; clen--)
-            lvar = Term(Term(ANONYM_IX), lvar);
+            lvar = Term(Var(length - clen), lvar);
         return p->unify(tLen, Int(length)) && p->unify_gen(inStack, lvar);
     }
     ~length_gen() override;
@@ -169,7 +159,7 @@ BtFImpl_R(length, t, p, r) {
         return 0;
     }
 
-    auto g = dynamic_cast<length_gen*>(p->get_btdata());
+    auto g = static_cast<length_gen*>(p->get_btdata());
     g->length++;
     return g->list(p, A1, A2);
 }

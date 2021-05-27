@@ -2,7 +2,7 @@
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
-    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,60 +19,52 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
-
-#include "stdafx.h"
 #include "message.h"
 #include "eng.h"
 
 // global messages table
 //MsgTable *MsgTbl;
 
-MsgTable::MsgTable(ostream *s)
-{
-	list = 0;
-	str = s;
+MsgTable::MsgTable(ostream *s) {
+    list = nullptr;
+    str = s;
 }
 
-MsgTable::~MsgTable()
-{
-	MsgLink *l;
+MsgTable::~MsgTable() {
+    MsgLink *l;
 
-	while (list)
-	{
-		l = list->link;
-		delete list;
-		list = l;
-	}
+    while (list) {
+        l = list->link;
+        delete list;
+        list = l;
+    }
 }
 
 //--------------------------
 // insert a message to list
-//	don't check duplicates
+//  don't check duplicates
 //
-int MsgTable::add(int code, const char *msg)
-{
-	MsgLink *l = new MsgLink;
-	l->code = code;
-	l->string = msg;
-	l->link = list;
-	list = l;
+int MsgTable::add(int code, const char *msg) {
+    MsgLink *l = new MsgLink;
+    l->code = code;
+    l->string = msg;
+    l->link = list;
+    list = l;
 
-	return 0;
+    return 0;
 }
 
 //////////////////////////////////////////
 // search a code, starting from requested
 //
-MsgTable::MsgLink* MsgTable::search(int code, MsgLink *l) const
-{
-	l = l? l->link : list;
+MsgTable::MsgLink* MsgTable::search(int code, MsgLink *l) const {
+    l = l? l->link : list;
 
-	while (l)
-	{
-		if (l->code == code)
-			break;
-		l = l->link;
-	}
+    while (l) {
+        if (l->code == code)
+            break;
+        l = l->link;
+    }
 
-	return l;
+    return l;
 }
