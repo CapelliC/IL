@@ -186,8 +186,6 @@ protected:
 
     Term    copy_term(Term, stkpos) const;
 
-    int     show_solution(const Clause*, stkpos) const;
-
     void    chktracer();
 
     // build a tracer at request
@@ -200,6 +198,9 @@ protected:
     virtual void user_prompt() const;
     virtual void no_solution() const;
     virtual void yes_solution() const;
+
+    void    show_solution(const Clause*, stkpos) const;
+    bool    is_interactive() const;
 
     // recursive display helpers
     ostream& writeVar(Var v, ostream &s, stkpos p) const;

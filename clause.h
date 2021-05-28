@@ -114,6 +114,9 @@ public:
     unsigned get_nvars() const {
         return n_vars + n_anon;
     }
+    unsigned get_named_vars_count() const {
+        return n_vars;
+    }
 
     kstring get_varid(Var) const;
 

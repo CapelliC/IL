@@ -228,7 +228,10 @@ Term IntlogExec::copy_term(Term t, stkpos e) const {
 /////////////////////////////////////
 // display all vars of current query
 //
-int IntlogExec::show_solution(const Clause *q, stkpos base) const {
+void IntlogExec::show_solution(const Clause *q, stkpos base) const {
+    if (!is_interactive())
+        return;
+
     ostream &s = out();
     Var currvar = 0;
 
@@ -248,12 +251,14 @@ int IntlogExec::show_solution(const Clause *q, stkpos base) const {
                 s << '_' << pres << endl;
 
             currvar++;
+
+            // note: named vars always before anonymous
+            if (q->get_named_vars_count() == currvar)
+                break;
         }
 
     if (currvar == 0)
         yes_solution();
-
-    return int(currvar);
 }
 
 ///////////////////////////////////////
@@ -460,10 +465,12 @@ Var OffVars::lookup(Var v) {
 // display command prompter if appropriate
 //
 void IntlogExec::user_prompt() const {
-    if (ips()->name() == name() && ops()->name() == name())
+    if (is_interactive())
         (out() << "> ").flush();
 }
-
+bool IntlogExec::is_interactive() const {
+    return ips()->name() == name() && ops()->name() == name();
+}
 ///////////////////////////
 // display failure message
 //
