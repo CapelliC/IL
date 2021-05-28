@@ -17,7 +17,6 @@ INCLUDEPATH += ..
 SOURCES += \
     main.cpp \
     ../write.cpp \
-    ../waittask.cpp \
     ../unify.cpp \
     ../tracer.cpp \
     ../term.cpp \
