@@ -1,7 +1,7 @@
 #
 #    IL : Intlog Language
 #    Object Oriented Prolog Project
-#    Copyright (C) 1992-2020 - Ing. Capelli Carlo
+#    Copyright (C) 1992-2021 - Ing. Capelli Carlo
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ SOURCES += \
     cout_to_qt.cpp \
     iostream_widget.cpp \
     ../write.cpp \
-    ../waittask.cpp \
     ../unify.cpp \
     ../tracer.cpp \
     ../term.cpp \
@@ -91,13 +90,10 @@ HEADERS += \
     cout_to_qt.h \
     main_window.h \
     iostream_widget.h \
-    ../xtrace.h \
     ../vectb.h \
     ../unify.h \
     ../tracer.h \
     ../term.h \
-    ../syntaxcolor.h \
-    ../stdafx.h \
     ../stack.h \
     ../srcpos.h \
     ../slist.h \
