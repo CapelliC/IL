@@ -291,9 +291,12 @@ BtFImpl(writeln, t, p) {
     }
     c.Destroy();
     */
+    /*
     return
         p->write(t.getarg(0), p->out()).good() &&
         (p->out() << endl).good();
+    */
+    return (p->write(t.getarg(0), p->out()) << endl).good();
 }
 
 //------------------------

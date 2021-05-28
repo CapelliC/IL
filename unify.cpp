@@ -196,6 +196,7 @@ int IntlogExec::unify_abs(Term t1, Term t2) {
 //
 int IntlogExec::unify_gen(Term inStack, Term withVars) {
     Term c = save(copy(withVars));
+//qDebug() << __FUNCTION__ << withVars.show().c_str() << c.show().c_str();
     OffVars of(c);
     stkpos tpos = ts->curr_dim();
     int retc;

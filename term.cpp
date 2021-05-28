@@ -337,7 +337,7 @@ TermArgs Term::getargs() const {
     } else if (type(f_LIST)) {
         if (ivalue() != MSR_NULL) {
             List *l = m_lists[ivalue()];
-            a.args = (Term*)(&l->h);
+            a.args = reinterpret_cast<Term*>(&l->h);
 #ifdef _DEBUG
             a.arity = 2;
 #endif
@@ -367,7 +367,7 @@ inline Term::Term(Atom a) {
 
 // short integer
 inline Term::Term(Int i) {
-    m_data = f_INT | (i & ~MaskFlags);
+    m_data = f_INT | (TermData(i) & ~MaskFlags);
 }
 
 // variable offset
@@ -537,21 +537,21 @@ string Term::show() const {
         s << '_';
         auto v = Var(*this);
         if (v != ANONYM_IX)
-                s << v;
-    } break;
+            s << v;
+    }   break;
 
     case f_STRUCT: {
         auto x = *m_structs[ivalue()];
         s << CCP(x->funct);
         if (x->arity > 0) {
-                auto v = TermArgsVect(x);
-                s << '(';
-                for (int a = 0; a < x->arity; ++a) {
-                        if (a > 0)
-                                s << ',';
-                        s << v[a].show();
-                }
-                s << ')';
+            auto v = TermArgsVect(x);
+            s << '(';
+            for (int a = 0; a < x->arity; ++a) {
+                if (a > 0)
+                    s << ',';
+                s << v[a].show();
+            }
+            s << ')';
         }
     } break;
 

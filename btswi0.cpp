@@ -24,6 +24,7 @@
 #include "bterr.h"
 #include "qdata.h"
 
+#include <QDebug>
 #include <dirent.h>
 #include <unistd.h>
 
@@ -117,17 +118,26 @@ BtFTBD(nth1)
 BtFTBD(nth0)
 
 struct length_gen : public BltinData {
-    length_gen(int length) : length(length) {}
-    long length;
-    int list(IntlogExec *p, Term inStack, Term tLen) const {
-        auto lvar = Term(ListNULL);
-        for (auto clen = length; clen > 0; clen--)
-            lvar = Term(Var(length - clen), lvar);
-        return p->unify(tLen, Int(length)) && p->unify_gen(inStack, lvar);
-    }
+    length_gen(int length);
+    int list(IntlogExec *p, Term inStack, Term tLen);
     ~length_gen() override;
+private:
+    long length;
 };
-length_gen::~length_gen() {}
+length_gen::length_gen(int length) : length(length) {
+    //qDebug() << "length_gen" << length << this;
+}
+length_gen::~length_gen() {
+    //qDebug() << "~length_gen" << length << this;
+}
+int length_gen::list(IntlogExec *p, Term inStack, Term tLen) {
+    auto lvar = Term(ListNULL);
+    for (auto clen = length; clen > 0; clen--)
+        //lvar = Term(Var(length - clen), lvar);
+        lvar = Term(ANONYM_IX, lvar);
+    //qDebug() << "list" << length << this;
+    return p->unify(tLen, Int(length++)) && p->unify_gen(inStack, lvar);
+}
 
 // ?- length([1,2,3],X).
 // ?- length(L,3).
@@ -160,6 +170,5 @@ BtFImpl_R(length, t, p, r) {
     }
 
     auto g = static_cast<length_gen*>(p->get_btdata());
-    g->length++;
     return g->list(p, A1, A2);
 }
