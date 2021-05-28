@@ -38,10 +38,10 @@ public:
 protected:
 
     /** strict control on keyboard events required */
-    virtual void keyPressEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event) override;
 
     /** flushing buffer */
-    virtual void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent *event) override;
 
 private:
 

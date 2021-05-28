@@ -32,11 +32,11 @@ class cin_to_qt : public std::basic_streambuf<char>
 {
 public:
     cin_to_qt(std::istream &stream, iostream_widget* text_edit);
-    ~cin_to_qt();
+    ~cin_to_qt() override;
 
 protected:
-    virtual int_type underflow();
-    virtual int_type sync();
+    int_type underflow() override;
+    int_type sync() override;
 
 private:
     std::istream &stream;

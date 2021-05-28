@@ -34,11 +34,11 @@ class cout_to_qt : public std::basic_streambuf<char>
 {
 public:
     cout_to_qt(std::ostream &stream, iostream_widget* text_edit);
-    ~cout_to_qt();
+    ~cout_to_qt()  override;
 
 protected:
-    virtual int_type overflow(int_type v);
-    virtual std::streamsize xsputn(const char *p, std::streamsize n);
+    int_type overflow(int_type v) override;
+    std::streamsize xsputn(const char *p, std::streamsize n) override;
 
 private:
     std::ostream &m_stream;

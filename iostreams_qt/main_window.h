@@ -32,7 +32,7 @@ class main_window : public QMainWindow
     Q_OBJECT
 public:
     explicit main_window(QWidget *parent = Q_NULLPTR);
-    ~main_window();
+    ~main_window() override;
 
 signals:
 
@@ -42,7 +42,7 @@ protected:
     iostream_widget *ed;
     cin_to_qt *in;
     cout_to_qt *out;
-    virtual void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAIN_WINDOW_H
