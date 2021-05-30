@@ -158,7 +158,7 @@ A:  if (!q->get_body()) {
         cn = ps->push(PFN->father);
 static int cnt = 0;
 ++cnt;
-        PCN->call = pfn->call->next();
+        PCN->call = PFN->call->next();
 
         pcn->vspos = pfn->vspos;
         fn = pfn->father;
