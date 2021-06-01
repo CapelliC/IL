@@ -1,4 +1,3 @@
-
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
@@ -83,11 +82,15 @@ public:
     }
 
     // fetch next element in procedure list
+    #if 0
+    const e_DbList* succ(const DbIntlog *dbs) const;
+    #else
     const e_DbList* succ(const DbIntlog *dbs) const {
         assert(this);
-        return next()->fix_clause(dbs);
+        auto n = next();
+        return n ? n->fix_clause(dbs) : nullptr;
     }
-
+    #endif
     ostream& Display(ostream& s, int mode) const;
 
 private:

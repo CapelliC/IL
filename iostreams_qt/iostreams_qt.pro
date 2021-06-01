@@ -31,6 +31,7 @@ CONFIG(debug, debug|release) {
 }
 
 SOURCES += \
+    ../deblog.cpp \
     main.cpp \
     main_window.cpp \
     cin_to_qt.cpp \
@@ -85,6 +86,7 @@ OTHER_FILES += \
     ../README.md
 
 HEADERS += \
+    ../deblog.h \
     CenterWidgets.h \
     cin_to_qt.h \
     cout_to_qt.h \

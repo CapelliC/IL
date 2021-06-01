@@ -1,4 +1,3 @@
-
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
@@ -37,6 +36,7 @@ using namespace std;
 #include "parse.h"
 
 #include <QDebug>
+#include "deblog.h"
 
 //----------------------
 // initialize/terminate
@@ -49,6 +49,7 @@ IntlogExec::IntlogExec(DbIntlog *dbp) {
     tr = nullptr;
 
     ncycle = 100;
+    //deblog::trace("this %p, dbp %p", this, dbp);
 }
 IntlogExec::~IntlogExec() {
     delete ps;
@@ -138,6 +139,8 @@ int IntlogExec::query(const Clause *q) {
     // current query is empty?
 A:  if (!q->get_body()) {
 
+//deblog::trace("%s A: %s, %d %d", __FUNCTION__, q->get_image().show().c_str(), cn, fn);
+
         // search untried calls
     A1: assert(cn != STKNULL);
         fn = cn;
@@ -169,6 +172,7 @@ static int cnt = 0;
     }
 
 A2: PFN;
+//deblog::trace("%s A2: %d %d", __FUNCTION__, cn, fn);
     pcn->dbpos = nullptr;
     cc = pcn->call;
 
@@ -177,9 +181,13 @@ A2: PFN;
         sighandler();
     }
 
+//deblog::trace("%s A3: %d %d %d", __FUNCTION__, cn, fn, nc);
+
     // trace the call
     if (tr && tr->call(cn, cc))
         return -1;
+
+//deblog::trace("%s A4: %d %d %d %x %s", __FUNCTION__, cn, fn, nc, cc->get_type(), cc->val().show().c_str());
 
     switch (cc->get_type()) {
 
@@ -193,6 +201,8 @@ A2: PFN;
         if (btp->eval(cc->args(), this, 0)) {
             goto A1;
         }
+
+//deblog::trace("%s F1: %d %d", __FUNCTION__, cn, fn);
 
         PCN;
 
@@ -230,7 +240,7 @@ A2: PFN;
         pcn->trail = ts->curr_dim();
         pcn->vspos = pfn->vspos;
     }
-    goto A1;
+        goto A1;
 
     case CallData::DISJUNCT:            // replace with catenated try
         pcn->vspos = pfn->vspos;
@@ -244,18 +254,20 @@ A2: PFN;
         // initialize DB search
         pcn->dbpos = db->StartProc(cc->get_dbe());
 
-        // DB matching & unification
-    B:  if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
+//deblog::trace("%s D1: %d %d", __FUNCTION__, cn, fn);
 
+        // DB matching & unification
+    B:
+//deblog::trace("%s B: %p", __FUNCTION__, pcn->dbpos);
+      if (pcn->dbpos && (q = pcn->dbpos->get()) != nullptr) {
+
+//deblog::trace("%s D2: %d %d", __FUNCTION__, cn, fn);
             unsigned nvars = q->get_nvars();
             pcn->vspos = vs->reserve(nvars);
             pcn->trail = ts->curr_dim();
-//q->show();
-            /*
-            if (!unify( pfn->vspos, cc->args(),
-                pcn->vspos, q->h_args(), q->h_arity()))
-            */
+
             if (q->h_arity() > 0) {
+//deblog::trace("%s D3: %d %d", __FUNCTION__, cn, fn);
                 TermArgs
                     pa1 = cc->args(),
                     pa2 = q->h_args();
@@ -272,16 +284,21 @@ A2: PFN;
 
                 if (!us.work(   pa1.getarg(0), pfn->vspos,
                                 pa2.getarg(0), pcn->vspos)) {
+//deblog::trace("%s D4: %d %d", __FUNCTION__, cn, fn);
+
                     // undo changes
                     unbind(pcn->trail);
                     vs->pop(nvars);
 
+//deblog::trace("%s D4.1: %d %d %p", __FUNCTION__, cn, fn, pcn->dbpos);
                     // try next match
                     pcn->dbpos = pcn->dbpos->succ(db);
+//deblog::trace("%s D4.2: %d %d %p", __FUNCTION__, cn, fn, pcn->dbpos);
                     goto B;
                 }
             }
 
+//deblog::trace("%s D5: %d %d", __FUNCTION__, cn, fn);
             fn = cn;
             goto A;
         }
@@ -290,6 +307,8 @@ A2: PFN;
     default:
         assert(0);
     }
+
+//deblog::trace("%s F2: %d %d", __FUNCTION__, cn, fn);
 
     if (tr && PCN->call && tr->fail(cn, cc))
         return -1;
@@ -596,10 +615,16 @@ void IntlogExec::showstatus(ostream &s, statusmode mode) const {
 void IntlogExec::query_fail(stkpos n) {
     stkpos limit = ps->pop(n);
 
+//deblog::trace("%s 1 %d %d", __FUNCTION__, n, limit);
+
     slist_scan s(tmpt);
     ElemTmp *t;
-    while ((t = static_cast<ElemTmp*>(s.next())) != nullptr && t->spos >= limit)
+    while ((t = static_cast<ElemTmp*>(s.next())) != nullptr && t->spos >= limit) {
+//deblog::trace("%s 3 %u", __FUNCTION__, tmpt.numel());
         s.delitem();
+    }
+
+//deblog::trace("%s 2 %d %d", __FUNCTION__, n, limit);
 }
 
 ////////////////////////////

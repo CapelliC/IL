@@ -28,12 +28,14 @@
 #include "parse.h"
 
 #include "main_window.h"
+#include "deblog.h"
 
 int main(int argc, char **argv) {
     QApplication app(argc, argv);
 
     main_window mw;
     mw.show();
+//deblog dl(string(argv[0]) + ".log");
 
     try {
         SetEngines(new ConsoleEngines);

@@ -109,10 +109,10 @@ BtFImpl(tracemode, t, p) {
     Term cp = p->copy(t.getarg(0)), a;
 
     static ArgALIter::aDesc keys[4] = {
-            { "ext",    f_INT },
-            { "file",   f_ATOM },
-            { "on",     f_NOTERM },
-            { "off",    f_NOTERM }
+        { "ext",    f_INT },
+        { "file",   f_ATOM },
+        { "on",     f_NOTERM },
+        { "off",    f_NOTERM }
     };
     ArgALIter it(cp, keys, sizeof(keys) / sizeof(keys[0]));
     unsigned ixk;

@@ -1,4 +1,3 @@
-
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
@@ -27,8 +26,9 @@
 #include "dbintlog.h"
 #include "builtin.h"
 #include "eng.h"
+
 #include <QDebug>
-//#include <typeinfo>
+#include "deblog.h"
 
 ///////////////////////////////////////
 // helper class to seek data in DbList
@@ -596,8 +596,9 @@ void DbVTable::add(DbIntlog *db, DbEntry *ref) {
 //
 const e_DbList* e_DbList::fix_clause(const DbIntlog *dbs) const {
     const e_DbList *r = this;
-
-    while (r)
+//deblog::trace("%s 1 %p %p", __FUNCTION__, r, dbs);
+    while (r) {
+//deblog::trace("%s 2 %p %d", __FUNCTION__, r, r->type);
         switch (r->type) {
         case tVTable:
             r = r->searchVTbl(dbs);
@@ -618,7 +619,8 @@ const e_DbList* e_DbList::fix_clause(const DbIntlog *dbs) const {
                 return r;
             r = r->next();
         }
-
+    }
+//deblog::trace("%s 3 %p", __FUNCTION__, r);
     return nullptr;
 }
 
@@ -687,11 +689,20 @@ DbEntry::~DbEntry() {
 }
 
 DbEntry* DbIntlog::isin(DbEntry *e) const {
-        auto x = hashtable::isin(e);
-        return static_cast<DbEntry*>(x);
+    auto x = hashtable::isin(e);
+    return static_cast<DbEntry*>(x);
 }
 
 DbEntry* DbIntlog::isin(DbEntry &e) const {
-        auto x = hashtable::isin(&e);
-        return static_cast<DbEntry*>(x);
+    auto x = hashtable::isin(&e);
+    return static_cast<DbEntry*>(x);
 }
+
+#if 0
+const e_DbList* e_DbList::succ(const DbIntlog *dbs) const {
+    assert(this);
+    auto n = next();
+deblog::trace("%s %p %p", __PRETTY_FUNCTION__, this, n);
+    return n ? n->fix_clause(dbs) : nullptr;
+}
+#endif

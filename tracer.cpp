@@ -1,4 +1,3 @@
-
 /*
     IL : Intlog Language
     Object Oriented Prolog Project
@@ -37,8 +36,7 @@ static const char* action_str[4] = {
 ///////////////
 // init status
 //
-ProofTracer::ProofTracer(IntlogExec *p)
-    : hashtable_str(20) {
+ProofTracer::ProofTracer(IntlogExec *p) : hashtable_str(20) {
     eng = p;
     str = nullptr;
     mode = 0;
@@ -150,9 +148,9 @@ void ProofTracer::showentry(SpyCall *c, SpyEntry*, Action act, ostream &os) {
     fmtentry(os << action_str[act] << ':', c) << endl;
     if (mode & Extended) {
         IntlogExec::statusmode sm = IntlogExec::statusmode(
-                    IntlogExec::Proof|
-                    IntlogExec::Vars|
-                    IntlogExec::Trail);
+            IntlogExec::Proof|
+            IntlogExec::Vars|
+            IntlogExec::Trail);
         eng->showstatus(os, sm);
     }
 }
