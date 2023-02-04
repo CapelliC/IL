@@ -19,6 +19,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 */
 
+#if defined(_WINDLL) && !defined(WIN32)
+
 #include <ctime>
 #include <sstream>
 #include <iomanip>
@@ -149,3 +151,4 @@ size_t strftime(char *buf, size_t, const char *fmt, const struct tm *t) {
     os << ends;
     return size_t(os.tellp());
 }
+#endif

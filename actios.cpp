@@ -20,13 +20,10 @@
 */
 
 
-#include "iafx.h"
 #include "proios.h"
 #include "parse.h"
 #include "binlib.h"
-#include "defsys.h"
 #include "eng.h"
-#include "clause.h"
 #include "actios.h"
 
         //--------//

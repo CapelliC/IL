@@ -182,8 +182,10 @@ BtFImpl(i_end, a, p) {
     DbIntlog *db = p->get_db();
     kstring dbid = db->GetId(), idi = t.kstr();
     if (dbid != idi || (db = db->EndInterface()) == nullptr) {
+#if 0
         CCP sdb = MemStoreRef(dbid) != MSR_NULL ? dbid : "";
         p->BtErr(BTERR_CANT_ENDINTERF, CCP(idi), sdb);
+#endif
         return 0;
     }
 

@@ -24,9 +24,11 @@
 #include "bterr.h"
 #include "qdata.h"
 
+#if 0
 #include <QDebug>
 #include <dirent.h>
 #include <unistd.h>
+#endif
 
 BtFDecl(cd);
 BtFDecl(ls);
@@ -50,13 +52,16 @@ BuiltIn btswi0[7] = {
 BtFImpl(cd, t, p) {
     auto a = t.getarg(0);
     if (a.type() != f_NOTERM) {
+#if 0
         CCP q = p->eval_term(a);
         if (q && chdir(q) == 0)
             return 1;
+#endif
     }
     return 0;
 }
 BtFImpl_P1(ls, p) {
+#if 0
     if (DIR *d = opendir(".")) {
         struct dirent *dir;
         while ((dir = readdir(d)) != nullptr)
@@ -64,14 +69,17 @@ BtFImpl_P1(ls, p) {
         closedir(d);
         return 1;
     }
+#endif
     return 0;
 }
 BtFImpl_P1(pwd, p) {
+#if 0
     char buf[1 << 12];
     if (char *d = getcwd(buf, sizeof buf)) {
         p->out() << d << endl;
         return 1;
     }
+#endif
     return 0;
 }
 

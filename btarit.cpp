@@ -24,8 +24,6 @@
 // arithmetic builtins
 //---------------------
 
-#include "defsys.h"
-#include "builtin.h"
 #include "bterr.h"
 #include "qdata.h"
 #include "aritval.h"

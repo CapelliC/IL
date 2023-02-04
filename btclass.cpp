@@ -32,7 +32,7 @@ BtFDecl(atom);
 BtFDecl(integer);
 BtFDecl(real);
 BtFDecl(number);
-BtFDecl(atomic);
+BtFDecl(atomic_);
 BtFDecl(var);
 BtFDecl(nonvar);
 
@@ -41,7 +41,7 @@ BuiltIn classification[7] = {
     {"integer", 1,  integer},
     {"real",    1,  real},
     {"number",  1,  number},
-    {"atomic",  1,  atomic},
+    {"atomic",  1,  atomic_},
     {"var",     1,  var},
     {"nonvar",  1,  nonvar}
 };
@@ -60,7 +60,7 @@ BtFImpl(number, t, p) {
     return p->eval_term(t.getarg(0)).type(f_INT|f_DOUBLE);
 }
 
-BtFImpl(atomic, t, p) {
+BtFImpl(atomic_, t, p) {
     return p->eval_term(t.getarg(0)).type(f_ATOM|f_INT|f_DOUBLE);
 }
 

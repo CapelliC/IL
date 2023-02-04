@@ -20,10 +20,8 @@
 */
 
 
-#include "defsys.h"
 #include "bterr.h"
 #include "argali.h"
-#include "qdata.h"
 #include "eng.h"
 
 //--------------------------

@@ -361,10 +361,11 @@ void BinIFile::restart() {
 BinOFile::BinOFile(kstring id_, SourceBinaryLib *l)
     : BinFile(id_, l) {
     out = nullptr;
+    status = err;
+#if 0
     if (0 == mkstemp(strcpy(tfn, "ILXXXXXX")))
         status = created;
-    else
-        status = err;
+#endif
 }
 BinOFile::~BinOFile() {
     if (out) {
